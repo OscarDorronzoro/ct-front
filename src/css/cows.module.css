@@ -1,0 +1,16 @@
+.navlink {
+  padding: 20;
+  font-weight: 'bold';
+  color: 'white';
+  text-decoration: 'none';
+  background-color: #AF332A;
+  gap: 5;
+}
+.navlink:active, .navlink:hover {
+  background-color: #E35336;
+}
+.navlink:link,
+.navlink:visited {
+  color: white;
+  text-decoration: none;
+}

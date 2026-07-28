@@ -1,0 +1,38 @@
+{
+  "name": "frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "npm-run-all --parallel dev lint:watch",
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint . --color --fix",
+    "lint:watch": "npm-run-all --serial lint chokidar:lint",
+    "chokidar:lint": "chokidar \"src/**/*.{js,jsx}\" -c \"npm run lint\"",
+    "preview": "vite preview",
+    "deploy": "./scripts/deploy.sh"
+  },
+  "dependencies": {
+    "leaflet": "^1.9.4",
+    "maplibre-gl": "^5.21.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-leaflet": "^5.0.0",
+    "react-router": "^7.13.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@types/react": "^19.2.5",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.1.1",
+    "chokidar-cli": "^3.0.0",
+    "eslint": "^9.39.1",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.4.24",
+    "globals": "^16.5.0",
+    "npm-run-all": "^4.1.5",
+    "vite": "^7.2.4",
+    "vite-plugin-pwa": "^1.2.0"
+  }
+}
