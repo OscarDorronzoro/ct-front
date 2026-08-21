@@ -1,7 +1,7 @@
 import { MapContainer, TileLayer, Marker, CircleMarker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useEffect, useState, useMemo } from 'react';
-import { getLocation } from '../services/api';
+import { getLocation } from '../services/position';
 
 // Fix íconos (Leaflet bug típico con Vite/React)
 import L from 'leaflet';

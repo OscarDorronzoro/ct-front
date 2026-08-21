@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router';
+import { History, Settings, Radio } from 'lucide-react';
 
 import NavItemBottom from './NavItemBottom';
 
@@ -20,15 +21,15 @@ export default function BottomNav() {
       zIndex: 1000
     }}>
       <NavItemBottom to="/" end>
-        🗺️ Mapa
+        <Radio size={22} />
       </NavItemBottom>
 
       <NavItemBottom to="/history">
-        📊 Histórico
+        <History size={22} strokeWidth={2} />
       </NavItemBottom>
 
       <NavItemBottom to="/settings/cows">
-        ⚙️ Config
+        <Settings size={22} strokeWidth={2} />
       </NavItemBottom>
     </div>
   );

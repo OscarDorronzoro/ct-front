@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 import MapView from '../components/MapView';
-import { getPosition } from '../services/api';
+import { getPosition } from '../services/position';
 
 export default function LivePage() {
   const [points, setPoints] = useState([]);

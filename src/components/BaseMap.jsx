@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import maplibregl from 'maplibre-gl';
-const BASE_ESRI_URL = import.meta.env.VITE_MAP_TILES_URL || '/tiles/esri';
+const BASE_ESRI_URL = import.meta.env.VITE_MAP_TILES_URL || 'https://services.arcgisonline.com';
 
 export default function BaseMap({ configs, onLoad }) {
   const mapContainer = useRef(null);

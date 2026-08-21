@@ -1,13 +1,16 @@
 #!/bin/bash
 
-SSH_SERVER_CONFIG="ctprod"
+set -e
 
-echo "Deploying frontend..."
-rsync -avz --delete . $SSH_SERVER_CONFIG:/var/www/collar_project/frontend \
-  --exclude-from='.rsyncignore'
+SSH_SERVER_CONFIG="ctaws"
+REMOTE_DIR="/var/www/collar_project/frontend"
 
 echo "Building frontend..."
-ssh $SSH_SERVER_CONFIG "source ~/.nvm/nvm.sh && cd /var/www/collar_project/frontend && npm install && npm run build"
+npm run build
 
-echo "Deploy finished."
+echo "Deploying frontend..."
+rsync -avz --delete \
+    ./dist/ \
+    "$SSH_SERVER_CONFIG:$REMOTE_DIR/dist/"
 
+echo "Deploy finished successfully."

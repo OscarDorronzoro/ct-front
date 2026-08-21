@@ -1,36 +1,20 @@
 import React from 'react';
 import useIsMobile from '../../hooks/useIsMobile';
-import SearchBox from './SearchBox';
 
-export default function Toolbar({label, onAdd}) {
+export default function Toolbar({children}) {
   const isMobile = useIsMobile();
 
-  if (isMobile) {
-    return (
-      <>
-        <button
-          onClick={onAdd}
-          style={{
-            position: 'absolute',
-            right: 16,
-            bottom: 72,
-            width: 56,
-            height: 56,
-            borderRadius: '50%',
-          }}
-        >
-          +
-        </button>
-      </>
-    );
-  }
   return (
-    <div style={{
-      display: 'flex',
-      gap: 12,
-      alignItems: 'center',
-    }}>
-      <button onClick={onAdd}>+ {label}</button>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: isMobile ? 'column' : 'row',
+        gap: 12,
+        alignItems: isMobile ? 'stretch' : 'center',
+        marginBottom: 10,
+      }}
+    >
+      {children}
     </div>
   );
 }

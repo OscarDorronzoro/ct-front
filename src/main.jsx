@@ -5,10 +5,13 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 
 import { RouterProvider } from 'react-router';
 import { router } from './routes/router';
+import AuthProvider from './context/auth/AuthProvider';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
   </StrictMode>,
 )
 

@@ -1,8 +1,19 @@
 import { useState } from 'react';
 import NavItem from '../components/NavItem';
+import {
+  SatelliteDish,
+  Users,
+  LandPlot,
+  UserRound,
+  Menu,
+} from 'lucide-react';
+import CowIcon from './icons/CowIcon';
+
+import useAuth from '../context/auth/useAuth';
 
 export default function SettingsSidebar() {
   const [collapsed, setCollapsed] = useState(true);
+  const { user } = useAuth();
 
   return (
     <div style={{
@@ -31,21 +42,31 @@ export default function SettingsSidebar() {
           fontSize: '20px',
         }}
       >
-        ☰
+        <Menu size={21} strokeWidth={2} />
       </button>
 
       <NavItem to="/settings/cows">
-        {collapsed ? '🐄' : '🐄 Vacas'}
+        <CowIcon size={21} strokeWidth={2} />
+        {!collapsed && 'Vacas'}
       </NavItem>
       <NavItem to="/settings/collars">
-        {collapsed ? '📡' : '📡 Collares'}
+        <SatelliteDish size={21} strokeWidth={2} />
+        {!collapsed && 'Collares'}
       </NavItem>
       <NavItem to="/settings/groups">
-        {collapsed ? '👥' : '👥 Grupos'}
+        <Users size={21} strokeWidth={2} />
+        {!collapsed && 'Grupos'}
       </NavItem>
       <NavItem to="/settings/zones">
-        {collapsed ? '🗺️' : '🗺️ Zonas'}
+        <LandPlot size={21} strokeWidth={2} />
+        {!collapsed && 'Zonas'}
       </NavItem>
+      {user?.role === 0 && (
+        <NavItem to="/settings/users">
+          <UserRound size={21} strokeWidth={2} />
+          {!collapsed && 'Usuarios'}
+        </NavItem>
+      )}
 
     </div>
   );

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 
 import { toTimeElapsed, formatDate } from '../utils/dateHelper';
 
-import { getCow } from '../services/api';
+import { getCow } from '../services/cow';
 
 export default function PositionDetails({ selectedPoint, setSelectedPoint, position }) {
   const [details, setDetails] = useState(null);
@@ -66,7 +66,10 @@ export default function PositionDetails({ selectedPoint, setSelectedPoint, posit
 
         <div>
           <b>Vaca:</b>{' '}
-          {details?.alias || `vaca-id-${selectedPoint.properties.cowId}`}
+          {details?.alias
+            || selectedPoint.properties.cowId
+            || 'Prueba de collar'
+          }
         </div>
 
         <div>

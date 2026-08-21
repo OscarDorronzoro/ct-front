@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router';
+import { History, Settings, Radio } from 'lucide-react';
 
 export default function Sidebar() {
   const baseStyle = {
@@ -9,7 +10,7 @@ export default function Sidebar() {
   };
 
   const activeStyle = {
-    color: 'yellow',
+    color: '#28925f',
     fontWeight: 'bold',
   };
 
@@ -36,7 +37,7 @@ export default function Sidebar() {
           ...(isActive ? activeStyle : {})
         })}
       >
-        🗺️
+        <Radio size={22} />
       </NavLink>
 
       <NavLink
@@ -46,7 +47,7 @@ export default function Sidebar() {
           ...(isActive ? activeStyle : {})
         })}
       >
-        📊
+        <History size={22} strokeWidth={2} />
       </NavLink>
 
       <NavLink
@@ -56,7 +57,7 @@ export default function Sidebar() {
           ...(isActive ? activeStyle : {})
         })}
       >
-        ⚙️
+        <Settings size={22} strokeWidth={2} />
       </NavLink>
     </div>
   );

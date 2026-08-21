@@ -12,7 +12,12 @@ export default function SettingsPage() {
     <div style={{ display: 'flex', height: '100%', width: '100%', position: 'relative'}}>
 
       { !isMobile && (
-        <div style={{width: '72px', height: '100%'}}>
+        <div style={{
+          width: '72px',
+          height: '100%',
+          position: 'relative',
+          zIndex: 10,
+        }}>
           <SettingsSidebar />
         </div>
       )}
@@ -24,6 +29,8 @@ export default function SettingsPage() {
           padding: '0px',
           backgroundColor: '#eeeeee',
           color: 'black',
+          position: 'relative',
+          zIndex: 1,
         }}>
           <Outlet />
         </div>

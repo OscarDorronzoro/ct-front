@@ -2,6 +2,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import fs from 'fs'
+import serveImagesPlugin from './vite/plugins/serve-images.js';
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
@@ -14,11 +15,24 @@ export default defineConfig(({ mode }) => {
       },
       //https: true, // same as "--https" flag
       host: true, // same as "--host" flag
+      proxy: {
+        '/api': {
+          target: 'http://localhost:3000',
+          changeOrigin: true,
+          secure: false,
+        },
+      },
     },
 
     plugins: [
       // React core
       react(),
+
+      serveImagesPlugin({
+        imagesRoot: '/var/lib/cattle_tracker/images',
+        urlPrefix: '/images',
+        debug: false,
+      }),
 
       // PWA service worker and manifest
       VitePWA({
@@ -26,6 +40,9 @@ export default defineConfig(({ mode }) => {
           enabled: true
         },
         registerType: 'autoUpdate',
+        workbox: {
+          navigateFallbackDenylist: [/^\/api\//]
+        },
         manifest: {
           name: isDev ? 'Rastreo DEV' : 'Rastreo de Vacas',
           short_name: isDev ? 'RastreoDEV' : 'Rastreo',
@@ -48,9 +65,6 @@ export default defineConfig(({ mode }) => {
           background_color: '#00241B',
           display: 'standalone', // fullscreen
           orientation: 'portrait',
-          devOptions: {
-            enabled: true
-          },
         }
       }),
     ],

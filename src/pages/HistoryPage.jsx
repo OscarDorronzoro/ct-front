@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 
 import { toInputFormat } from '../utils/dateHelper';
 import MapView from '../components/MapView';
-import { getPosition } from '../services/api';
-import useIsMobile from '../hooks/useIsMobile';
+import { getPosition } from '../services/position';
+//import useIsMobile from '../hooks/useIsMobile';
+import useIsSmallDesktop from '../hooks/useIsSmallDesktop';
 
 export default function HistoryPage() {
   const [points, setPoints] = useState([]);
@@ -19,7 +20,8 @@ export default function HistoryPage() {
     return d;
   });
   const [dateTo, setDateTo] = useState(new Date());
-  const isMobile = useIsMobile();
+  //const isMobile = useIsMobile();
+  const isSmallDesktop = useIsSmallDesktop();
   const [isLive, setIsLive] = useState(true);
 
   useEffect(() => {
@@ -70,8 +72,10 @@ export default function HistoryPage() {
     }}>
       <div style={{
         position: 'absolute',
-        top: isMobile ? undefined : 10,
-        bottom: isMobile ? 'calc(80px + env(safe-area-inset-bottom))' : undefined,
+        top: isSmallDesktop
+          ? undefined
+          : 10,
+        bottom: isSmallDesktop ? 'calc(80px + env(safe-area-inset-bottom))' : undefined,
         left: '50%',
         transform: 'translateX(-50%)',
         zIndex: 1000,
@@ -79,7 +83,7 @@ export default function HistoryPage() {
         borderRadius: '8px',
         color: 'white',
         display: 'flex',
-        flexDirection: isMobile ? 'column' : 'row',
+        flexDirection: isSmallDesktop ? 'column' : 'row',
         gap: '8px',
         pointerEvents: 'auto',
         background: 'rgba(20,20,20,0.4)',
