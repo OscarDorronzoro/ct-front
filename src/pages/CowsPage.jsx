@@ -13,25 +13,42 @@ import { normalizeSearchText } from '../utils/search';
 import logger from '../utils/logger';
 
 export default function CowsPage() {
-  const [cows, setCows] = useState(null);
+  const [cows, setCows] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
+
   const [search, setSearch] = useState('');
   const navigate = useNavigate();
 
   const isMobile = useIsMobile();
 
-  // Effects
+  // Load data
+  const loadCows = async () => {
+    setLoading(true);
+    setLoadError(null);
+
+    try {
+      const data = await getAllCows();
+      setCows(data);
+    } catch (err) {
+      logger.error(err);
+      setLoadError(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    getAllCows()
-      .then(setCows);
+    loadCows();
   }, []);
 
   // Search results
   const searchResults = useMemo(() => {
-    if (!cows || !search.trim()) {
+    if (!search.trim()) {
       return [];
     }
 
-    const query = search.trim().toLowerCase();
+    const query = normalizeSearchText(search);
 
     return cows
       .filter(cow => {
@@ -58,6 +75,7 @@ export default function CowsPage() {
     }
   };
 
+  // Delete Cow
   const handleDelete = async (cow) => {
     const confirmed = window.confirm(
       `¿Está seguro de eliminar la vaca "${cow.alias || cow.id}"?`
@@ -76,7 +94,6 @@ export default function CowsPage() {
     } catch (err) {
       logger.error(err);
 
-      // Por ahora
       alert(
         err?.name === 'ApiError'
           ? err.message
@@ -154,6 +171,9 @@ export default function CowsPage() {
 
         <CowList
           cows={cows}
+          loading={loading}
+          error={loadError}
+          onRetry={loadCows}
           onDelete={handleDelete}
         />
 
