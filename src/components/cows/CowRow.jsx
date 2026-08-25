@@ -79,6 +79,7 @@ export default function CowRow({
         style={{
           flex: 1,
           minWidth: 0,
+          width: 0,
 
           display: 'flex',
           flexDirection: 'column',
@@ -95,6 +96,7 @@ export default function CowRow({
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
+            minWidth: 0,
           }}
         >
           {cow.alias || `Vaca ${cow.id}`}

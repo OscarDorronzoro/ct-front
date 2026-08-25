@@ -16,7 +16,6 @@ export default function SettingsPage() {
           width: '72px',
           height: '100%',
           position: 'relative',
-          zIndex: 10,
         }}>
           <SettingsSidebar />
         </div>
@@ -30,7 +29,7 @@ export default function SettingsPage() {
           backgroundColor: '#eeeeee',
           color: 'black',
           position: 'relative',
-          zIndex: 1,
+          marginBottom: isMobile ? 60 : 0,
         }}>
           <Outlet />
         </div>

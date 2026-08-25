@@ -5,6 +5,8 @@ import CowList from '../components/cows/CowList';
 import Toolbar from '../components/utils/Toolbar';
 import SearchBox from '../components/search/SearchBox';
 import AddButton from '../components/utils/AddButton';
+import ActionError from '../components/utils/ActionError';
+import ConfirmDialog from '../components/utils/ConfirmDialog';
 
 import useIsMobile from '../hooks/useIsMobile';
 import { getAllCows, deleteCow } from '../services/cow';
@@ -16,6 +18,8 @@ export default function CowsPage() {
   const [cows, setCows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
+  const [actionError, setActionError] = useState(null);
+  const [cowToDelete, setCowToDelete] = useState(null);
 
   const [search, setSearch] = useState('');
   const navigate = useNavigate();
@@ -76,14 +80,19 @@ export default function CowsPage() {
   };
 
   // Delete Cow
-  const handleDelete = async (cow) => {
-    const confirmed = window.confirm(
-      `¿Está seguro de eliminar la vaca "${cow.alias || cow.id}"?`
-    );
+  const handleDelete = (cow) => {
+    setCowToDelete(cow);
+  };
 
-    if (!confirmed) {
+  const confirmDelete = async () => {
+    if (!cowToDelete) {
       return;
     }
+
+    const cow = cowToDelete;
+
+    setCowToDelete(null);
+    setActionError(null);
 
     try {
       await deleteCow(cow.id);
@@ -92,13 +101,8 @@ export default function CowsPage() {
         cows.filter(currentCow => currentCow.id !== cow.id)
       );
     } catch (err) {
-      logger.error(err);
-
-      alert(
-        err?.name === 'ApiError'
-          ? err.message
-          : 'No se pudo eliminar la vaca.'
-      );
+      logger.error('Error deleting cow', err);
+      setActionError(err);
     }
   };
 
@@ -149,6 +153,11 @@ export default function CowsPage() {
         }}
       >
 
+        <ActionError
+          error={actionError}
+          onClose={() => setActionError(null)}
+        />
+
         <Toolbar>
           <div style={{ flex: 1 }}>
             <SearchBox
@@ -178,6 +187,21 @@ export default function CowsPage() {
         />
 
       </div>
+
+      <ConfirmDialog
+        open={!!cowToDelete}
+        title="Eliminar vaca"
+        message={
+          cowToDelete
+            ? `¿Está seguro de eliminar la vaca "${cowToDelete.alias || cowToDelete.id}"?`
+            : ''
+        }
+        confirmLabel="Eliminar"
+        cancelLabel="Cancelar"
+        danger
+        onConfirm={confirmDelete}
+        onCancel={() => setCowToDelete(null)}
+      />
 
     </div>
   );

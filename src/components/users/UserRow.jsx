@@ -72,6 +72,7 @@ export default function UserRow({
         style={{
           flex: 1,
           minWidth: 0,
+           width: 0,
 
           display: 'flex',
           flexDirection: 'column',
@@ -88,6 +89,7 @@ export default function UserRow({
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
+            minWidth: 0,
           }}
         >
           {user.username || `Usuario ${user.id}`}

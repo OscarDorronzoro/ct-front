@@ -3,5 +3,6 @@ package-lock.json
 
 dist/
 dev-dist/
+tlscert/
 
 *.zip

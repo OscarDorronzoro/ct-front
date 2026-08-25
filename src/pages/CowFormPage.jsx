@@ -213,7 +213,7 @@ export default function CowFormPage() {
             width: '80%',
             maxWidth: isMobile ? '500px' : '650px',
             margin: '0 auto',
-            marginBottom: isMobile ? 60 : 0,
+            //marginBottom: isMobile ? 60 : 0,
             display: 'flex',
             flexDirection: 'column',
             gap: 20,

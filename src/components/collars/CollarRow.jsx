@@ -66,6 +66,7 @@ export default function CollarRow({
         style={{
           flex: 1,
           minWidth: 0,
+          width: 0,
 
           display: 'flex',
           flexDirection: 'column',
@@ -82,6 +83,7 @@ export default function CollarRow({
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
+            minWidth: 0,
           }}
         >
           Collar {collar.id}

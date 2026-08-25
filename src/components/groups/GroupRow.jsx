@@ -66,6 +66,7 @@ export default function GroupRow({
         style={{
           flex: 1,
           minWidth: 0,
+          width: 0,
 
           display: 'flex',
           flexDirection: 'column',
@@ -84,6 +85,7 @@ export default function GroupRow({
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
+            minWidth: 0,
           }}
         >
           {group.name || `Grupo ${group.id}`}
@@ -99,6 +101,7 @@ export default function GroupRow({
               overflow: 'hidden',
               textOverflow: 'ellipsis',
               whiteSpace: 'nowrap',
+              minWidth: 0,
             }}
           >
             {group.description}

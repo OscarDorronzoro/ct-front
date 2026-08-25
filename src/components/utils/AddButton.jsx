@@ -18,7 +18,7 @@ const onClick = () => {
           style={{
             position: 'absolute',
             right: 16,
-            bottom: 72,
+            bottom: 12,
             width: 56,
             height: 56,
             borderRadius: '50%',
