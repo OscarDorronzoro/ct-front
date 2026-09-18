@@ -85,3 +85,6 @@ export function toTimeElapsed(date) {
 
 }
 
+export function toDateInput(value) {
+  return value ? value.slice(0, 10) : '';
+}

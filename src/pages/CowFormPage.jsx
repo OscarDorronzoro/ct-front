@@ -14,6 +14,7 @@ import { getAllGroups } from '../services/group';
 
 import useIsMobile from '../hooks/useIsMobile';
 import logger from '../utils/logger';
+import { toDateInput } from '../utils/dateHelper';
 
 const emptyForm = {
   alias: '',
@@ -116,6 +117,7 @@ export default function CowFormPage() {
         if (!cancelled) {
           setForm({
             ...cow,
+            birthDate: toDateInput(cow.birthDate),
             groupIds: cow.groups ? cow.groups.map(g => g.id) : [],
           });
         }
