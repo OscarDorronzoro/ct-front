@@ -5,6 +5,8 @@ import GroupList from '../components/groups/GroupList';
 import Toolbar from '../components/utils/Toolbar';
 import SearchBox from '../components/search/SearchBox';
 import AddButton from '../components/utils/AddButton';
+import ActionError from '../components/utils/ActionError';
+import ConfirmDialog from '../components/utils/ConfirmDialog';
 
 import useIsMobile from '../hooks/useIsMobile';
 import { getAllGroups, deleteGroup } from '../services/group';
@@ -13,21 +15,40 @@ import { normalizeSearchText } from '../utils/search';
 import logger from '../utils/logger';
 
 export default function GroupsPage() {
-  const [groups, setGroups] = useState(null);
+  const [groups, setGroups] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
+  const [actionError, setActionError] = useState(null);
+  const [groupToDelete, setGroupToDelete] = useState(null);
+
   const [search, setSearch] = useState('');
 
   const navigate = useNavigate();
   const isMobile = useIsMobile();
 
-  // Effects
+  // Load data
+  const loadGroups = async () => {
+    setLoading(true);
+    setLoadError(null);
+
+    try {
+      const data = await getAllGroups();
+      setGroups(data);
+    } catch (err) {
+      logger.error(err);
+      setLoadError(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    getAllGroups()
-      .then(setGroups);
+    loadGroups();
   }, []);
 
   // Search results
   const searchResults = useMemo(() => {
-    if (!groups || !search.trim()) {
+    if (!search.trim()) {
       return [];
     }
 
@@ -55,14 +76,20 @@ export default function GroupsPage() {
     }
   };
 
-  const handleDelete = async (group) => {
-    const confirmed = window.confirm(
-      `¿Está seguro de eliminar el grupo "${group.name || group.id}"?`
-    );
+  // Delete Group
+  const handleDelete = (group) => {
+    setGroupToDelete(group);
+  };
 
-    if (!confirmed) {
+  const confirmDelete = async () => {
+    if (!groupToDelete) {
       return;
     }
+
+    const group = groupToDelete;
+
+    setGroupToDelete(null);
+    setActionError(null);
 
     try {
       await deleteGroup(group.id);
@@ -71,13 +98,8 @@ export default function GroupsPage() {
         groups.filter(currentGroup => currentGroup.id !== group.id)
       );
     } catch (err) {
-      logger.error(err);
-
-      alert(
-        err?.name === 'ApiError'
-          ? err.message
-          : 'No se pudo eliminar el grupo.'
-      );
+      logger.error('Error deleting group', err);
+      setActionError(err);
     }
   };
 
@@ -127,6 +149,10 @@ export default function GroupsPage() {
           overflow: 'auto',
         }}
       >
+        <ActionError
+          error={actionError}
+          onClose={() => setActionError(null)}
+        />
 
         <Toolbar>
           <div style={{ flex: 1 }}>
@@ -140,7 +166,10 @@ export default function GroupsPage() {
           </div>
 
           {!isMobile &&
-            <AddButton label="Agregar grupo" path="/settings/groups" />
+            <AddButton
+              label="Agregar grupo"
+              path="/settings/groups"
+            />
           }
         </Toolbar>
 
@@ -150,10 +179,28 @@ export default function GroupsPage() {
 
         <GroupList
           groups={groups}
+          loading={loading}
+          error={loadError}
+          onRetry={loadGroups}
           onDelete={handleDelete}
         />
 
       </div>
+
+      <ConfirmDialog
+        open={!!groupToDelete}
+        title="Eliminar grupo"
+        message={
+          groupToDelete
+            ? `¿Está seguro de eliminar el grupo "${groupToDelete.name || groupToDelete.id}"?`
+            : ''
+        }
+        confirmLabel="Eliminar"
+        cancelLabel="Cancelar"
+        danger
+        onConfirm={confirmDelete}
+        onCancel={() => setGroupToDelete(null)}
+      />
 
     </div>
   );

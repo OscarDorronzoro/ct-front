@@ -72,11 +72,13 @@ export default function UserRow({
         style={{
           flex: 1,
           minWidth: 0,
-           width: 0,
+          width: 0,
 
           display: 'flex',
           flexDirection: 'column',
           gap: 4,
+
+          textAlign: 'center',
         }}
       >
         {/* Username */}
@@ -104,6 +106,8 @@ export default function UserRow({
 
             fontSize: 13,
             color: '#666',
+
+            justifyContent: 'center',
           }}
         >
           <span>

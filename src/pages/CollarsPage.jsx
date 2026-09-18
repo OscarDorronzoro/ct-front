@@ -5,6 +5,8 @@ import CollarList from '../components/collars/CollarList';
 import Toolbar from '../components/utils/Toolbar';
 import SearchBox from '../components/search/SearchBox';
 import AddButton from '../components/utils/AddButton';
+import ActionError from '../components/utils/ActionError';
+import ConfirmDialog from '../components/utils/ConfirmDialog';
 
 import useIsMobile from '../hooks/useIsMobile';
 import { getAllCollars, deleteCollar } from '../services/collar';
@@ -13,21 +15,40 @@ import { normalizeSearchText } from '../utils/search';
 import logger from '../utils/logger';
 
 export default function CollarsPage() {
-  const [collars, setCollars] = useState(null);
+  const [collars, setCollars] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
+  const [actionError, setActionError] = useState(null);
+  const [collarToDelete, setCollarToDelete] = useState(null);
+
   const [search, setSearch] = useState('');
   const navigate = useNavigate();
 
   const isMobile = useIsMobile();
 
-  // Effects
+  // Load data
+  const loadCollars = async () => {
+    setLoading(true);
+    setLoadError(null);
+
+    try {
+      const data = await getAllCollars();
+      setCollars(data);
+    } catch (err) {
+      logger.error(err);
+      setLoadError(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    getAllCollars()
-      .then(setCollars);
+    loadCollars();
   }, []);
 
   // Search results
   const searchResults = useMemo(() => {
-    if (!collars || !search.trim()) {
+    if (!search.trim()) {
       return [];
     }
 
@@ -55,14 +76,20 @@ export default function CollarsPage() {
     }
   };
 
-  const handleDelete = async (collar) => {
-    const confirmed = window.confirm(
-      `¿Está seguro de eliminar el collar "${collar.id}"?`
-    );
+  // Delete Collar
+  const handleDelete = (collar) => {
+    setCollarToDelete(collar);
+  };
 
-    if (!confirmed) {
+  const confirmDelete = async () => {
+    if (!collarToDelete) {
       return;
     }
+
+    const collar = collarToDelete;
+
+    setCollarToDelete(null);
+    setActionError(null);
 
     try {
       await deleteCollar(collar.id);
@@ -71,13 +98,8 @@ export default function CollarsPage() {
         collars.filter(currentCollar => currentCollar.id !== collar.id)
       );
     } catch (err) {
-      logger.error(err);
-
-      alert(
-        err?.name === 'ApiError'
-          ? err.message
-          : 'No se pudo eliminar el collar.'
-      );
+      logger.error('Error deleting collar', err);
+      setActionError(err);
     }
   };
 
@@ -127,6 +149,10 @@ export default function CollarsPage() {
           overflow: 'auto',
         }}
       >
+        <ActionError
+          error={actionError}
+          onClose={() => setActionError(null)}
+        />
 
         <Toolbar>
           <div style={{ flex: 1 }}>
@@ -140,7 +166,10 @@ export default function CollarsPage() {
           </div>
 
           {!isMobile &&
-            <AddButton label="Agregar collar" path="/settings/collars" />
+            <AddButton
+              label="Agregar collar"
+              path="/settings/collars"
+            />
           }
         </Toolbar>
 
@@ -150,10 +179,28 @@ export default function CollarsPage() {
 
         <CollarList
           collars={collars}
+          loading={loading}
+          error={loadError}
+          onRetry={loadCollars}
           onDelete={handleDelete}
         />
 
       </div>
+
+      <ConfirmDialog
+        open={!!collarToDelete}
+        title="Eliminar collar"
+        message={
+          collarToDelete
+            ? `¿Está seguro de eliminar el collar "${collarToDelete.id}"?`
+            : ''
+        }
+        confirmLabel="Eliminar"
+        cancelLabel="Cancelar"
+        danger
+        onConfirm={confirmDelete}
+        onCancel={() => setCollarToDelete(null)}
+      />
 
     </div>
   );

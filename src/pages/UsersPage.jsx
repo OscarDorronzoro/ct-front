@@ -5,6 +5,8 @@ import UserList from '../components/users/UserList';
 import Toolbar from '../components/utils/Toolbar';
 import SearchBox from '../components/search/SearchBox';
 import AddButton from '../components/utils/AddButton';
+import ActionError from '../components/utils/ActionError';
+import ConfirmDialog from '../components/utils/ConfirmDialog';
 
 import useIsMobile from '../hooks/useIsMobile';
 import { getAllUsers, deleteUser } from '../services/user';
@@ -13,25 +15,40 @@ import { normalizeSearchText } from '../utils/search';
 import logger from '../utils/logger';
 
 export default function UsersPage() {
-  const [users, setUsers] = useState(null);
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
+  const [actionError, setActionError] = useState(null);
+  const [userToDelete, setUserToDelete] = useState(null);
+
   const [search, setSearch] = useState('');
 
   const navigate = useNavigate();
   const isMobile = useIsMobile();
 
-  // Effects
+  // Load data
+  const loadUsers = async () => {
+    setLoading(true);
+    setLoadError(null);
+
+    try {
+      const data = await getAllUsers();
+      setUsers(data);
+    } catch (err) {
+      logger.error(err);
+      setLoadError(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    getAllUsers()
-      .then(setUsers)
-      .catch((err) => {
-        logger.error(err);
-        setUsers([]);
-      });
+    loadUsers();
   }, []);
 
   // Search results
   const searchResults = useMemo(() => {
-    if (!users || !search.trim()) {
+    if (!search.trim()) {
       return [];
     }
 
@@ -59,14 +76,20 @@ export default function UsersPage() {
     }
   };
 
-  const handleDelete = async (user) => {
-    const confirmed = window.confirm(
-      `¿Está seguro de eliminar el usuario "${user.name || user.email || user.id}"?`
-    );
+  // Delete User
+  const handleDelete = (user) => {
+    setUserToDelete(user);
+  };
 
-    if (!confirmed) {
+  const confirmDelete = async () => {
+    if (!userToDelete) {
       return;
     }
+
+    const user = userToDelete;
+
+    setUserToDelete(null);
+    setActionError(null);
 
     try {
       await deleteUser(user.id);
@@ -75,13 +98,8 @@ export default function UsersPage() {
         users.filter(currentUser => currentUser.id !== user.id)
       );
     } catch (err) {
-      logger.error(err);
-
-      alert(
-        err?.name === 'ApiError'
-          ? err.message
-          : 'No se pudo eliminar el usuario.'
-      );
+      logger.error('Error deleting user', err);
+      setActionError(err);
     }
   };
 
@@ -131,6 +149,10 @@ export default function UsersPage() {
           overflow: 'auto',
         }}
       >
+        <ActionError
+          error={actionError}
+          onClose={() => setActionError(null)}
+        />
 
         <Toolbar>
           <div style={{ flex: 1 }}>
@@ -144,7 +166,10 @@ export default function UsersPage() {
           </div>
 
           {!isMobile &&
-            <AddButton label="Agregar usuario" path="/settings/users" />
+            <AddButton
+              label="Agregar usuario"
+              path="/settings/users"
+            />
           }
         </Toolbar>
 
@@ -154,10 +179,28 @@ export default function UsersPage() {
 
         <UserList
           users={users}
+          loading={loading}
+          error={loadError}
+          onRetry={loadUsers}
           onDelete={handleDelete}
         />
 
       </div>
+
+      <ConfirmDialog
+        open={!!userToDelete}
+        title="Eliminar usuario"
+        message={
+          userToDelete
+            ? `¿Está seguro de eliminar el usuario "${userToDelete.name || userToDelete.email || userToDelete.username || userToDelete.id}"?`
+            : ''
+        }
+        confirmLabel="Eliminar"
+        cancelLabel="Cancelar"
+        danger
+        onConfirm={confirmDelete}
+        onCancel={() => setUserToDelete(null)}
+      />
 
     </div>
   );
