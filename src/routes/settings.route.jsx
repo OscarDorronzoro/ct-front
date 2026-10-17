@@ -12,6 +12,10 @@ import UserFormPage from '../pages/UserFormPage';
 import RequireRole from '../components/auth/RequiredRole';
 import USER_ROLES from '../utils/userRoles'
 
+const loadZoneFormPage = async () => ({
+  Component: (await import('../pages/ZoneFormPage')).default,
+});
+
 export const settingsRoute = {
   path: 'settings',
   element: <SettingsPage />,
@@ -55,6 +59,15 @@ export const settingsRoute = {
     {
       path: 'zones',
       element: <ZonesPage />,
+    },
+    // Lazy: the zone editor brings terra-draw, only needed here
+    {
+      path: 'zones/new',
+      lazy: loadZoneFormPage,
+    },
+    {
+      path: 'zones/:zoneId',
+      lazy: loadZoneFormPage,
     },
     {
       element: <RequireRole role={USER_ROLES.ADMIN} />,

@@ -1,0 +1,41 @@
+.layout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.map {
+  height: 38vh;
+  min-height: 220px;
+  overflow: hidden;
+
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+@media (min-width: 1024px) {
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(340px, 420px) 1fr;
+    align-items: start;
+    height: 100%;
+  }
+
+  /* List first, map on the right filling the height */
+  .list {
+    order: -1;
+  }
+
+  .map {
+    position: sticky;
+    top: 0;
+    height: calc(100dvh - var(--header-height) - 2 * var(--space-6));
+  }
+}
