@@ -12,6 +12,8 @@
     "chokidar:lint": "chokidar \"src/**/*.{js,jsx}\" -c \"npm run lint\"",
     "test": "vitest run",
     "test:watch": "vitest --watch",
+    "preversion": "eslint . && npm test",
+    "release": "npm version -m \"chore(release): %s\"",
     "preview": "vite preview",
     "deploy": "./scripts/deploy.sh"
   },
