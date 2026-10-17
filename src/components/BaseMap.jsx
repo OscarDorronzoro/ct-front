@@ -2,13 +2,17 @@ import { useEffect, useRef } from 'react';
 import maplibregl from 'maplibre-gl';
 const BASE_ESRI_URL = import.meta.env.VITE_MAP_TILES_URL || 'https://services.arcgisonline.com';
 
+// Satellite base map. `configs` (center, zoom) is only read on creation.
+// onLoad(map) runs once the style is loaded; the map is removed on unmount.
 export default function BaseMap({ configs, onLoad }) {
   const mapContainer = useRef(null);
-  const mapRef = useRef(null);
+  const onLoadRef = useRef(onLoad);
 
   useEffect(() => {
-    if (mapRef.current) {return;}
+    onLoadRef.current = onLoad;
+  });
 
+  useEffect(() => {
     const map = new maplibregl.Map({
       container: mapContainer.current,
       style: {
@@ -41,11 +45,14 @@ export default function BaseMap({ configs, onLoad }) {
     });
 
     map.on('load', () => {
-      onLoad?.(map);
+      onLoadRef.current?.(map);
     });
 
-    mapRef.current = map;
-  }, [configs, onLoad]);
+    return () => {
+      map.remove();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div
