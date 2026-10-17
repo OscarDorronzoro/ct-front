@@ -70,7 +70,8 @@ const LIVE_MARGIN_MS = 60 * 1000;
 // Previous/next period of the same length. Reaching now turns it live.
 export function shiftRange(range, direction, now = new Date()) {
   const { from, to } = resolveRange(range, now);
-  const length = to - from;
+  // Rounded: "yesterday" ends 1 ms before midnight, and that ms would drift with every shift
+  const length = Math.round((to - from) / 1000) * 1000;
   const newTo = new Date(to.getTime() + direction * length);
 
   if (newTo >= now - LIVE_MARGIN_MS) {
