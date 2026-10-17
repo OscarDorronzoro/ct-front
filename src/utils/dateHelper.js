@@ -8,81 +8,27 @@ export function formatDate(date) {
          `${pad(d.getMilliseconds(), 3)}`;
 }
 
-export function toInputFormat(date) {
-  const d = new Date(date);
-  const pad = (n) => String(n).padStart(2, '0');
-
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
-
+// "Ahora", "Hace 5 min", "Hace 3 h", "Hace 9 días", "Hace 2 meses", "Hace 1 año"
 export function toTimeElapsed(date) {
-  const d = new Date(date);
+  const minutes = (Date.now() - new Date(date).getTime()) / (1000 * 60);
 
-  let value = new Date().getTime() - d.getTime();
+  const steps = [
+    [60, 1, 'min', 'min'],
+    [60 * 24, 60, 'h', 'h'],
+    [60 * 24 * 30, 60 * 24, 'día', 'días'],
+    [60 * 24 * 365, 60 * 24 * 30, 'mes', 'meses'],
+    [Infinity, 60 * 24 * 365, 'año', 'años'],
+  ];
 
-  value /= 1000 * 60;
-
-  if (value < 1) {
-    value = Math.round(value);
-    return {
-      unit: 'minutos',
-      value,
-      text: 'Ahora',
-    }
+  if (minutes < 1) {
+    return { unit: 'min', value: 0, text: 'Ahora' };
   }
 
-  if (value < 60) {
-    value = Math.round(value);
-    const unit = value === 1 ? 'minuto' : 'minutos';
-    return {
-      unit,
-      value: value,
-      text: `Hace ${value} ${unit}`,
-    }
-  }
+  const [, size, singular, plural] = steps.find(([limit]) => minutes < limit);
+  const value = Math.floor(minutes / size);
+  const unit = value === 1 ? singular : plural;
 
-  value /= 60;
-  if (value < 24) {
-    value = value.toFixed(1);
-    const unit = value === 1 ? 'hora' : 'horas';
-    return {
-      unit,
-      value: value,
-      text: `Hace ${value} ${unit}`,
-    }
-  }
-
-  value /= 24;
-  if (value < 30) {
-    value = value.toFixed(2);
-    const unit = value === 1 ? 'día' : 'días';
-    return {
-      unit,
-      value: value,
-      text: `Hace ${value} ${unit}`,
-    }
-  }
-
-  value /= 30;
-  if (value <  12) {
-    value = value.toFixed(2);
-    const unit = value === 1 ? 'mes' : 'meses';
-    return {
-      unit,
-      value: value,
-      text: `Hace ${value} ${unit}`,
-    }
-  }
-
-  value /= 12;
-  value = value.toFixed(2);
-  const unit = value === 1 ? 'año' : 'años';
-  return {
-    unit,
-    value: value,
-    text: `Hace ${value} ${unit}`,
-  }
-
+  return { unit, value, text: `Hace ${value} ${unit}` };
 }
 
 export function toDateInput(value) {

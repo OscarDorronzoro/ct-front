@@ -1,67 +1,53 @@
 import { useState, useEffect } from 'react';
+import { useOutletContext } from 'react-router';
 
-import { toInputFormat } from '../utils/dateHelper';
 import MapView from '../components/MapView';
+import RangePicker from '../components/history/RangePicker';
 import { getPosition } from '../services/position';
-//import useIsMobile from '../hooks/useIsMobile';
-import useIsSmallDesktop from '../hooks/useIsSmallDesktop';
+import { defaultRange, resolveRange } from '../utils/dateRange';
+import logger from '../utils/logger';
+
+const POLL_MS = 30000;
 
 export default function HistoryPage() {
-  const [points, setPoints] = useState([]);
-  const [dateFrom, setDateFrom] = useState(() => {
-    const d = new Date();
-      if (d.getHours() < 4) {
-      d.setDate(d.getDate() - 1);
-      d.setHours(21);
-    } else {
-      d.setHours(0, 0, 0, 0);
-    }
+  // Points with the time their colors are computed against (end of the range they belong to).
+  // Kept together: changing the range doesn't recolor the old points until the new ones load.
+  const [data, setData] = useState({ points: [], referenceTime: null });
+  const [range, setRange] = useState(defaultRange);
+  const { mapRef } = useOutletContext();
 
-    return d;
-  });
-  const [dateTo, setDateTo] = useState(new Date());
-  //const isMobile = useIsMobile();
-  const isSmallDesktop = useIsSmallDesktop();
-  const [isLive, setIsLive] = useState(true);
-
+  // Fixed range: one fetch. Live range: poll, moving the end (and the start if rolling).
   useEffect(() => {
-    if (!isLive) {return;}
-
-    const id = setInterval(() => {
-      setDateTo(new Date());
-    }, 1000);
-
-    return () => clearInterval(id);
-  }, [isLive]);
-
-  // Manual mode fetch
-  useEffect(() => {
-    if (isLive) {return;}
-
-    getPosition({
-      dateFrom: dateFrom.toISOString(),
-      dateTo: dateTo.toISOString(),
-    }).then(setPoints);
-
-  }, [dateFrom, dateTo, isLive]);
-
-  // Live mode polling
-  useEffect(() => {
-    if (!isLive) {return;}
+    let cancelled = false;
 
     const fetchData = () => {
+      const { from, to } = resolveRange(range);
+
       getPosition({
-        dateFrom: dateFrom.toISOString(),
-        dateTo: new Date().toISOString(), // SIEMPRE now
-      }).then(setPoints);
+        dateFrom: from.toISOString(),
+        dateTo: to.toISOString(),
+      })
+        .then((points) => {
+          if (!cancelled) {
+            setData({ points, referenceTime: range.live ? null : to });
+          }
+        })
+        .catch((err) => logger.error('Error loading positions', err));
     };
 
     fetchData();
 
-    const id = setInterval(fetchData, 30000);
+    if (!range.live) {
+      return () => { cancelled = true; };
+    }
 
-    return () => clearInterval(id);
-  }, [isLive, dateFrom]);
+    const id = setInterval(fetchData, POLL_MS);
+
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
+  }, [range]);
 
   return (
     <div style={{
@@ -70,48 +56,15 @@ export default function HistoryPage() {
       width: '100%',
       position: 'relative',
     }}>
-      <div style={{
-        position: 'absolute',
-        top: isSmallDesktop
-          ? undefined
-          : 10,
-        bottom: isSmallDesktop ? 'calc(80px + env(safe-area-inset-bottom))' : undefined,
-        left: '50%',
-        transform: 'translateX(-50%)',
-        zIndex: 1000,
-        padding: '10px',
-        borderRadius: '8px',
-        color: 'white',
-        display: 'flex',
-        flexDirection: isSmallDesktop ? 'column' : 'row',
-        gap: '8px',
-        pointerEvents: 'auto',
-        background: 'rgba(20,20,20,0.4)',
-        backdropFilter: 'blur(5px)',
-        border: '1px solid rgba(255,255,255,0.2)',
-      }}>
-        <input
-          type="datetime-local"
-          value={toInputFormat(dateFrom)}
-          onChange={(e) => setDateFrom(new Date(e.target.value))}
-        />
+      <RangePicker range={range} onChange={setRange} />
 
-        <input
-          type="datetime-local"
-          value={toInputFormat(dateTo)}
-          onChange={(e) => {
-            setIsLive(false);
-            setDateTo(new Date(e.target.value))
-          }}
-        />
-
-        <button onClick={() => setIsLive(v => !v)}>
-          {isLive ? 'manual' : 'auto'}
-        </button>
-      </div>
-
-      <MapView points={points} mode='history' />
-
+      {/* Point colors by age relative to the end of the range (now when live) */}
+      <MapView
+        points={data.points}
+        mode='history'
+        referenceTime={data.referenceTime}
+        ref={mapRef}
+      />
     </div>
   );
 }
