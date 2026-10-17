@@ -3,7 +3,12 @@ import { useNavigate, useParams } from 'react-router';
 
 import FormField from '../components/form/FormField';
 import FormActions from '../components/form/FormActions';
+import formStyles from '../components/form/Form.module.css';
+import Page from '../components/ui/Page';
+import Card from '../components/ui/Card';
+import Alert from '../components/ui/Alert';
 import SelectField from '../components/form/SelectField';
+import UserSessions from '../components/users/UserSessions';
 
 import {
   getUser,
@@ -11,7 +16,6 @@ import {
   createUser,
 } from '../services/user';
 
-import useIsMobile from '../hooks/useIsMobile';
 import logger from '../utils/logger';
 
 const emptyForm = {
@@ -41,7 +45,6 @@ export default function UserFormPage() {
   const [error, setError] = useState(null);
 
   const { userId } = useParams();
-  const isMobile = useIsMobile();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -129,129 +132,59 @@ export default function UserFormPage() {
   }, [userId]);
 
   return (
-    <div
-      style={{
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-      }}
+    <Page
+      title={userId ? 'Editar usuario' : 'Nuevo usuario'}
+      backTo="/settings/users"
+      width="narrow"
     >
-
-      {/* Header */}
-      <div
-        style={{
-          height: '56px',
-          display: 'flex',
-          alignItems: 'center',
-          padding: '0 16px',
-          background: '#ffffff',
-          borderBottom: '1px solid #ddd',
-          gap: '12px',
-        }}
+      <Card
+        padded
+        as="form"
+        onSubmit={handleSubmit}
+        className={formStyles.form}
       >
-        <div
-          style={{
-            fontWeight: 'bold',
-            color: '#5e3b2c',
-            margin: '0 auto',
-            fontSize: 18,
-          }}
-        >
-          <h2>
-            {userId ? 'Editar' : 'Crear'} usuario
-          </h2>
-        </div>
-      </div>
+        {error && <Alert tone="danger">{error}</Alert>}
 
-      {/* Content */}
-      <div
-        style={{
-          flex: 1,
-          overflowY: 'auto',
-          padding: isMobile
-            ? '20px 16px'
-            : '30px 20px',
-        }}
-      >
-        <form
-          style={{
-            width: '80%',
-            maxWidth: isMobile
-              ? '500px'
-              : '650px',
+        <FormField
+          label="Usuario"
+          name="username"
+          value={form.username}
+          onChange={handleChange}
+          placeholder="Nombre de usuario"
+          required
+        />
 
-            margin: '0 auto',
-            marginBottom: isMobile ? 60 : 0,
+        <FormField
+          label={userId ? 'Nueva contraseña' : 'Contraseña'}
+          name="password"
+          type="password"
+          value={form.password}
+          onChange={handleChange}
+          placeholder={
+            userId
+              ? 'Dejar vacío para mantener la actual'
+              : 'Contraseña'
+          }
+          required={!userId}
+        />
 
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 20,
+        <SelectField
+          label="Rol"
+          name="role"
+          value={form.role}
+          onChange={handleChange}
+          options={roleOptions}
+          placeholder="Seleccione un rol"
+        />
 
-            padding: '20px 30px 10px 30px',
+        {/* Actions */}
+        <FormActions
+          onCancel={handleCancel}
+          saving={saving}
+        />
+      </Card>
 
-            borderRadius: 10,
-            backgroundColor: 'white',
-          }}
-          onSubmit={handleSubmit}
-        >
-
-          {error && (
-            <div
-              role="alert"
-              style={{
-                padding: '10px 12px',
-                borderRadius: 8,
-                backgroundColor: '#fef2f2',
-                border: '1px solid #fecaca',
-                color: '#b91c1c',
-                fontSize: 14,
-              }}
-            >
-              {error}
-            </div>
-          )}
-
-          <FormField
-            label="Usuario"
-            name="username"
-            value={form.username}
-            onChange={handleChange}
-            placeholder="Nombre de usuario"
-            required
-          />
-
-          <FormField
-            label={userId ? 'Nueva contraseña' : 'Contraseña'}
-            name="password"
-            type="password"
-            value={form.password}
-            onChange={handleChange}
-            placeholder={
-              userId
-                ? 'Dejar vacío para mantener la actual'
-                : 'Contraseña'
-            }
-            required={!userId}
-          />
-
-          <SelectField
-            label="Rol"
-            name="role"
-            value={form.role}
-            onChange={handleChange}
-            options={roleOptions}
-            placeholder="Seleccione un rol"
-          />
-
-          {/* Actions */}
-          <FormActions
-            onCancel={handleCancel}
-            saving={saving}
-          />
-
-        </form>
-      </div>
-
-    </div>
+      {userId && <UserSessions userId={userId} />}
+    </Page>
   );
 }
