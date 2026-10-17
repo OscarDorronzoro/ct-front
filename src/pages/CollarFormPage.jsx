@@ -3,6 +3,10 @@ import { useNavigate, useParams } from 'react-router';
 
 import FormField from '../components/form/FormField';
 import FormActions from '../components/form/FormActions';
+import formStyles from '../components/form/Form.module.css';
+import Page from '../components/ui/Page';
+import Card from '../components/ui/Card';
+import Alert from '../components/ui/Alert';
 
 import {
   getCollar,
@@ -10,12 +14,19 @@ import {
   createCollar,
 } from '../services/collar';
 
-import useIsMobile from '../hooks/useIsMobile';
 import logger from '../utils/logger';
 
 const emptyForm = {
+  code: '',
+  mac: '',
   description: '',
   firmwareVersion: '',
+};
+
+const ERROR_MESSAGES = {
+  COLLAR_CODE_IN_USE: 'Ya existe un collar con ese código.',
+  COLLAR_MAC_IN_USE: 'Ya existe un collar con esa MAC.',
+  NO_FREE_COLLAR_CODE: 'No quedan códigos libres (1 a 255).',
 };
 
 export default function CollarFormPage() {
@@ -24,7 +35,6 @@ export default function CollarFormPage() {
   const [error, setError] = useState(null);
 
   const { collarId } = useParams();
-  const isMobile = useIsMobile();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -53,6 +63,8 @@ export default function CollarFormPage() {
       setSaving(true);
 
       const data = {
+        code: form.code,
+        mac: form.mac,
         description: form.description,
         firmwareVersion: form.firmwareVersion,
       };
@@ -70,7 +82,7 @@ export default function CollarFormPage() {
 
       setError(
         err?.name === 'ApiError'
-          ? err.message
+          ? ERROR_MESSAGES[err.message] ?? err.message
           : 'No se pudo guardar el collar.'
       );
     } finally {
@@ -89,6 +101,8 @@ export default function CollarFormPage() {
       .then((collar) => {
         if (!cancelled) {
           setForm({
+            code: collar.code ?? '',
+            mac: collar.mac ?? '',
             description: collar.description ?? '',
             firmwareVersion: collar.firmwareVersion ?? '',
           });
@@ -107,113 +121,64 @@ export default function CollarFormPage() {
   }, [collarId]);
 
   return (
-    <div
-      style={{
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-      }}
+    <Page
+      title={collarId ? 'Editar collar' : 'Nuevo collar'}
+      backTo="/settings/collars"
+      width="narrow"
     >
-
-      {/* Header */}
-      <div
-        style={{
-          height: '56px',
-          display: 'flex',
-          alignItems: 'center',
-          padding: '0 16px',
-          background: '#ffffff',
-          borderBottom: '1px solid #ddd',
-          gap: '12px',
-        }}
+      <Card
+        padded
+        as="form"
+        onSubmit={handleSubmit}
+        className={formStyles.form}
       >
-        <div
-          style={{
-            fontWeight: 'bold',
-            color: '#5e3b2c',
-            margin: '0 auto',
-            fontSize: 18,
-          }}
-        >
-          <h2>
-            {collarId ? 'Editar' : 'Crear'} collar
-          </h2>
-        </div>
-      </div>
+        {error && <Alert tone="danger">{error}</Alert>}
 
-      {/* Content */}
-      <div
-        style={{
-          flex: 1,
-          overflowY: 'auto',
-          padding: isMobile
-            ? '20px 16px'
-            : '30px 20px',
-        }}
-      >
-        <form
-          style={{
-            width: '80%',
-            maxWidth: isMobile
-              ? '500px'
-              : '650px',
+        <FormField
+          label="Código LoRa"
+          name="code"
+          type="number"
+          inputMode="numeric"
+          min={1}
+          max={255}
+          value={form.code}
+          onChange={handleChange}
+          placeholder={collarId ? '' : 'Automático'}
+          hint="Identificador del collar en la red LoRa (1 a 255). Si se deja vacío, se asigna uno libre."
+        />
 
-            margin: '0 auto',
-            marginBottom: isMobile ? 60 : 0,
+        <FormField
+          label="MAC"
+          name="mac"
+          value={form.mac}
+          onChange={handleChange}
+          placeholder="Ej. 34:85:18:a1:b2:c3"
+          autoComplete="off"
+        />
 
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 20,
+        <FormField
+          label="Descripción"
+          name="description"
+          value={form.description}
+          onChange={handleChange}
+          placeholder="Descripción del collar"
+        />
 
-            padding: '20px 30px 10px 30px',
+        <FormField
+          label="Versión de firmware"
+          name="firmwareVersion"
+          value={form.firmwareVersion}
+          onChange={handleChange}
+          placeholder="Ej. 1.0.0"
+          hint="Se actualiza sola cuando el collar informa su firmware."
+        />
 
-            borderRadius: 10,
-            backgroundColor: 'white',
-          }}
-          onSubmit={handleSubmit}
-        >
-
-          {error && (
-            <div
-              role="alert"
-              style={{
-                padding: '10px 12px',
-                borderRadius: 8,
-                backgroundColor: '#fef2f2',
-                border: '1px solid #fecaca',
-                color: '#b91c1c',
-                fontSize: 14,
-              }}
-            >
-              {error}
-            </div>
-          )}
-
-          <FormField
-            label="Descripción"
-            name="description"
-            value={form.description}
-            onChange={handleChange}
-            placeholder="Descripción del collar"
-          />
-
-          <FormField
-            label="Versión de firmware"
-            name="firmwareVersion"
-            value={form.firmwareVersion}
-            onChange={handleChange}
-            placeholder="Ej. v1.0"
-          />
-
-          {/* Actions */}
-          <FormActions
-            onCancel={handleCancel}
-            saving={saving}
-          />
-
-        </form>
-      </div>
-
-    </div>
+        {/* Actions */}
+        <FormActions
+          onCancel={handleCancel}
+          saving={saving}
+        />
+      </Card>
+    </Page>
   );
 }
