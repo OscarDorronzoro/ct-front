@@ -1,39 +1,24 @@
-import { Outlet } from 'react-router';
+import { Outlet, useLocation } from 'react-router';
 
-import SettingsDrawer from '../components/SettingsDrawer';
-import SettingsSidebar from '../components/SettingsSidebar';
-
+import SettingsTabs from '../components/nav/SettingsTabs';
 import useIsMobile from '../hooks/useIsMobile';
+import styles from './SettingsPage.module.css';
+
+// /settings/<section>, not its forms
+const SECTION_REGEX = /^\/settings\/[^/]+\/?$/;
 
 export default function SettingsPage() {
   const isMobile = useIsMobile();
+  const { pathname } = useLocation();
 
   return (
-    <div style={{ display: 'flex', height: '100%', width: '100%', position: 'relative'}}>
+    <div className={styles.settings}>
+      {/* Mobile: the sections replace the desktop sidebar */}
+      {isMobile && SECTION_REGEX.test(pathname) && <SettingsTabs />}
 
-      { !isMobile && (
-        <div style={{
-          width: '72px',
-          height: '100%',
-          position: 'relative',
-        }}>
-          <SettingsSidebar />
-        </div>
-      )}
-      { isMobile && <SettingsDrawer/> }
-
-        {/* Contenido */}
-        <div style={{
-          flex: 1,
-          padding: '0px',
-          backgroundColor: '#eeeeee',
-          color: 'black',
-          position: 'relative',
-          marginBottom: isMobile ? 60 : 0,
-        }}>
-          <Outlet />
-        </div>
-
+      <div className={styles.content}>
+        <Outlet />
+      </div>
     </div>
   );
 }

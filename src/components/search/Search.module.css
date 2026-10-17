@@ -1,0 +1,155 @@
+.box {
+  position: relative;
+  width: 100%;
+}
+
+.field {
+  position: relative;
+  z-index: 2;
+
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+
+  width: 100%;
+  height: 40px;
+  padding: 0 var(--space-2) 0 var(--space-3);
+
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.field:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--green-100);
+}
+
+/* Inside another container (map top bar) */
+.plain {
+  border-color: transparent;
+}
+
+.plain:focus-within {
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.icon {
+  flex-shrink: 0;
+  color: var(--color-text-subtle);
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+
+  border: none;
+  outline: none;
+  background: transparent;
+
+  /* 16px avoids zoom on focus in iOS */
+  font-size: var(--text-md);
+  color: var(--color-text-strong);
+}
+
+.input::placeholder {
+  color: var(--color-text-subtle);
+}
+
+.clear {
+  flex-shrink: 0;
+  display: inline-flex;
+  padding: var(--space-1);
+
+  border: none;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--color-text-muted);
+}
+
+.clear:hover {
+  background: var(--color-surface-muted);
+}
+
+.results {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: var(--z-dropdown);
+
+  max-height: 360px;
+  overflow-y: auto;
+  padding: var(--space-1);
+
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+
+  text-align: left;
+}
+
+.item:hover {
+  background: var(--color-surface-muted);
+}
+
+.itemIcon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 32px;
+  height: 32px;
+
+  border-radius: var(--radius-full);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.itemText {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.itemLabel,
+.itemDescription {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.itemLabel {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text-strong);
+}
+
+.itemDescription {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+/* type="search": we draw our own clear button */
+.input::-webkit-search-cancel-button {
+  display: none;
+}

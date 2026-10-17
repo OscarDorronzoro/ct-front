@@ -1,0 +1,49 @@
+.iconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  width: 36px;
+  height: 36px;
+  padding: 0;
+
+  border: none;
+  border-radius: var(--radius-full);
+
+  background: transparent;
+  color: var(--color-text-muted);
+
+  transition: background-color var(--transition), color var(--transition);
+}
+
+.iconButton:hover:not(:disabled) {
+  background: var(--color-surface-muted);
+  color: var(--color-text-strong);
+}
+
+.danger:hover:not(:disabled) {
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+}
+
+/* Floating over the map */
+.surface {
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--shadow-md);
+}
+
+.surface:hover:not(:disabled) {
+  background: var(--color-surface-muted);
+}
+
+.sm {
+  width: 30px;
+  height: 30px;
+}
+
+.lg {
+  width: 44px;
+  height: 44px;
+}

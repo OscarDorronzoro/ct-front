@@ -1,4 +1,144 @@
-html, body, #root {
+/* Design tokens -------------------------------------------------------------------------------------- */
+
+:root {
+  /* Primary: deep field green (UI chrome, actions, active states) */
+  --green-50: #edf5f2;
+  --green-100: #d3e8e0;
+  --green-200: #a8d1c2;
+  --green-300: #74b39d;
+  --green-400: #44917a;
+  --green-500: #2a7563;
+  --green-600: #1f5f50;
+  --green-700: #194c41;
+  --green-800: #133a32;
+  --green-900: #0d2823;
+  --green-950: #071a16;
+
+  /* Accent: terracotta (brand details, highlights). Never for errors. */
+  --terra-50: #fbf1ec;
+  --terra-100: #f5dccf;
+  --terra-300: #e2a585;
+  --terra-400: #d4825d;
+  --terra-500: #c0643f;
+  --terra-600: #a3502f;
+  --terra-700: #7f3d24;
+
+  /* Neutrals, slightly green tinted */
+  --gray-0: #ffffff;
+  --gray-50: #f6f8f7;
+  --gray-100: #eef1f0;
+  --gray-200: #e0e5e3;
+  --gray-300: #c8d0cd;
+  --gray-400: #9ba6a2;
+  --gray-500: #6e7b77;
+  --gray-600: #53605c;
+  --gray-700: #3a4744;
+  --gray-800: #263130;
+  --gray-900: #161e1c;
+
+  /* Semantic */
+  --color-bg: var(--gray-50);
+  --color-surface: var(--gray-0);
+  --color-surface-muted: var(--gray-100);
+  --color-border: var(--gray-200);
+  --color-border-strong: var(--gray-300);
+
+  --color-text: var(--gray-800);
+  --color-text-strong: var(--gray-900);
+  --color-text-muted: var(--gray-500);
+  --color-text-subtle: var(--gray-400);
+
+  --color-primary: var(--green-600);
+  --color-primary-hover: var(--green-700);
+  --color-primary-soft: var(--green-50);
+  --color-primary-contrast: #ffffff;
+
+  --color-accent: var(--terra-500);
+  --color-accent-soft: var(--terra-50);
+
+  --color-danger: #dc2626;
+  --color-danger-hover: #b91c1c;
+  --color-danger-soft: #fef2f2;
+  --color-danger-border: #fecaca;
+  --color-danger-text: #b91c1c;
+
+  --color-warning: #d97706;
+  --color-warning-soft: #fffbeb;
+  --color-warning-text: #92400e;
+
+  --color-success: #16a34a;
+  --color-success-soft: #f0fdf4;
+  --color-success-text: #166534;
+
+  --color-nav-bg: var(--green-950);
+  --color-nav-text: rgba(255, 255, 255, 0.68);
+  --color-nav-text-active: #ffffff;
+  --color-nav-item-hover: rgba(255, 255, 255, 0.06);
+  --color-nav-item-active: rgba(255, 255, 255, 0.1);
+  --color-nav-divider: rgba(255, 255, 255, 0.1);
+  --color-nav-indicator: var(--terra-400);
+
+  --color-focus: var(--green-400);
+  --color-overlay: rgba(7, 26, 22, 0.5);
+
+  /* Shape */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-full: 999px;
+
+  --shadow-sm: 0 1px 2px rgba(16, 30, 26, 0.06), 0 1px 3px rgba(16, 30, 26, 0.08);
+  --shadow-md: 0 4px 12px rgba(16, 30, 26, 0.1), 0 1px 3px rgba(16, 30, 26, 0.06);
+  --shadow-lg: 0 12px 32px rgba(16, 30, 26, 0.18), 0 2px 6px rgba(16, 30, 26, 0.08);
+
+  /* Spacing (4px scale) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+
+  /* Typography */
+  --font-sans: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-base: 15px;
+  --text-md: 16px;
+  --text-lg: 18px;
+  --text-xl: 22px;
+  --text-2xl: 26px;
+
+  /* Layout */
+  --nav-rail-width: 76px;
+  --bottom-nav-height: 64px;
+  --bottom-nav-total: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom));
+  --header-height: 60px;
+  --content-max-width: 920px;
+
+  --transition: 150ms ease;
+
+  /* Layers */
+  --z-map-controls: 1000;
+  --z-nav: 1100;
+  --z-dropdown: 1200;
+  --z-dialog: 2000;
+}
+
+/* Base ----------------------------------------------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
   height: 100%;
   width: 100%;
   margin: 0;
@@ -7,13 +147,14 @@ html, body, #root {
 }
 
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: var(--font-sans);
+  font-size: 16px;
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color-scheme: light;
+  color: var(--color-text);
+  background-color: var(--color-bg);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -21,56 +162,59 @@ html, body, #root {
   -moz-osx-font-smoothing: grayscale;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
 body {
-  margin: 0;
-  display: flex;
-  place-items: center;
   min-width: 320px;
-  min-height: 100vh;
+  font-size: var(--text-base);
+  -webkit-tap-highlight-color: transparent;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin: 0;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  color: var(--color-text-strong);
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
 }
 
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
   cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+button:disabled {
+  cursor: default;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+img {
+  display: block;
+  max-width: 100%;
 }

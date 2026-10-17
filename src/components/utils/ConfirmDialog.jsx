@@ -1,3 +1,8 @@
+import { useEffect } from 'react';
+
+import Button from '../ui/Button';
+import styles from './ConfirmDialog.module.css';
+
 export default function ConfirmDialog({
   open,
   title = 'Confirmar acción',
@@ -8,116 +13,54 @@ export default function ConfirmDialog({
   onCancel,
   danger = false,
 }) {
+  useEffect(() => {
+    if (!open) {
+      return undefined;
+    }
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        onCancel?.();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [open, onCancel]);
+
   if (!open) {
     return null;
   }
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-
-        zIndex: 9999,
-
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-
-        padding: 20,
-
-        background: 'rgba(0, 0, 0, 0.5)',
-      }}
-      onClick={onCancel}
-    >
+    <div className={styles.overlay} onClick={onCancel}>
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="confirm-dialog-title"
         onClick={e => e.stopPropagation()}
-        style={{
-          width: '100%',
-          maxWidth: 420,
-
-          padding: 24,
-
-          borderRadius: 12,
-
-          background: '#ffffff',
-
-          boxShadow: '0 8px 30px rgba(0, 0, 0, 0.4)',
-
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 16,
-        }}
+        className={styles.dialog}
       >
-        <div
-          id="confirm-dialog-title"
-          style={{
-            fontSize: 18,
-            fontWeight: 600,
-            color: '#3a4744',
-          }}
-        >
+        <h2 id="confirm-dialog-title" className={styles.title}>
           {title}
-        </div>
+        </h2>
 
-        <div
-          style={{
-            fontSize: 14,
-            lineHeight: 1.5,
-            color: '#666',
-          }}
-        >
+        <p className={styles.message}>
           {message}
-        </div>
+        </p>
 
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'flex-end',
-            gap: 8,
-            marginTop: 4,
-          }}
-        >
-          <button
-            type="button"
-            onClick={onCancel}
-            style={{
-              padding: '9px 16px',
-
-              border: '1px solid #ddd',
-              borderRadius: 8,
-
-              background: '#fff',
-              color: '#555',
-
-              cursor: 'pointer',
-              fontSize: 14,
-            }}
-          >
+        <div className={styles.actions}>
+          <Button variant="secondary" onClick={onCancel}>
             {cancelLabel}
-          </button>
+          </Button>
 
-          <button
-            type="button"
+          <Button
+            variant={danger ? 'danger' : 'primary'}
             onClick={onConfirm}
-            style={{
-              padding: '9px 16px',
-
-              border: 'none',
-              borderRadius: 8,
-
-              background: danger ? '#dc2626' : '#4c625d',
-              color: '#fff',
-
-              cursor: 'pointer',
-              fontSize: 14,
-            }}
+            autoFocus
           >
             {confirmLabel}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

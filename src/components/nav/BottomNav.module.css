@@ -1,0 +1,52 @@
+.bottomNav {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: var(--z-nav);
+
+  display: flex;
+  justify-content: space-around;
+  align-items: stretch;
+
+  height: var(--bottom-nav-total);
+  padding: 0 var(--space-2) env(safe-area-inset-bottom);
+
+  background: var(--color-nav-bg);
+  box-shadow: 0 -2px 12px rgba(7, 26, 22, 0.18);
+}
+
+.item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+
+  color: var(--color-nav-text);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* Pill behind the icon, Material 3 style */
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 56px;
+  height: 30px;
+
+  border-radius: var(--radius-full);
+  transition: background-color var(--transition);
+}
+
+.active {
+  color: var(--color-nav-text-active);
+}
+
+.active .icon {
+  background: rgba(255, 255, 255, 0.14);
+  color: var(--terra-300);
+}

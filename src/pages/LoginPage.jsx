@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import FormField from '../components/form/FormField';
+import formStyles from '../components/form/Form.module.css';
+import Button from '../components/ui/Button';
+import Alert from '../components/ui/Alert';
+import styles from './LoginPage.module.css';
 import useAuth from '../context/auth/useAuth';
 
 export default function LoginPage() {
@@ -49,67 +53,18 @@ export default function LoginPage() {
   };
 
   return (
-    <div
-      style={{
-        minHeight: '100dvh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 20,
-        boxSizing: 'border-box',
-        background: '#f2f3f2',
-      }}
-    >
-      <div
-        style={{
-          width: '100%',
-          maxWidth: 400,
-          padding: 32,
-          boxSizing: 'border-box',
+    <div className={styles.screen}>
+      <div className={styles.card}>
+        <div className={styles.brand}>
+          <div className={styles.logo}>
+            <img src="/cute-cow.svg" alt="" />
+          </div>
 
-          background: '#fff',
-          borderRadius: 14,
-
-          boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-        }}
-      >
-
-        <div
-          style={{
-            textAlign: 'center',
-            marginBottom: 28,
-          }}
-        >
-          <h1
-            style={{
-              margin: 0,
-              color: '#5e3b2c',
-              fontSize: 24,
-            }}
-          >
-            Rastreo de Vacas
-          </h1>
-
-          <p
-            style={{
-              margin: '8px 0 0',
-              color: '#777',
-              fontSize: 14,
-            }}
-          >
-            Ingresá a tu cuenta
-          </p>
+          <h1 className={styles.title}>Rastreo de Vacas</h1>
+          <p className={styles.subtitle}>Ingresá a tu cuenta</p>
         </div>
 
-        <form
-          onSubmit={handleSubmit}
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 18,
-          }}
-        >
-
+        <form onSubmit={handleSubmit} className={formStyles.form}>
           <FormField
             label="Usuario"
             name="username"
@@ -131,45 +86,12 @@ export default function LoginPage() {
             required
           />
 
-          {error && (
-            <div
-              style={{
-                padding: '10px 12px',
-                borderRadius: 8,
-                background: '#fbeaea',
-                color: '#a33',
-                fontSize: 14,
-              }}
-            >
-              {error}
-            </div>
-          )}
+          {error && <Alert tone="danger">{error}</Alert>}
 
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              height: 44,
-              marginTop: 4,
-
-              border: 'none',
-              borderRadius: 8,
-
-              background: '#5e3b2c',
-              color: '#fff',
-
-              fontSize: 15,
-              fontWeight: 600,
-
-              cursor: loading ? 'default' : 'pointer',
-              opacity: loading ? 0.7 : 1,
-            }}
-          >
+          <Button type="submit" size="lg" block loading={loading}>
             {loading ? 'Ingresando...' : 'Ingresar'}
-          </button>
-
+          </Button>
         </form>
-
       </div>
     </div>
   );

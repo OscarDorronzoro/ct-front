@@ -1,109 +1,47 @@
-import { useState } from 'react';
-import { SatelliteDish } from 'lucide-react';
+import {
+  SatelliteDish, Users, UserRound, LandPlot,
+} from 'lucide-react';
+
 import CowIcon from '../icons/CowIcon';
+import styles from './Search.module.css';
+
+const ICONS = {
+  cow: CowIcon,
+  collar: SatelliteDish,
+  group: Users,
+  user: UserRound,
+  zone: LandPlot,
+};
 
 export default function SearchResultItem({
   result,
   onSelect,
 }) {
-  const [hover, setHover] = useState(false);
-
   const { type, label, description } = result;
-
-  const icon = {
-    cow: <CowIcon size={22} />,
-    collar: <SatelliteDish size={22} />,
-  }[type];
-
-  if (!icon) {
-    return null;
-  }
+  const Icon = ICONS[type] ?? SatelliteDish;
 
   return (
     <button
       type="button"
+      role="option"
+      // mousedown: before the input blur hides the results
       onMouseDown={(e) => {
         e.preventDefault();
-        onSelect(result);
+        onSelect?.(result);
       }}
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-      style={{
-        width: '100%',
-
-        display: 'flex',
-        alignItems: 'center',
-
-        gap: 12,
-
-        padding: '10px 14px',
-
-        border: 'none',
-        background: hover ? '#f3f5f4' : 'transparent',
-
-        textAlign: 'left',
-
-        cursor: 'pointer',
-      }}
+      className={styles.item}
     >
-      <span
-        style={{
-          width: 32,
-          height: 32,
-
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-
-          flexShrink: 0,
-
-          color: '#5e3b2c',
-        }}
-      >
-        {icon}
+      <span className={styles.itemIcon}>
+        <Icon size={18} />
       </span>
 
-      <div
-        style={{
-          minWidth: 0,
-
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
-
-        <span
-          style={{
-            fontSize: 14,
-            fontWeight: 600,
-            color: '#222',
-
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          {label}
-        </span>
+      <span className={styles.itemText}>
+        <span className={styles.itemLabel}>{label}</span>
 
         {description && (
-          <span
-            style={{
-              fontSize: 12,
-              color: '#777',
-
-              marginTop: 2,
-
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {description}
-          </span>
+          <span className={styles.itemDescription}>{description}</span>
         )}
-
-      </div>
+      </span>
     </button>
   );
 }

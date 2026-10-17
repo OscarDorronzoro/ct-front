@@ -1,23 +1,18 @@
+import { Outlet, useLocation } from 'react-router';
+
 import useIsMobile from './hooks/useIsMobile';
 
-// Components
-//import MapView from './components/MapView';
-import Sidebar from './components/SidebarNav';
-import BottomNav from './components/BottomNav';
-
-// Assets
-//import reactLogo from './assets/react.svg'
-//import viteLogo from '/vite.svg'
-
-// CSS
-import './App.css'
-import { Outlet } from 'react-router';
+import AppSidebar from './components/nav/AppSidebar';
+import BottomNav from './components/nav/BottomNav';
 
 function App() {
   const isMobile = useIsMobile();
+  const { pathname } = useLocation();
+
+  // No navigation before signing in
+  const showNav = pathname !== '/login';
 
   return (
-    // Container
     <div style={{
       height: '100dvh',
       width: '100%',
@@ -25,7 +20,7 @@ function App() {
     }}>
 
       {/* Navigation Bar Desktop */}
-      {!isMobile && <Sidebar />}
+      {showNav && !isMobile && <AppSidebar />}
 
       {/* Main Content */}
       <div style={{
@@ -39,7 +34,7 @@ function App() {
       </div>
 
       {/* Navigation Bar Mobile */}
-      {isMobile && <BottomNav />}
+      {showNav && isMobile && <BottomNav />}
     </div>
   );
 }

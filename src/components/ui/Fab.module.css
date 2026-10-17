@@ -1,0 +1,32 @@
+/* Floating action button, mobile only (desktop uses the page header action) */
+.fab {
+  position: fixed;
+  right: var(--space-4);
+  bottom: calc(var(--bottom-nav-total) + var(--space-4));
+  z-index: var(--z-map-controls);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 56px;
+  height: 56px;
+
+  border-radius: var(--radius-lg);
+
+  background: var(--color-primary);
+  color: var(--color-primary-contrast);
+  box-shadow: var(--shadow-lg);
+
+  transition: background-color var(--transition), transform var(--transition);
+}
+
+.fab:active {
+  transform: scale(0.96);
+}
+
+@media (min-width: 768px) {
+  .fab {
+    display: none;
+  }
+}

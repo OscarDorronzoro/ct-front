@@ -1,6 +1,9 @@
 // components/form/MultiSelectField.jsx
 import { useState, useEffect } from 'react';
 import { Plus, X } from 'lucide-react';
+
+import IconButton from '../ui/IconButton';
+import styles from './Form.module.css';
 import SelectField from './SelectField';
 
 export default function MultiSelectField({
@@ -67,9 +70,9 @@ export default function MultiSelectField({
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+    <div className={styles.field}>
       {label && (
-        <label style={{ fontWeight: 500, textAlign: 'left' }}>
+        <label className={styles.label}>
           {label}
         </label>
       )}
@@ -77,13 +80,9 @@ export default function MultiSelectField({
       {selections.map((selection, index) => (
         <div
           key={index}
-          style={{
-            display: 'flex',
-            gap: 8,
-            alignItems: 'center',
-          }}
+          style={{ display: 'flex', gap: 'var(--space-2)', alignItems: 'center' }}
         >
-          <div style={{ flex: 1 }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
             <SelectField
               name={`${name}_${index}`}
               value={selection}
@@ -95,45 +94,12 @@ export default function MultiSelectField({
           </div>
 
           {selections.length > 1 && (
-            <button
-              type="button"
+            <IconButton
+              icon={X}
+              label="Quitar"
+              variant="danger"
               onClick={() => handleRemoveSelection(index)}
-              aria-label="Eliminar grupo"
-              style={{
-                flexShrink: 0,
-
-                width: 32,
-                height: 32,
-
-                padding: 0,
-
-                border: '1px solid #e5e7eb',
-                borderRadius: '50%',
-
-                background: '#fff',
-                color: '#777',
-
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-
-                cursor: 'pointer',
-
-                transition: 'all 0.15s ease',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#fef2f2';
-                e.currentTarget.style.borderColor = '#fecaca';
-                e.currentTarget.style.color = '#dc2626';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = '#fff';
-                e.currentTarget.style.borderColor = '#e5e7eb';
-                e.currentTarget.style.color = '#777';
-              }}
-            >
-              <X size={16} strokeWidth={2} />
-            </button>
+            />
           )}
         </div>
       ))}
@@ -143,28 +109,9 @@ export default function MultiSelectField({
           type="button"
           onClick={handleAddSelection}
           disabled={disabled}
-          style={{
-            padding: '8px 12px',
-            border: '1px dashed #d1d5db',
-            borderRadius: 6,
-            background: 'transparent',
-            color: '#3b82f6',
-            cursor: disabled ? 'not-allowed' : 'pointer',
-            fontSize: 13,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 6,
-            transition: 'background 0.2s',
-          }}
-          onMouseEnter={(e) => {
-            if (!disabled) {e.target.style.background = '#f9fafb';}
-          }}
-          onMouseLeave={(e) => {
-            if (!disabled) {e.target.style.background = 'transparent';}
-          }}
+          className={styles.addMore}
         >
-          <Plus size={16} />
+          <Plus size={14} />
           Agregar grupo
         </button>
       )}

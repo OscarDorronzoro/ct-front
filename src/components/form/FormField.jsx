@@ -1,3 +1,9 @@
+import { useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
+
+import styles from './Form.module.css';
+
+// type="password" gets a show/hide button
 export default function FormField({
   label,
   name,
@@ -6,57 +12,51 @@ export default function FormField({
   type = 'text',
   placeholder = '',
   required = false,
+  hint,
   ...props
 }) {
+  const [revealed, setRevealed] = useState(false);
+  const isPassword = type === 'password';
+
+  const input = (
+    <input
+      id={name}
+      name={name}
+      type={isPassword && revealed ? 'text' : type}
+      value={value}
+      onChange={onChange}
+      placeholder={placeholder}
+      required={required}
+      className={`${styles.input} ${isPassword ? styles.inputWithButton : ''}`}
+      {...props}
+    />
+  );
+
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 6,
-      width: '100%',
-    }}>
-      <label
-        htmlFor={name}
-        style={{
-          fontSize: 14,
-          fontWeight: 600,
-          color: '#3a4744',
-          textAlign: 'left',
-        }}
-      >
+    <div className={styles.field}>
+      <label htmlFor={name} className={styles.label}>
         {label}
-        {required && (
-          <span style={{ color: '#a33', marginLeft: 3 }}>
-            *
-          </span>
-        )}
+        {required && <span className={styles.required}>*</span>}
       </label>
 
-      <input
-        id={name}
-        name={name}
-        type={type}
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
-        {...props}
-        style={{
-          width: '100%',
-          height: 42,
-          boxSizing: 'border-box',
+      {isPassword ? (
+        <div className={styles.inputWrap}>
+          {input}
 
-          padding: '0 12px',
+          <button
+            type="button"
+            onClick={() => setRevealed((r) => !r)}
+            aria-label={revealed ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+            aria-pressed={revealed}
+            aria-controls={name}
+            className={styles.inputButton}
+          >
+            {revealed ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
+        </div>
+      ) : input}
 
-          border: '1px solid #d5d5d5',
-          borderRadius: 8,
-
-          background: '#fff',
-          color: '#222',
-
-          fontSize: 15,
-          outline: 'none',
-        }}
-      />
+      {hint && <span className={styles.hint}>{hint}</span>}
     </div>
   );
 }

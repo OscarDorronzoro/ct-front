@@ -24,7 +24,7 @@ export default defineConfig([
     },
     rules: {
       // Default Vite
-      'no-unused-vars': ['warn', { varsIgnorePattern: '^[A-Z_]' }],
+      'no-unused-vars': ['warn', { varsIgnorePattern: '^[A-Z_]', argsIgnorePattern: '^[A-Z_]' }],
 
       // Custom
       'quotes': ['error', 'single', { avoidEscape: true }],

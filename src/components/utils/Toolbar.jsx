@@ -1,19 +1,9 @@
-import React from 'react';
-import useIsMobile from '../../hooks/useIsMobile';
+import styles from './Toolbar.module.css';
 
-export default function Toolbar({children}) {
-  const isMobile = useIsMobile();
-
+// The first child grows (search); the rest keep their size
+export default function Toolbar({ children }) {
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: isMobile ? 'column' : 'row',
-        gap: 12,
-        alignItems: isMobile ? 'stretch' : 'center',
-        marginBottom: 10,
-      }}
-    >
+    <div className={styles.toolbar}>
       {children}
     </div>
   );

@@ -1,5 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import '@fontsource-variable/inter';
 import './index.css'
 import 'maplibre-gl/dist/maplibre-gl.css';
 

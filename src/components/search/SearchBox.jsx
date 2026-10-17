@@ -1,6 +1,8 @@
-import { useState } from 'react';
-import { Search, X } from 'lucide-react'
+import { useState, useRef } from 'react';
+import { Search, X } from 'lucide-react';
+
 import SearchResults from './SearchResults';
+import styles from './Search.module.css';
 
 export default function SearchBox({
   value,
@@ -11,60 +13,21 @@ export default function SearchBox({
   border = true,
 }) {
   const [focused, setFocused] = useState(false);
+  const inputRef = useRef(null);
 
   const showResults = focused && value && results.length > 0;
 
   return (
-    <div
-      style={{
-        position: 'relative',
-        width: '100%',
-      }}
-    >
-      {/* Search input */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-
-          width: '100%',
-          height: 36,
-
-          padding: '0 12px',
-
-          borderRadius: 999,
-
-          background: '#ffffff',
-
-          border: border
-            ? focused
-              ? '2px solid #3a4744'
-              : '1px solid #d5d5d5'
-            : 'none',
-
-          transition: 'all .15s ease',
-
-          boxSizing: 'border-box',
-
-          position: 'relative',
-          zIndex: 2,
-        }}
-      >
-        <span
-          style={{
-            marginRight: 8,
-            opacity: 0.6,
-            userSelect: 'none',
-            fontSize: 25,
-            lineHeight: 1,
-          }}
-        >
-          <Search size={20} color='black'/>
-        </span>
+    <div className={styles.box}>
+      <div className={`${styles.field} ${border ? '' : styles.plain}`}>
+        <Search size={18} className={styles.icon} aria-hidden="true" />
 
         <input
+          ref={inputRef}
+          type="search"
           value={value}
           placeholder={placeholder}
+          aria-label={placeholder}
           onChange={e => onChange(e.target.value)}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
@@ -73,46 +36,29 @@ export default function SearchBox({
               onChange('');
             }
           }}
-          style={{
-            flex: 1,
-
-            border: 'none',
-            outline: 'none',
-
-            color: 'black',
-            background: 'transparent',
-
-            fontSize: 16,
-          }}
+          className={styles.input}
         />
 
         {value && (
           <button
+            type="button"
             onClick={() => onChange('')}
-            style={{
-              border: 'none',
-              background: 'transparent',
-              color: 'black',
-
-              cursor: 'pointer',
-
-              fontSize: 18,
-
-              opacity: 0.5,
-
-              padding: 4,
-            }}
+            aria-label="Limpiar búsqueda"
+            className={styles.clear}
           >
-            <X size={18} />
+            <X size={16} />
           </button>
         )}
       </div>
 
-      {/* Search results */}
       {showResults && (
         <SearchResults
           results={results}
-          onSelect={onSelect}
+          onSelect={(result) => {
+            // Close the results (and the mobile keyboard)
+            inputRef.current?.blur();
+            onSelect?.(result);
+          }}
         />
       )}
     </div>

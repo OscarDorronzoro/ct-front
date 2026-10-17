@@ -1,207 +1,98 @@
-import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
+import { Plus, UserRound } from 'lucide-react';
 
-import UserList from '../components/users/UserList';
+import Page from '../components/ui/Page';
+import Button from '../components/ui/Button';
+import Fab from '../components/ui/Fab';
+import EntityList from '../components/ui/EntityList';
 import Toolbar from '../components/utils/Toolbar';
 import SearchBox from '../components/search/SearchBox';
-import AddButton from '../components/utils/AddButton';
 import ActionError from '../components/utils/ActionError';
 import ConfirmDialog from '../components/utils/ConfirmDialog';
+import UserRow from '../components/users/UserRow';
 
-import useIsMobile from '../hooks/useIsMobile';
+import useEntityList from '../hooks/useEntityList';
+import { userLabel } from '../utils/labels';
+import useListSearch from '../hooks/useListSearch';
 import { getAllUsers, deleteUser } from '../services/user';
 
-import { normalizeSearchText } from '../utils/search';
-import logger from '../utils/logger';
+const NEW_PATH = '/settings/users/new';
+
+const removeUser = (user) => deleteUser(user.id);
+const searchFields = (user) => [user.id, user.username];
+const toSearchResult = (user) => ({
+  type: 'user',
+  id: user.id,
+  label: userLabel(user),
+  description: null,
+});
 
 export default function UsersPage() {
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState(null);
-  const [actionError, setActionError] = useState(null);
-  const [userToDelete, setUserToDelete] = useState(null);
-
-  const [search, setSearch] = useState('');
-
   const navigate = useNavigate();
-  const isMobile = useIsMobile();
 
-  // Load data
-  const loadUsers = async () => {
-    setLoading(true);
-    setLoadError(null);
+  const list = useEntityList({ load: getAllUsers, remove: removeUser });
+  const { search, setSearch, results } = useListSearch(list.items, {
+    fields: searchFields,
+    toResult: toSearchResult,
+  });
 
-    try {
-      const data = await getAllUsers();
-      setUsers(data);
-    } catch (err) {
-      logger.error(err);
-      setLoadError(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadUsers();
-  }, []);
-
-  // Search results
-  const searchResults = useMemo(() => {
-    if (!search.trim()) {
-      return [];
-    }
-
-    const query = normalizeSearchText(search);
-
-    return users
-      .filter(user => {
-        return (
-          normalizeSearchText(user.id).includes(query) ||
-          normalizeSearchText(user.username).includes(query)
-        );
-      })
-      .slice(0, 8)
-      .map(user => ({
-        type: 'user',
-        id: user.id,
-        label: user.username || `Usuario #${user.id}`,
-        description: null,
-      }));
-  }, [users, search]);
-
-  const handleSearchSelect = (result) => {
-    if (result.type === 'user') {
-      navigate(`/settings/users/${result.id}`);
-    }
-  };
-
-  // Delete User
-  const handleDelete = (user) => {
-    setUserToDelete(user);
-  };
-
-  const confirmDelete = async () => {
-    if (!userToDelete) {
-      return;
-    }
-
-    const user = userToDelete;
-
-    setUserToDelete(null);
-    setActionError(null);
-
-    try {
-      await deleteUser(user.id);
-
-      setUsers(users =>
-        users.filter(currentUser => currentUser.id !== user.id)
-      );
-    } catch (err) {
-      logger.error('Error deleting user', err);
-      setActionError(err);
-    }
-  };
+  const item = list.itemToDelete;
 
   return (
-    <div
-      style={{
-        flex: 1,
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden',
-        height: '100%',
-      }}
+    <Page
+      title="Usuarios"
+      hideHeaderOnMobile
+      actions={
+        <Button icon={Plus} to={NEW_PATH}>
+          Agregar usuario
+        </Button>
+      }
     >
-
-      {/* Header */}
-      <div
-        style={{
-          height: '56px',
-          display: 'flex',
-          alignItems: 'center',
-          padding: '0 16px',
-          background: '#ffffff',
-          borderBottom: '1px solid #ddd',
-          gap: '12px',
-        }}
-      >
-        <div
-          style={{
-            fontWeight: 'bold',
-            color: '#5e3b2c',
-            margin: '0 auto',
-            fontSize: 18,
-          }}
-        >
-          <h2>Usuarios</h2>
-        </div>
-      </div>
-
-      {/* Content */}
-      <div
-        style={{
-          marginTop: '10px',
-          background: '#fff',
-          height: '100%',
-          flex: 1,
-          padding: 16,
-          overflow: 'auto',
-        }}
-      >
-        <ActionError
-          error={actionError}
-          onClose={() => setActionError(null)}
-        />
-
-        <Toolbar>
-          <div style={{ flex: 1 }}>
-            <SearchBox
-              value={search}
-              onChange={setSearch}
-              placeholder="Buscar usuario..."
-              results={searchResults}
-              onSelect={handleSearchSelect}
-            />
-          </div>
-
-          {!isMobile &&
-            <AddButton
-              label="Agregar usuario"
-              path="/settings/users"
-            />
-          }
-        </Toolbar>
-
-        {isMobile &&
-          <AddButton path="/settings/users" />
-        }
-
-        <UserList
-          users={users}
-          loading={loading}
-          error={loadError}
-          onRetry={loadUsers}
-          onDelete={handleDelete}
-        />
-
-      </div>
-
-      <ConfirmDialog
-        open={!!userToDelete}
-        title="Eliminar usuario"
-        message={
-          userToDelete
-            ? `¿Está seguro de eliminar el usuario "${userToDelete.name || userToDelete.email || userToDelete.username || userToDelete.id}"?`
-            : ''
-        }
-        confirmLabel="Eliminar"
-        cancelLabel="Cancelar"
-        danger
-        onConfirm={confirmDelete}
-        onCancel={() => setUserToDelete(null)}
+      <ActionError
+        error={list.actionError}
+        onClose={list.clearActionError}
       />
 
-    </div>
+      <Toolbar>
+        <SearchBox
+          value={search}
+          onChange={setSearch}
+          placeholder="Buscar usuario..."
+          results={results}
+          onSelect={(result) => navigate(`/settings/users/${result.id}`)}
+        />
+      </Toolbar>
+
+      <EntityList
+        items={list.items}
+        loading={list.loading}
+        error={list.loadError}
+        onRetry={list.reload}
+        labels={{
+          error: 'No se pudieron cargar los usuarios.',
+          empty: 'No hay usuarios registrados',
+        }}
+        emptyIcon={UserRound}
+        renderItem={(user) => (
+          <UserRow
+            key={user.id}
+            user={user}
+            onDelete={list.requestDelete}
+          />
+        )}
+      />
+
+      <Fab icon={Plus} label="Agregar usuario" to={NEW_PATH} />
+
+      <ConfirmDialog
+        open={!!item}
+        title="Eliminar usuario"
+        message={item ? `¿Está seguro de eliminar el usuario "${userLabel(item)}"?` : ''}
+        confirmLabel="Eliminar"
+        danger
+        onConfirm={list.confirmDelete}
+        onCancel={list.cancelDelete}
+      />
+    </Page>
   );
 }

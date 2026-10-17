@@ -1,6 +1,8 @@
 // components/form/SelectField.jsx
 import { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Check } from 'lucide-react';
+import { ChevronDown, Check, Plus } from 'lucide-react';
+
+import styles from './Form.module.css';
 
 export default function SelectField({
   label,
@@ -13,10 +15,10 @@ export default function SelectField({
   disabled = false,
   loading = false,
   error = null,
-  isMulti = false,
+  hint = null,
   onAddMore = null,
   showAddButton = false,
-  addButtonLabel = '+ Agregar otro',
+  addButtonLabel = 'Agregar otro',
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -62,99 +64,56 @@ export default function SelectField({
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+    <div className={styles.field}>
       {label && (
-        <label style={{ fontWeight: 500, textAlign: 'left' }}>
+        <label className={styles.label}>
           {label}
-          {required && <span style={{ color: '#dc2626' }}> *</span>}
+          {required && <span className={styles.required}>*</span>}
         </label>
       )}
 
-      <div ref={dropdownRef} style={{ position: 'relative' }}>
-        {/* Botón principal del dropdown */}
+      <div ref={dropdownRef} className={styles.select}>
+        {/* Trigger */}
         <button
           type="button"
           onClick={() => !disabled && setIsOpen(!isOpen)}
           disabled={disabled}
-          style={{
-            width: '100%',
-            padding: '10px 12px',
-            border: `1px solid ${error ? '#dc2626' : '#d1d5db'}`,
-            borderRadius: 6,
-            background: disabled ? '#f3f4f6' : '#fff',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            cursor: disabled ? 'not-allowed' : 'pointer',
-            fontSize: 14,
-            color: '#374151',
-            transition: 'border-color 0.2s, box-shadow 0.2s',
-            outline: 'none',
-          }}
-          onFocus={(e) => e.target.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.2)'}
-          onBlur={(e) => e.target.style.boxShadow = 'none'}
+          aria-haspopup="listbox"
+          aria-expanded={isOpen}
+          className={[
+            styles.input,
+            styles.selectTrigger,
+            isOpen && styles.selectOpen,
+            error && styles.invalid,
+          ].filter(Boolean).join(' ')}
         >
-          <span style={{
-            color: selectedOption ? '#374151' : '#9ca3af',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap'
-          }}>
+          <span className={`${styles.selectValue} ${selectedOption ? '' : styles.placeholder}`}>
             {loading ? 'Cargando...' : selectedOption ? selectedOption.label : placeholder}
           </span>
 
           <ChevronDown
             size={18}
-            style={{
-              transition: 'transform 0.2s',
-              transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-              flexShrink: 0
-            }}
+            className={`${styles.chevron} ${isOpen ? styles.chevronOpen : ''}`}
           />
         </button>
 
         {/* Dropdown menu */}
         {isOpen && !disabled && (
-          <div
-            style={{
-              position: 'absolute',
-              top: '100%',
-              left: 0,
-              right: 0,
-              marginTop: 4,
-              background: '#fff',
-              border: '1px solid #d1d5db',
-              borderRadius: 6,
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-              maxHeight: 240,
-              overflowY: 'auto',
-              zIndex: 1000,
-            }}
-          >
-            {/* Barra de búsqueda */}
-            <div style={{ padding: 8, borderBottom: '1px solid #e5e7eb' }}>
+          <div className={styles.menu}>
+            <div className={styles.menuSearch}>
               <input
                 type="text"
                 placeholder="Buscar..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onKeyDown={handleKeyDown}
-                style={{
-                  width: '100%',
-                  padding: '6px 8px',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: 4,
-                  fontSize: 13,
-                  outline: 'none',
-                }}
                 autoFocus
               />
             </div>
 
-            {/* Lista de opciones */}
-            <div>
+            <div className={styles.options} role="listbox">
               {filteredOptions.length === 0 ? (
-                <div style={{ padding: 12, textAlign: 'center', color: '#9ca3af', fontSize: 13 }}>
+                <div className={styles.noOptions}>
                   No hay opciones disponibles
                 </div>
               ) : (
@@ -162,35 +121,13 @@ export default function SelectField({
                   <button
                     key={option.value}
                     type="button"
+                    role="option"
+                    aria-selected={option.value === value}
                     onClick={() => handleSelect(option.value)}
-                    style={{
-                      width: '100%',
-                      padding: '10px 12px',
-                      border: 'none',
-                      background: option.value === value ? '#eff6ff' : 'transparent',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      cursor: 'pointer',
-                      fontSize: 14,
-                      color: '#374151',
-                      transition: 'background 0.15s',
-                    }}
-                    onMouseEnter={(e) => {
-                      if (option.value !== value) {
-                        e.target.style.background = '#f9fafb';
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (option.value !== value) {
-                        e.target.style.background = 'transparent';
-                      }
-                    }}
+                    className={`${styles.option} ${option.value === value ? styles.optionSelected : ''}`}
                   >
                     <span>{option.label}</span>
-                    {option.value === value && (
-                      <Check size={16} color="#3b82f6" />
-                    )}
+                    {option.value === value && <Check size={16} />}
                   </button>
                 ))
               )}
@@ -199,38 +136,20 @@ export default function SelectField({
         )}
       </div>
 
-      {/* Botón para agregar más opciones (solo para multi-select) */}
+      {/* Add another option (multi-select) */}
       {showAddButton && onAddMore && (
         <button
           type="button"
           onClick={onAddMore}
-          style={{
-            padding: '6px 12px',
-            border: '1px dashed #d1d5db',
-            borderRadius: 6,
-            background: 'transparent',
-            color: '#3b82f6',
-            cursor: 'pointer',
-            fontSize: 13,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 4,
-            transition: 'background 0.2s',
-          }}
-          onMouseEnter={(e) => e.target.style.background = '#f9fafb'}
-          onMouseLeave={(e) => e.target.style.background = 'transparent'}
+          className={styles.addMore}
         >
-          <span style={{ fontSize: 18 }}>+</span>
+          <Plus size={14} />
           {addButtonLabel}
         </button>
       )}
 
-      {/* Mensaje de error */}
-      {error && (
-        <span style={{ fontSize: 12, color: '#dc2626' }}>
-          {error}
-        </span>
-      )}
+      {error && <span className={styles.error}>{error}</span>}
+      {!error && hint && <span className={styles.hint}>{hint}</span>}
     </div>
   );
 }

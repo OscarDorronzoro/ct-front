@@ -1,0 +1,18 @@
+.settings {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  background: var(--color-bg);
+}
+
+.content {
+  flex: 1;
+  min-height: 0;
+}
+
+@media (max-width: 767px) {
+  .settings {
+    padding-bottom: var(--bottom-nav-total);
+  }
+}
