@@ -157,6 +157,7 @@ export default function RangePicker({ range, onChange }) {
             <input
               type="date"
               className={styles.input}
+              aria-label="Fecha desde"
               value={draft.fromDate}
               max={today}
               onChange={updateDraft('fromDate')}
@@ -164,6 +165,7 @@ export default function RangePicker({ range, onChange }) {
             <input
               type="time"
               className={styles.input}
+              aria-label="Hora desde"
               value={draft.fromTime}
               onChange={updateDraft('fromTime')}
             />
@@ -174,6 +176,7 @@ export default function RangePicker({ range, onChange }) {
             <input
               type="date"
               className={styles.input}
+              aria-label="Fecha hasta"
               value={draft.toDate}
               max={today}
               disabled={draft.untilNow}
@@ -182,6 +185,7 @@ export default function RangePicker({ range, onChange }) {
             <input
               type="time"
               className={styles.input}
+              aria-label="Hora hasta"
               value={draft.toTime}
               disabled={draft.untilNow}
               onChange={updateDraft('toTime')}
