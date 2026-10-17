@@ -48,19 +48,19 @@ export default function MultiSelectField({
     }
   };
 
+  // Removing the only selection leaves an empty selector (no selections at all)
   const handleRemoveSelection = (index) => {
-    if (selections.length > 1) {
-      const newSelections = selections.filter((_, i) => i !== index);
-      setSelections(newSelections);
+    const remaining = selections.filter((_, i) => i !== index);
+    const newSelections = remaining.length > 0 ? remaining : [null];
+    setSelections(newSelections);
 
-      const validSelections = newSelections.filter(v => v !== null && v !== '');
-      onChange({
-        target: {
-          name,
-          value: validSelections
-        }
-      });
-    }
+    const validSelections = newSelections.filter(v => v !== null && v !== '');
+    onChange({
+      target: {
+        name,
+        value: validSelections
+      }
+    });
   };
 
   // Filtrar opciones que ya están seleccionadas
@@ -93,7 +93,7 @@ export default function MultiSelectField({
             />
           </div>
 
-          {selections.length > 1 && (
+          {(selections.length > 1 || selection !== null) && (
             <IconButton
               icon={X}
               label="Quitar"
