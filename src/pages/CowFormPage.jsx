@@ -3,18 +3,24 @@ import { useNavigate, useParams } from 'react-router';
 
 import FormField from '../components/form/FormField';
 import FormActions from '../components/form/FormActions';
+import formStyles from '../components/form/Form.module.css';
+import Page from '../components/ui/Page';
+import Card from '../components/ui/Card';
+import Alert from '../components/ui/Alert';
 import ImageField from '../components/form/ImageField';
 import SelectField from '../components/form/SelectField';
 import MultiSelectField from '../components/form/MultiSelectField';
 
-import { getCow, updateCow, createCow } from '../services/cow';
+import {
+  getCow, getAllCows, updateCow, createCow,
+} from '../services/cow';
 import { getAllCollars } from '../services/collar';
 import { getAllBreeds } from '../services/breed';
 import { getAllGroups } from '../services/group';
 
-import useIsMobile from '../hooks/useIsMobile';
 import logger from '../utils/logger';
 import { toDateInput } from '../utils/dateHelper';
+import { collarLabel, cowLabel } from '../utils/labels';
 
 const emptyForm = {
   alias: '',
@@ -30,9 +36,13 @@ export default function CowFormPage() {
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
-  const [imageFile, setImageFile] = useState(null);
+  // undefined: unchanged, File: new image, null: remove the current one
+  const [imageChange, setImageChange] = useState(undefined);
 
   const [collars, setCollars] = useState([]);
+  // collarId -> cow that has it now (to warn before taking it away)
+  const [collarOwners, setCollarOwners] = useState(new Map());
+  const [initialCollarId, setInitialCollarId] = useState('');
   const [breeds, setBreeds] = useState([]);
   const [groups, setGroups] = useState([]);
   const [loadingOptions, setLoadingOptions] = useState({
@@ -42,7 +52,6 @@ export default function CowFormPage() {
   });
 
   const { cowId } = useParams();
-  const isMobile = useIsMobile();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -70,21 +79,32 @@ export default function CowFormPage() {
       setSaving(true);
 
       const formData = new FormData();
+      const isEdit = Boolean(form.id);
 
-      Object.keys(form).forEach(key => {
-        if (key === 'imageUrl') {return;}
-
-        if (key === 'groupIds') {
-          form.groupIds.forEach(groupId => {
-            formData.append('groupIds[]', groupId);
-          });
-        } else if (form[key] !== null && form[key] !== undefined && form[key] !== '') {
+      ['alias', 'earTag', 'breedId', 'birthDate'].forEach((key) => {
+        if (form[key] !== null && form[key] !== undefined && form[key] !== '') {
           formData.append(key, form[key]);
         }
       });
 
-      if (imageFile) {
-        formData.append('image', imageFile);
+      form.groupIds.forEach((groupId) => {
+        formData.append('groupIds[]', groupId);
+      });
+
+      // A form can't send an empty list: an empty value means "no groups"
+      if (form.groupIds.length === 0) {
+        formData.append('groupIds', '');
+      }
+
+      // Editing: always sent, empty unassigns the collar. New cow: only when chosen.
+      if (isEdit || form.currentCollarId !== '') {
+        formData.append('currentCollarId', form.currentCollarId);
+      }
+
+      if (imageChange) {
+        formData.append('image', imageChange);
+      } else if (imageChange === null && form.imageUrl) {
+        formData.append('removeImage', 'true');
       }
 
       if (form.id) {
@@ -115,8 +135,10 @@ export default function CowFormPage() {
     getCow(cowId)
       .then((cow) => {
         if (!cancelled) {
+          setInitialCollarId(cow.currentCollarId ?? '');
           setForm({
             ...cow,
+            currentCollarId: cow.currentCollarId ?? '',
             birthDate: toDateInput(cow.birthDate),
             groupIds: cow.groups ? cow.groups.map(g => g.id) : [],
           });
@@ -135,11 +157,14 @@ export default function CowFormPage() {
     const loadOptions = async () => {
       try {
         setLoadingOptions(prev => ({ ...prev, collars: true }));
-        const collarsData = await getAllCollars();
+        const [collarsData, cowsData] = await Promise.all([getAllCollars(), getAllCows()]);
         setCollars(collarsData.map(collar => ({
           value: collar.id,
-          label: collar.name || `Collar ${collar.id}`,
+          label: collarLabel(collar),
         })));
+        setCollarOwners(new Map(cowsData
+          .filter((cow) => cow.currentCollarId)
+          .map((cow) => [cow.currentCollarId, cow])));
       } catch (err) {
         logger.error('Error loading collars', err);
       } finally {
@@ -176,142 +201,109 @@ export default function CowFormPage() {
     loadOptions();
   }, []);
 
+  // Collars on another cow say so: choosing one takes it from that cow
+  const otherOwner = (collarId) => {
+    const owner = collarOwners.get(collarId);
+    return owner && owner.id !== form.id ? owner : null;
+  };
+
+  const collarOptions = [
+    { value: '', label: 'Sin collar' },
+    ...collars.map((option) => {
+      const owner = otherOwner(option.value);
+      return owner ? { ...option, label: `${option.label}\u00A0· ${cowLabel(owner)}` } : option;
+    }),
+  ];
+
+  const selectedOwner = form.currentCollarId !== '' ? otherOwner(form.currentCollarId) : null;
+  const unassigning = Boolean(initialCollarId) && form.currentCollarId === '';
+
+  const collarHint = selectedOwner
+    ? `Está asignado a ${cowLabel(selectedOwner)}: se le quitará al guardar.`
+    : unassigning ? 'El collar actual se desasignará al guardar.' : null;
+
   return (
-    <div style={{
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-    }}>
+    <Page
+      title={cowId ? 'Editar vaca' : 'Nueva vaca'}
+      backTo="/settings/cows"
+      width="narrow"
+    >
+      <Card
+        padded
+        as="form"
+        onSubmit={handleSubmit}
+        className={formStyles.form}
+      >
+        {error && <Alert tone="danger">{error}</Alert>}
 
-      {/* Header */}
-      <div style={{
-        height: '56px',
-        display: 'flex',
-        alignItems: 'center',
-        padding: '0 16px',
-        background: '#ffffff',
-        borderBottom: '1px solid #ddd',
-        gap: '12px',
-      }}>
-        <div style={{
-          fontWeight: 'bold',
-          color: '#5e3b2c',
-          margin: '0 auto',
-          fontSize: 18,
-        }}>
-          <h2>{cowId ? 'Editar' : 'Crear'} vaca</h2>
-        </div>
+        <FormField
+          label="Alias"
+          name="alias"
+          value={form.alias}
+          onChange={handleChange}
+          placeholder="Nombre de la vaca"
+          required
+        />
 
-      </div>
+        <FormField
+          label="Caravana"
+          name="earTag"
+          value={form.earTag}
+          onChange={handleChange}
+          placeholder="Número de caravana"
+        />
 
-      {/* Content */}
-      <div style={{
-        flex: 1,
-        overflowY: 'auto',
-        padding: isMobile ? '20px 16px' : '30px 20px'
-      }}>
-        <form
-          style={{
-            width: '80%',
-            maxWidth: isMobile ? '500px' : '650px',
-            margin: '0 auto',
-            //marginBottom: isMobile ? 60 : 0,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 20,
-            padding: '20px 30px 10px 30px',
-            borderRadius: 10,
-            backgroundColor: 'white',
-          }}
-          onSubmit={handleSubmit}
-        >
-          {error && (
-            <div
-              role="alert"
-              style={{
-                padding: '10px 12px',
-                borderRadius: 8,
-                backgroundColor: '#fef2f2',
-                border: '1px solid #fecaca',
-                color: '#b91c1c',
-                fontSize: 14,
-              }}
-            >
-              {error}
-            </div>
-          )}
+        <SelectField
+          label="Collar asignado"
+          name="currentCollarId"
+          value={form.currentCollarId}
+          onChange={handleChange}
+          options={collarOptions}
+          placeholder="Seleccione un collar"
+          loading={loadingOptions.collars}
+          hint={collarHint}
+        />
 
-          <FormField
-            label="Alias"
-            name="alias"
-            value={form.alias}
-            onChange={handleChange}
-            placeholder="Nombre de la vaca"
-            required
-          />
+        <ImageField
+          key={form.imageUrl || 'no-image'}
+          label="Imagen"
+          initialImage={form.imageUrl}
+          onChange={setImageChange}
+        />
 
-          <FormField
-            label="Caravana"
-            name="earTag"
-            value={form.earTag}
-            onChange={handleChange}
-            placeholder="Número de caravana"
-          />
+        <SelectField
+          label="Raza"
+          name="breedId"
+          value={form.breedId}
+          onChange={handleChange}
+          options={breeds}
+          placeholder="Seleccione una raza"
+          loading={loadingOptions.breeds}
+        />
 
-          <SelectField
-            label="Collar asignado"
-            name="currentCollarId"
-            value={form.currentCollarId}
-            onChange={handleChange}
-            options={collars}
-            placeholder="Seleccione un collar"
-            loading={loadingOptions.collars}
-          />
+        <MultiSelectField
+          label="Grupos"
+          name="groupIds"
+          values={form.groupIds}
+          onChange={handleChange}
+          options={groups}
+          placeholder="Seleccione un grupo"
+        />
 
-          <ImageField
-            key={form.imageUrl || 'no-image'}
-            label="Imagen"
-            initialImage={form.imageUrl}
-            onChange={setImageFile}
-          />
+        <FormField
+          label="Fecha de nacimiento"
+          name="birthDate"
+          type="date"
+          value={form.birthDate}
+          onChange={handleChange}
+        />
 
-          <SelectField
-            label="Raza"
-            name="breedId"
-            value={form.breedId}
-            onChange={handleChange}
-            options={breeds}
-            placeholder="Seleccione una raza"
-            loading={loadingOptions.breeds}
-          />
-
-          <MultiSelectField
-            label="Grupos"
-            name="groupIds"
-            values={form.groupIds}
-            onChange={handleChange}
-            options={groups}
-            placeholder="Seleccione un grupo"
-          />
-
-          <FormField
-            label="Fecha de nacimiento"
-            name="birthDate"
-            type="date"
-            value={form.birthDate}
-            onChange={handleChange}
-          />
-
-          {/* Actions */}
-          <FormActions
-            onCancel={handleCancel}
-            saving={saving}
-          />
-        </form>
-      </div>
-
-
-
-    </div>
+        {/* Actions */}
+        <FormActions
+          onCancel={handleCancel}
+          saving={saving}
+        />
+      </Card>
+    </Page>
   );
 }
