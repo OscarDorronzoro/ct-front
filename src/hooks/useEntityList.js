@@ -4,6 +4,8 @@ import logger from '../utils/logger';
 
 // Load a list and delete items with confirmation.
 // load: () => Promise<items>. remove: (item) => Promise.
+// load must keep its identity between renders (a module function or useCallback): the list
+// reloads whenever it changes, so an inline arrow function would reload forever.
 export default function useEntityList({ load, remove }) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
