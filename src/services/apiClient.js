@@ -92,7 +92,9 @@ export default async function apiClient(path, options = {}, retry = true) {
   const data = await parseResponse(response);
   logger.error(data);
 
+  // Invalid input: the details (data.issues) are for developers, not for the user
   const message =
+    (data?.error === 'VALIDATION_ERROR' ? 'Hay datos inválidos. Revisá el formulario.' : null) ||
     data?.error ||
     (typeof data === 'string' ? data : null) ||
     'Error al comunicarse con el servidor';
