@@ -1,0 +1,128 @@
+/* Panel over the map: bottom sheet on mobile, floating card on desktop */
+.sheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: var(--bottom-nav-total);
+  z-index: var(--z-dropdown);
+
+  display: flex;
+  flex-direction: column;
+  max-height: 58%;
+
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  background: var(--color-surface);
+  box-shadow: 0 -6px 24px rgba(16, 30, 26, 0.18);
+
+  animation: slide 180ms ease-out;
+}
+
+.handle {
+  flex-shrink: 0;
+  width: 36px;
+  height: 4px;
+  margin: var(--space-2) auto 0;
+  border-radius: var(--radius-full);
+  background: var(--color-border-strong);
+}
+
+.header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-3) var(--space-3) var(--space-4);
+}
+
+.avatar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 44px;
+  height: 44px;
+
+  border-radius: var(--radius-full);
+  overflow: hidden;
+
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.titles {
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  font-size: var(--text-md);
+  font-weight: 600;
+  color: var(--color-text-strong);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.subtitle {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.body {
+  overflow-y: auto;
+  padding: 0 var(--space-4) var(--space-4);
+}
+
+.actions {
+  flex-shrink: 0;
+  display: flex;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4) var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.actions > * {
+  flex: 1;
+}
+
+@media (min-width: 768px) {
+  .sheet {
+    left: var(--space-4);
+    right: auto;
+    bottom: var(--space-6);
+    width: 380px;
+    max-height: calc(100% - 120px);
+
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    animation-name: rise;
+  }
+
+  .handle {
+    display: none;
+  }
+}
+
+@keyframes slide {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+}
+
+@keyframes rise {
+  from {
+    transform: translateY(8px);
+    opacity: 0;
+  }
+}

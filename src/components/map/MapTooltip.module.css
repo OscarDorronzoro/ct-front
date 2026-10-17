@@ -1,0 +1,16 @@
+/* Name of the hovered position (desktop). Applied to the maplibre popup via className. */
+.tooltip :global(.maplibregl-popup-content) {
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--gray-900);
+  box-shadow: var(--shadow-md);
+  color: #ffffff;
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.tooltip :global(.maplibregl-popup-tip) {
+  display: none;
+}

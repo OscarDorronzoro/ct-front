@@ -1,63 +1,90 @@
-
-import { useEffect, useState, useMemo, useRef } from 'react';
-//import maplibregl from 'maplibre-gl';
+import {
+  useEffect, useState, useMemo, useRef, useCallback, useImperativeHandle,
+} from 'react';
+import maplibregl from 'maplibre-gl';
 
 import BaseMap from './BaseMap';
-import PositionDetails from './PositionDetails';
+import PositionSheet from './map/PositionSheet';
+import MapControls from './map/MapControls';
+import MapNotice from './map/MapNotice';
+import ZoneCard from './map/ZoneCard';
+import HistoryLegend from './map/HistoryLegend';
+import {
+  addZoneLayers, setZoneData, setZonesVisible, createZoneLabels, ZONE_FILL_LAYER,
+} from './map/zoneLayers';
+import {
+  addPositionLayers, setHeatView,
+  POINTS_SOURCE, TRACKS_SOURCE, HITBOX_LAYER, HALO_LAYER,
+} from './map/positionLayers';
+import tooltipStyles from './map/MapTooltip.module.css';
 import useIsMobile from '../hooks/useIsMobile';
+import useZoneLayer from '../hooks/useZoneLayer';
+import useMapLabels from '../hooks/useMapLabels';
+import { getSavedMapConfig } from '../utils/mapConfig';
+import { toTimeElapsed } from '../utils/dateHelper';
+import {
+  groupByCollar, collarColors, tracksGeoJSON, heatWeights,
+} from '../utils/mapPoints';
 
-function getCollarColor(id) {
-  const colors = [
-    '#ef7979',
-    '#1aff00',
-    '#1a8fe3',
-    '#ffe66d',
-    '#fd9c13',
-    '#ff0000',
-    '#08520a',
-    '#cf1bee',
-    '#619381',
-  ];
+// Zoom used when centering on a searched cow or collar (only zooms in)
+const FOCUS_ZOOM = 17;
 
-  return colors[id % colors.length];
+// History: the oldest position of the range is drawn at this opacity, the newest fully opaque
+const MIN_POINT_OPACITY = 0.25;
+
+const timeFormat = new Intl.DateTimeFormat('es-AR', {
+  hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
+});
+
+const time = (p) => new Date(p.recordedAt).getTime();
+
+// Feature properties of a position (the map source and the selected point share them)
+function pointProperties(p) {
+  return {
+    id: p.id,
+    timestamp: time(p),
+    collarId: p.collarId,
+    cowId: p.cowId,
+    signalStrength: p.signalStrength,
+  };
 }
 
-export default function MapView({ points, mode }) {
+// mode: 'live' (last position per collar, colored by freshness) or 'history' (tracks per cow,
+// with a heatmap view).
+// referenceTime: point ages are computed against it (end of the history range); null = now.
+// ref: { focusOn(result) } centers a search result ({ type: 'cow' | 'collar', id, label }).
+export default function MapView({
+  points, mode, referenceTime = null, ref,
+}) {
+  const isHistory = mode === 'history';
   const [mapReady, setMapReady] = useState(false);
   const [selectedPoint, setSelectedPoint] = useState(null);
   const [follow, setFollow] = useState(true);
   const isMobile = useIsMobile();
-  const [popupPosition, setPopupPosition] = useState(null);
-  const [mapConfig] = useState(() => {
-    const saved = localStorage.getItem('mapConfig');
-    if (saved) {
-      return JSON.parse(saved);
-    }
-
-    return {
-      center: [-61.209824, -32.967354],
-      zoom: 14,
-    };
-  });
+  const [mapConfig] = useState(getSavedMapConfig);
+  const [selectedZoneId, setSelectedZoneId] = useState(null);
+  const [notice, setNotice] = useState(null);
+  // History: 'points' (tracks) or 'heat', and collars hidden from the legend
+  const [view, setView] = useState('points');
+  const [hidden, setHidden] = useState(() => new Set());
+  const zoneLayer = useZoneLayer();
+  const zoneLabelsRef = useRef(null);
+  const zonesVisibleRef = useRef(zoneLayer.visible);
+  const getLabel = useMapLabels();
 
   const mapRef = useRef(null);
   const lastFollowedTimestamp = useRef(null);
-  const selectedPointRef = useRef(null);
 
-  const circleRadiusBase = 6;
-  const circleStrokeWith = 4;
-
-  const updatePopupPosition = () => {
-    const point = selectedPointRef.current;
-    if (!mapRef.current || !point) {return;}
-
-    const p = mapRef.current.project(point.coordinates);
-
-    setPopupPosition({
-      x: p.x,
-      y: p.y,
-    });
-  };
+  // Read by the map's hover handler, registered once on load
+  const tooltipTextRef = useRef(null);
+  useEffect(() => {
+    tooltipTextRef.current = ({ cowId, collarId, timestamp }) => {
+      const when = isHistory
+        ? timeFormat.format(new Date(timestamp))
+        : toTimeElapsed(timestamp).text.toLowerCase();
+      return `${getLabel({ cowId, collarId })}\u00A0· ${when}`;
+    };
+  });
 
   const latestPoints = useMemo(() => {
     const map = {};
@@ -73,107 +100,138 @@ export default function MapView({ points, mode }) {
     if (!latestPoints.length) {return null;}
 
     return latestPoints.reduce((latest, current) =>
-      new Date(current.recordedAt).getTime() >
-      new Date(latest.recordedAt).getTime()
-        ? current
-        : latest
+      time(current) > time(latest) ? current : latest
     );
   }, [latestPoints]);
 
-  const dataPoints = useMemo(() => {
-    return mode === 'live' ? latestPoints : points;
-  }, [mode, latestPoints, points]);
+  const dataPoints = isHistory ? points : latestPoints;
 
-  useEffect(() => {
-    if (!mapReady || !mapRef.current || !dataPoints) {return;}
+  const groups = useMemo(() => groupByCollar(dataPoints), [dataPoints]);
+  const colors = useMemo(() => collarColors(groups.keys()), [groups]);
 
-    const map = mapRef.current;
+  const visibleGroups = useMemo(() => {
+    if (!hidden.size) {return groups;}
+    return new Map([...groups].filter(([collarId]) => !hidden.has(collarId)));
+  }, [groups, hidden]);
 
-    const now = Date.now();
+  const legendItems = useMemo(() => [...groups]
+    .sort(([a], [b]) => a - b)
+    .map(([collarId, list]) => ({
+      collarId,
+      color: colors.get(collarId),
+      label: getLabel(list[list.length - 1]),
+    })), [groups, colors, getLabel]);
 
-    const geojson = {
-      type: 'FeatureCollection',
-      features: dataPoints.map(p => {
-        const ageMinutes = (now - new Date(p.recordedAt).getTime()) / 1000 / 60;
-        return {
-          type: 'Feature',
-          geometry: {
-            type: 'Point',
-            coordinates: [p.location.longitude, p.location.latitude],
-          },
-          properties: {
-            id: p.id,
-            timestamp: new Date(p.recordedAt).getTime(),
-            collarId: p.collarId,
-            cowId: p.cowId,
-            ageMinutes,
-            collarColor: getCollarColor(p.collarId),
-            selected: selectedPoint?.properties?.id === p.id,
-            signalStrength: p.signalStrength,
-          },
-        };
-      }),
-    };
+  const selectedId = selectedPoint?.properties?.id;
 
-    if (map.getSource('points')) {
-      map.getSource('points').setData(geojson);
-    } else {
-      map.addSource('points', {
-        type: 'geojson',
-        data: geojson,
-      });
-
-
-      if (map.getLayer('points-layer')) {
-        map.setPaintProperty(
-          'points-layer',
-          'circle-color',
-          [
-            'interpolate',
-            ['linear'],
-            ['get', 'ageMinutes'],
-
-            0, '#ff0000',     // recién llegado
-            7, '#df3a3a',     // 7 min
-            60, '#da7b45',    // 35 min
-            300, '#ecc56c',    // 60 min
-            480, '#717171',   // viejo
-          ]
-        );
-      }
-
-    }
-  }, [mapReady, dataPoints, selectedPoint?.properties?.id]);
-
-  // Blinking
+  // Positions and tracks
   useEffect(() => {
     if (!mapReady || !mapRef.current) {return;}
 
     const map = mapRef.current;
-    let opacity = 1;
+    const now = referenceTime ? referenceTime.getTime() : Date.now();
+    const weights = isHistory ? heatWeights(visibleGroups) : null;
 
-    if (mode !== 'live') {
-      map.setPaintProperty('points-layer', 'circle-opacity', opacity);
-      return;
+    let oldest = now;
+    visibleGroups.forEach((list) => { oldest = Math.min(oldest, time(list[0])); });
+    const span = Math.max(now - oldest, 1);
+
+    const features = [];
+    visibleGroups.forEach((list) => {
+      list.forEach((p, i) => {
+        const t = time(p);
+
+        features.push({
+          type: 'Feature',
+          geometry: { type: 'Point', coordinates: [p.location.longitude, p.location.latitude] },
+          properties: {
+            ...pointProperties(p),
+            ageMinutes: (now - t) / 60000,
+            color: colors.get(p.collarId),
+            opacity: 1 - (1 - MIN_POINT_OPACITY) * Math.min((now - t) / span, 1),
+            isLast: i === list.length - 1,
+            selected: p.id === selectedId,
+            weight: weights?.get(p.id) ?? 0,
+          },
+        });
+      });
+    });
+
+    // Newer positions drawn on top of older ones
+    features.sort((a, b) => a.properties.timestamp - b.properties.timestamp);
+
+    map.getSource(POINTS_SOURCE).setData({ type: 'FeatureCollection', features });
+
+    if (isHistory) {
+      map.getSource(TRACKS_SOURCE).setData(tracksGeoJSON(visibleGroups, colors));
     }
+  }, [mapReady, visibleGroups, colors, selectedId, referenceTime, isHistory]);
 
-    const interval = setInterval(() => {
-      if (!map.getLayer('points-layer')) {return;}
+  // History: tracks or heatmap
+  useEffect(() => {
+    if (!mapReady || !mapRef.current || !isHistory) {return;}
 
-      opacity = opacity === 1 ? 0.3 : 1;
+    setHeatView(mapRef.current, view === 'heat');
+  }, [mapReady, isHistory, view]);
 
-      map.setPaintProperty('points-layer', 'circle-opacity', opacity);
-    }, 500);
+  // Pulsing halo on collars that transmitted recently (live). ~20 fps is enough for a smooth pulse.
+  useEffect(() => {
+    if (!mapReady || !mapRef.current || isHistory) {return;}
 
-    return () => clearInterval(interval);
-  }, [mapReady, mode]);
+    const map = mapRef.current;
+    let frame;
+    let last = 0;
+    const PERIOD = 1600;
+
+    const animate = (now) => {
+      frame = requestAnimationFrame(animate);
+      if (now - last < 50 || !map.getLayer(HALO_LAYER)) {return;}
+      last = now;
+
+      const t = (now % PERIOD) / PERIOD;
+      map.setPaintProperty(HALO_LAYER, 'circle-radius', 10 + t * 14);
+      map.setPaintProperty(HALO_LAYER, 'circle-opacity', 0.55 * (1 - t));
+    };
+
+    frame = requestAnimationFrame(animate);
+
+    return () => cancelAnimationFrame(frame);
+  }, [mapReady, isHistory]);
+
+  // Zones: data, labels and visibility
+  useEffect(() => {
+    zonesVisibleRef.current = zoneLayer.visible;
+
+    if (!mapReady || !mapRef.current) {return;}
+
+    const map = mapRef.current;
+    const selected = zoneLayer.visible ? selectedZoneId : null;
+    const geojson = {
+      ...zoneLayer.geojson,
+      features: zoneLayer.geojson.features.map((f) => ({
+        ...f,
+        properties: { ...f.properties, selected: f.properties.id === selected },
+      })),
+    };
+
+    setZoneData(map, geojson);
+    setZonesVisible(map, zoneLayer.visible);
+    zoneLabelsRef.current?.update(geojson, zoneLayer.visible);
+  }, [mapReady, zoneLayer.geojson, zoneLayer.visible, selectedZoneId]);
+
+  useEffect(() => () => zoneLabelsRef.current?.remove(), []);
 
   useEffect(() => {
-    if (!mapRef.current) {return;}
+    if (!mapReady || !mapRef.current) {return;}
 
     const map = mapRef.current;
 
-    const disableFollow = () => setFollow(false);
+    // Only user gestures (originalEvent), not our own easeTo/fitBounds
+    const disableFollow = (e) => {
+      if (e.originalEvent) {
+        setFollow(false);
+      }
+    };
 
     map.on('dragstart', disableFollow);
     map.on('zoomstart', disableFollow);
@@ -184,7 +242,7 @@ export default function MapView({ points, mode }) {
       map.off('zoomstart', disableFollow);
       map.off('rotatestart', disableFollow);
     };
-  }, []);
+  }, [mapReady]);
 
   useEffect(() => {
     if (!latestPoint) {return;}
@@ -192,7 +250,7 @@ export default function MapView({ points, mode }) {
     if (!mapReady) {return;}
     if (!mapRef.current) {return;}
 
-    const timestamp = new Date(latestPoint.recordedAt).getTime();
+    const timestamp = time(latestPoint);
 
     // no hay datos nuevos reales
     if (lastFollowedTimestamp.current === timestamp) {
@@ -201,13 +259,7 @@ export default function MapView({ points, mode }) {
 
     lastFollowedTimestamp.current = timestamp;
 
-    // Si el punto nuevo esta dentro de lo visible, no mover
-    const bounds = mapRef.current.getBounds();
     const center = [latestPoint.location.longitude, latestPoint.location.latitude];
-
-    if (bounds.contains(center)) {
-      //return;
-    }
 
     mapRef.current.easeTo({
       center,
@@ -224,99 +276,144 @@ export default function MapView({ points, mode }) {
 
   }, [latestPoint, follow, mapReady]);
 
-  useEffect(() => {
-    selectedPointRef.current = selectedPoint;
-  }, [selectedPoint]);
-
-  useEffect(() => {
-    if (!selectedPoint || !mapRef.current) {return;}
-
-    const p = mapRef.current.project(
-      selectedPoint.coordinates
-    );
-
-    setPopupPosition({
-      x: p.x,
-      y: p.y,
+  const showCollar = (collarId) => {
+    setHidden((current) => {
+      if (!current.has(collarId)) {return current;}
+      const next = new Set(current);
+      next.delete(collarId);
+      return next;
     });
+  };
 
-  }, [selectedPoint]);
-
-
-  let paint = {
-    'circle-radius': [
-      'case',
-        ['get', 'selected'],
-        10,
-        circleRadiusBase,
-    ],
-
-    // interior
-    'circle-color': [
-      'case',
-        ['get', 'selected'],
-        '#afccff',
-
-      ['<', ['get', 'ageMinutes'], 40],
-        '#ff0000', // reciente
-        '#777777' // viejo
-    ],
-
-    // borde
-    'circle-stroke-width': circleStrokeWith,
-
-    'circle-stroke-color': [
-      'interpolate',
-      ['linear'],
-      ['get', 'ageMinutes'],
-
-        0,    '#ff0000',
-        20,   '#ff8800',
-        120,  '#ffff00',
-        480,  '#91ff00',
-        1200, '#717171',
-        4000, '#202020',
-    ],
-  }
-  if (mode === 'history') {
-    paint = {
-      'circle-radius': [
-        'case',
-          ['get', 'selected'],
-          10,
-          circleRadiusBase,
-      ],
-      'circle-color': [
-        'case',
-        ['get', 'selected'],
-        '#afccff',
-        ['get', 'collarColor'],
-      ],
-
-      // borde
-      'circle-stroke-width': circleStrokeWith,
-      'circle-stroke-color': [
-        'interpolate',
-        ['linear'],
-        ['get', 'ageMinutes'],
-
-          0,    '#ff0000',
-          20,   '#ff8800',
-          120,  '#ffff00',
-          480,  '#91ff00',
-          1200, '#717171',
-          4000, '#202020',
-      ],
+  const toggleCollar = (collarId) => {
+    if (hidden.has(collarId)) {
+      showCollar(collarId);
+      return;
     }
-  }
+
+    setHidden((current) => new Set(current).add(collarId));
+
+    if (selectedPoint?.properties.collarId === collarId) {
+      setSelectedPoint(null);
+    }
+  };
+
+  // Search result: center its latest visible position and open the details
+  useImperativeHandle(ref, () => ({
+    focusOn(focus) {
+      const map = mapRef.current;
+      if (!map) {return;}
+
+      const key = focus.type === 'cow' ? 'cowId' : 'collarId';
+      const latest = dataPoints
+        .filter((p) => p[key] === focus.id)
+        .reduce((a, b) => (!a || time(b) > time(a) ? b : a), null);
+
+      if (!latest) {
+        setSelectedPoint(null);
+        setNotice({
+          id: Date.now(),
+          text: `${focus.label}: sin posiciones ${isHistory ? 'en este rango' : 'recientes'}`,
+        });
+        return;
+      }
+
+      const coordinates = [latest.location.longitude, latest.location.latitude];
+      const height = map.getContainer().clientHeight;
+
+      showCollar(latest.collarId);
+      setNotice(null);
+      setFollow(false);
+      setSelectedZoneId(null);
+      setSelectedPoint({ coordinates, properties: pointProperties(latest) });
+
+      map.easeTo({
+        center: coordinates,
+        zoom: Math.max(map.getZoom(), FOCUS_ZOOM),
+        // Mobile: leave the point above the bottom sheet (at 30% of the height)
+        offset: isMobile ? [0, -height * 0.2] : [0, 0],
+        duration: 600,
+      });
+    },
+  }), [dataPoints, isHistory, isMobile]);
+
+  const closeNotice = useCallback(() => setNotice(null), []);
+
+  // Mobile: the bottom sheet covers the lower half, keep the point above it.
+  // Skipped while the map is easing (a search result already placed it).
+  useEffect(() => {
+    if (!selectedPoint || !mapRef.current || !isMobile) {return;}
+    if (mapRef.current.isMoving()) {return;}
+
+    const map = mapRef.current;
+    const { y } = map.project(selectedPoint.coordinates);
+    const height = map.getContainer().clientHeight;
+
+    if (y > height * 0.4) {
+      map.panBy([0, y - height * 0.3], { duration: 300 });
+    }
+  }, [selectedPoint, isMobile]);
+
+  const centerOnCows = () => {
+    const map = mapRef.current;
+    const visible = latestPoints.filter((p) => !hidden.has(p.collarId));
+    if (!map || !visible.length) {return;}
+
+    lastFollowedTimestamp.current = null;
+    setFollow(true);
+
+    if (visible.length === 1) {
+      const p = visible[0];
+      map.easeTo({ center: [p.location.longitude, p.location.latitude], duration: 500 });
+      return;
+    }
+
+    const lons = visible.map((p) => p.location.longitude);
+    const lats = visible.map((p) => p.location.latitude);
+    map.fitBounds(
+      [[Math.min(...lons), Math.min(...lats)], [Math.max(...lons), Math.max(...lats)]],
+      { padding: 80, maxZoom: 17, duration: 500 },
+    );
+  };
+
+  const selectedZone = zoneLayer.visible && selectedZoneId
+    ? zoneLayer.zonesById.get(selectedZoneId)
+    : null;
 
   return (
     <div style={{ height: '100%' }}>
+      {isHistory && legendItems.length > 0 &&
+        <HistoryLegend
+          view={view}
+          onViewChange={setView}
+          items={legendItems}
+          hidden={hidden}
+          onToggle={toggleCollar}
+        />
+      }
+      {notice && !selectedPoint &&
+        <MapNotice key={notice.id} onClose={closeNotice}>{notice.text}</MapNotice>
+      }
       {selectedPoint &&
-        <PositionDetails
-          selectedPoint={selectedPoint}
-          setSelectedPoint={setSelectedPoint}
-          position={popupPosition}
+        <PositionSheet
+          key={selectedPoint.properties.id}
+          point={selectedPoint}
+          onClose={() => setSelectedPoint(null)}
+        />
+      }
+      <MapControls
+        hiddenOnMobile={!!selectedPoint || !!selectedZone}
+        onZoomIn={() => mapRef.current?.zoomIn()}
+        onZoomOut={() => mapRef.current?.zoomOut()}
+        onCenter={centerOnCows}
+        zonesVisible={zoneLayer.visible}
+        onToggleZones={zoneLayer.toggleVisible}
+      />
+      {selectedZone && !selectedPoint &&
+        <ZoneCard
+          zone={selectedZone}
+          typeName={zoneLayer.typeNames.get(selectedZone.zoneTypeId)}
+          onClose={() => setSelectedZoneId(null)}
         />
       }
       <BaseMap
@@ -324,68 +421,62 @@ export default function MapView({ points, mode }) {
         onLoad={ (map) => {
           mapRef.current = map;
 
-          // inicializar source vacío
-          map.addSource('points', {
-            type: 'geojson',
-            data: {
-              type: 'FeatureCollection',
-              features: [],
-            },
-          });
+          // Zones below the positions
+          addZoneLayers(map);
+          zoneLabelsRef.current = createZoneLabels(map);
 
-          // Layer for touch screens
-          map.addLayer({
-            id: 'points-hitbox-layer',
-            type: 'circle',
-            source: 'points',
+          addPositionLayers(map, { mode, isMobile });
 
-            paint: {
-              'circle-radius': isMobile ? 20 : circleRadiusBase + circleStrokeWith,
-              'circle-opacity': 0,
-            },
-          });
-
-          map.addLayer({
-            id: 'points-layer',
-            type: 'circle',
-            source: 'points',
-            paint: paint,
-          });
-
-
-          // Event listeners
-          map.on('click', 'points-hitbox-layer', (e) => {
-            // if (popup) {popup.remove();}
+          map.on('click', HITBOX_LAYER, (e) => {
             const feature = e.features[0];
 
             const coordinates = feature.geometry.coordinates.slice();
             const properties = feature.properties;
+            setSelectedZoneId(null);
             setSelectedPoint({coordinates, properties});
           });
 
           map.on('click', (e) => {
             const features = map.queryRenderedFeatures(
               e.point,
-              { layers: ['points-hitbox-layer'] }
+              { layers: [HITBOX_LAYER] }
             );
 
             if (features.length > 0) {
               return;
             }
             setSelectedPoint(null);
-            setPopupPosition(null);
+
+            const zones = zonesVisibleRef.current
+              ? map.queryRenderedFeatures(e.point, { layers: [ZONE_FILL_LAYER] })
+              : [];
+            setSelectedZoneId(zones[0]?.properties.id ?? null);
           });
 
-          map.on('mouseenter', 'points-hitbox-layer', () => {
+          // Name and time on hover (mouse only: on touch screens the tap opens the details)
+          const tooltip = window.matchMedia('(hover: hover)').matches
+            ? new maplibregl.Popup({
+              closeButton: false,
+              closeOnClick: false,
+              offset: 12,
+              className: tooltipStyles.tooltip,
+            })
+            : null;
+
+          map.on('mousemove', HITBOX_LAYER, (e) => {
             map.getCanvas().style.cursor = 'pointer';
+
+            const feature = e.features[0];
+            tooltip
+              ?.setLngLat(feature.geometry.coordinates)
+              .setText(tooltipTextRef.current(feature.properties))
+              .addTo(map);
           });
 
-          map.on('mouseleave', 'points-hitbox-layer', () => {
+          map.on('mouseleave', HITBOX_LAYER, () => {
             map.getCanvas().style.cursor = '';
+            tooltip?.remove();
           });
-
-          map.on('move', updatePopupPosition);
-          //map.on('zoom', updatePopupPosition); // zoom event fires move
 
           setMapReady(true);
         }}

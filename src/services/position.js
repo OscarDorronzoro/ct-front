@@ -25,3 +25,19 @@ export async function getPosition({ dateFrom, dateTo } = {}) {
 }
 
 
+
+// Latest position of each active collar (backend default: last 72 h)
+export function getLatestPositions({ maxAgeHours } = {}) {
+  const params = new URLSearchParams();
+  if (maxAgeHours) {
+    params.append('maxAgeHours', maxAgeHours);
+  }
+
+  const query = params.toString();
+  return apiClient(`${endpoint}/latest${query ? `?${query}` : ''}`);
+}
+
+// Position with collar, cow, battery, sleep state and signal
+export function getPositionDetails(positionId) {
+  return apiClient(`${endpoint}/${positionId}`);
+}

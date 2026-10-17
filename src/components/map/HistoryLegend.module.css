@@ -1,0 +1,105 @@
+/* Row of chips below the range picker. Scrolls sideways when there are many cows. */
+.legend {
+  position: absolute;
+  top: 132px;
+  left: 0;
+  right: 0;
+  /* Below the range picker, whose panel drops over it */
+  z-index: calc(var(--z-map-controls) - 1);
+
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 2px var(--space-3) var(--space-2);
+
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.legend::-webkit-scrollbar {
+  display: none;
+}
+
+.views {
+  flex-shrink: 0;
+  display: flex;
+  padding: 3px;
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-md);
+}
+
+.view {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: 30px;
+  padding: 0 var(--space-3);
+
+  border: none;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  white-space: nowrap;
+
+  transition: background-color var(--transition), color var(--transition);
+}
+
+.viewActive {
+  background: var(--color-primary);
+  color: var(--color-primary-contrast);
+}
+
+.chip {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 var(--space-3) 0 10px;
+
+  border: none;
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-md);
+  color: var(--color-text-strong);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  white-space: nowrap;
+
+  transition: opacity var(--transition);
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: var(--radius-full);
+  box-shadow: 0 0 0 1.5px var(--gray-0), 0 0 0 2.5px var(--gray-300);
+}
+
+.chipOff {
+  opacity: 0.55;
+  color: var(--color-text-muted);
+  text-decoration: line-through;
+}
+
+.chipOff .dot {
+  background: var(--gray-300) !important;
+}
+
+@media (min-width: 768px) {
+  .legend {
+    top: 136px;
+    right: auto;
+    max-width: calc(100% - 80px);
+    padding-left: var(--space-4);
+  }
+}
+
+@media (min-width: 1240px) {
+  .legend {
+    top: 72px;
+  }
+}

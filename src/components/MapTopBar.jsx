@@ -8,7 +8,8 @@ import logger from '../utils/logger';
 
 const DEBOUNCE = 300;
 
-export default function MapTopBar() {
+// onSelect(result): a search result was picked (centered on the map by the page)
+export default function MapTopBar({ onSelect }) {
   const isMobile = useIsMobile();
 
   const [search, setSearch] = useState('');
@@ -47,7 +48,8 @@ export default function MapTopBar() {
               }
           ),
 
-          zIndex: 1000,
+          // Above the other map overlays (history range picker): its results drop over them
+          zIndex: 'calc(var(--z-map-controls) + 10)',
 
           display: 'flex',
           alignItems: 'center',
@@ -75,6 +77,10 @@ export default function MapTopBar() {
             placeholder="Buscar vaca o collar..."
             border={false}
             results={searchResults}
+            onSelect={(result) => {
+              setSearch(result.label);
+              onSelect?.(result);
+            }}
           />
         </div>
 
@@ -84,20 +90,6 @@ export default function MapTopBar() {
         )}
       </div>
 
-      {/* User menu - desktop */}
-      {!isMobile && (
-        <div
-          style={{
-            position: 'absolute',
-            top: 12,
-            right: 16,
-
-            zIndex: 1000,
-          }}
-        >
-          <UserMenu />
-        </div>
-      )}
     </>
   );
 }
