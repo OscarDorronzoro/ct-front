@@ -39,4 +39,11 @@ export default defineConfig([
       'no-duplicate-imports': 'error',
     },
   },
+  {
+    // Build and test configuration runs in Node
+    files: ['*.config.js'],
+    languageOptions: {
+      globals: globals.node,
+    },
+  },
 ])
