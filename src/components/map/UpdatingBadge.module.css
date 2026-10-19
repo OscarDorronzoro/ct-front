@@ -1,0 +1,41 @@
+.badge {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--bottom-nav-total) + var(--space-4));
+  z-index: var(--z-dropdown);
+  transform: translateX(-50%);
+
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-md);
+  color: var(--color-text);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.error {
+  background: var(--color-danger-soft);
+  color: var(--color-danger-text);
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (min-width: 768px) {
+  .badge {
+    bottom: var(--space-6);
+  }
+}
