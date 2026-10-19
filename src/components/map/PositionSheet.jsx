@@ -7,7 +7,8 @@ import MapSheet from './MapSheet';
 import Button from '../ui/Button';
 import Spinner from '../ui/Spinner';
 import CowIcon from '../icons/CowIcon';
-import { getPositionDetails } from '../../services/position';
+import { getPositionDetails, getDistances } from '../../services/position';
+import { formatDistance, compassPoint } from '../../utils/geo';
 import { toTimeElapsed } from '../../utils/dateHelper';
 import logger from '../../utils/logger';
 import styles from './PositionSheet.module.css';
@@ -81,12 +82,34 @@ function StateChip({ state }) {
   );
 }
 
+// 0 means it barely moved (under 10 m); very low averages come from long intervals
+function formatSpeed(kmh) {
+  if (kmh === 0) {
+    return 'Quieta';
+  }
+
+  return kmh < 0.1 ? 'Menos de 0,1 km/h' : `${number(kmh, 1)} km/h`;
+}
+
+// Distance traveled by the collar on the position's day (until now, if it's today)
+function loadDayDistance(collarId, timestamp) {
+  const from = new Date(timestamp);
+  from.setHours(0, 0, 0, 0);
+  const endOfDay = new Date(from);
+  endOfDay.setDate(endOfDay.getDate() + 1);
+  const to = new Date(Math.min(endOfDay, Date.now()));
+
+  return getDistances({ dateFrom: from.toISOString(), dateTo: to.toISOString(), collarId })
+    .then((rows) => rows.reduce((total, row) => total + row.meters, 0));
+}
+
 // Selected position: cow, collar, battery, sleep state and signal.
 // Rendered with key={position id}: a new point starts with a fresh state.
 export default function PositionSheet({ point, onClose }) {
   const { id, collarId, cowId, timestamp, signalStrength } = point.properties;
   const [details, setDetails] = useState(null);
   const [failed, setFailed] = useState(false);
+  const [dayMeters, setDayMeters] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -104,8 +127,17 @@ export default function PositionSheet({ point, onClose }) {
         }
       });
 
+    // Secondary: the sheet works without it
+    loadDayDistance(collarId, timestamp)
+      .then((meters) => {
+        if (!cancelled) {
+          setDayMeters(meters);
+        }
+      })
+      .catch((err) => logger.error('Error loading distance', err));
+
     return () => { cancelled = true; };
-  }, [id]);
+  }, [id, collarId, timestamp]);
 
   const cow = details?.cow;
   const collarCode = details?.collar?.code ?? collarId;
@@ -163,6 +195,27 @@ export default function PositionSheet({ point, onClose }) {
               <>
                 <dt>Desplazamiento</dt>
                 <dd>{number(position.distanceToPrevious)} m desde la posición anterior</dd>
+              </>
+            )}
+
+            {position.speed !== null && position.speed !== undefined && (
+              <>
+                <dt>Velocidad</dt>
+                <dd>
+                  {formatSpeed(position.speed)}
+                  {position.heading !== null && position.heading !== undefined && (
+                    <span className={styles.muted}>
+                      {` · hacia el ${compassPoint(position.heading)} (${number(position.heading)}°)`}
+                    </span>
+                  )}
+                </dd>
+              </>
+            )}
+
+            {dayMeters !== null && (
+              <>
+                <dt>Recorrido del día</dt>
+                <dd>{formatDistance(dayMeters)}</dd>
               </>
             )}
 

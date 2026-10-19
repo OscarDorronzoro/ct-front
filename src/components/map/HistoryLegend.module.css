@@ -79,6 +79,11 @@
   box-shadow: 0 0 0 1.5px var(--gray-0), 0 0 0 2.5px var(--gray-300);
 }
 
+.detail {
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
 .chipOff {
   opacity: 0.55;
   color: var(--color-text-muted);

@@ -37,6 +37,16 @@ export function getLatestPositions({ maxAgeHours } = {}) {
   return apiClient(`${endpoint}/latest${query ? `?${query}` : ''}`);
 }
 
+// Distance traveled per collar in a range: [{ collarId, cowId, positions, meters }]
+export function getDistances({ dateFrom, dateTo, collarId } = {}) {
+  const params = new URLSearchParams({ dateFrom, dateTo });
+  if (collarId) {
+    params.append('collarId', collarId);
+  }
+
+  return apiClient(`${endpoint}/distance?${params}`);
+}
+
 // Position with collar, cow, battery, sleep state and signal
 export function getPositionDetails(positionId) {
   return apiClient(`${endpoint}/${positionId}`);

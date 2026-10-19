@@ -8,7 +8,7 @@ const VIEWS = [
 ];
 
 // History map: view switch (tracks / heatmap) and one chip per cow, which shows or hides it.
-// items: [{ collarId, label, color }]
+// items: [{ collarId, label, color, detail }] (detail: distance traveled in the range)
 export default function HistoryLegend({
   view, onViewChange, items, hidden, onToggle,
 }) {
@@ -30,7 +30,7 @@ export default function HistoryLegend({
         ))}
       </div>
 
-      {items.map(({ collarId, label, color }) => {
+      {items.map(({ collarId, label, color, detail }) => {
         const off = hidden.has(collarId);
 
         return (
@@ -44,6 +44,7 @@ export default function HistoryLegend({
           >
             <span className={styles.dot} style={{ background: color }} aria-hidden="true" />
             {label}
+            {detail && <span className={styles.detail}>{detail}</span>}
           </button>
         );
       })}

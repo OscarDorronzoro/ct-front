@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 
 import {
   distanceMeters, ringAreaM2, formatArea, ringCenter, ringsBounds, closeRing, openRing,
+  formatDistance, compassPoint,
 } from './geo';
 
 describe('distanceMeters', () => {
@@ -61,5 +62,25 @@ describe('ring helpers', () => {
   it('computes the bounds of several rings, or null', () => {
     expect(ringsBounds([ring, [[-62, -34]]])).toEqual([[-62, -34], [-60, -32]]);
     expect(ringsBounds([])).toBeNull();
+  });
+});
+
+describe('formatDistance', () => {
+  it.each([
+    [0, '0 m'],
+    [850.4, '850 m'],
+    [1000, '1 km'],
+    [3240, '3,2 km'],
+    [12345, '12,3 km'],
+  ])('%f m -> %s', (meters, text) => {
+    expect(formatDistance(meters)).toBe(text);
+  });
+});
+
+describe('compassPoint', () => {
+  it.each([
+    [0, 'N'], [44, 'NE'], [90, 'E'], [200, 'S'], [270, 'O'], [338, 'N'], [359.9, 'N'],
+  ])('%f° -> %s', (degrees, point) => {
+    expect(compassPoint(degrees)).toBe(point);
   });
 });

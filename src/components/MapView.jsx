@@ -22,6 +22,7 @@ import useZoneLayer from '../hooks/useZoneLayer';
 import useMapLabels from '../hooks/useMapLabels';
 import { getSavedMapConfig } from '../utils/mapConfig';
 import { toTimeElapsed } from '../utils/dateHelper';
+import { formatDistance } from '../utils/geo';
 import {
   groupByCollar, collarColors, tracksGeoJSON, heatWeights,
 } from '../utils/mapPoints';
@@ -54,7 +55,7 @@ function pointProperties(p) {
 // referenceTime: point ages are computed against it (end of the history range); null = now.
 // ref: { focusOn(result) } centers a search result ({ type: 'cow' | 'collar', id, label }).
 export default function MapView({
-  points, mode, referenceTime = null, ref,
+  points, mode, referenceTime = null, distances = null, ref,
 }) {
   const isHistory = mode === 'history';
   const [mapReady, setMapReady] = useState(false);
@@ -114,13 +115,23 @@ export default function MapView({
     return new Map([...groups].filter(([collarId]) => !hidden.has(collarId)));
   }, [groups, hidden]);
 
+  // History: distance traveled by each collar in the range (sum over its cows)
+  const metersByCollar = useMemo(() => {
+    const map = new Map();
+    (distances ?? []).forEach(({ collarId, meters }) => {
+      map.set(collarId, (map.get(collarId) ?? 0) + meters);
+    });
+    return map;
+  }, [distances]);
+
   const legendItems = useMemo(() => [...groups]
     .sort(([a], [b]) => a - b)
     .map(([collarId, list]) => ({
       collarId,
       color: colors.get(collarId),
       label: getLabel(list[list.length - 1]),
-    })), [groups, colors, getLabel]);
+      detail: metersByCollar.has(collarId) ? formatDistance(metersByCollar.get(collarId)) : null,
+    })), [groups, colors, getLabel, metersByCollar]);
 
   const selectedId = selectedPoint?.properties?.id;
 

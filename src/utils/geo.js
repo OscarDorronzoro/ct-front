@@ -49,6 +49,22 @@ export function formatArea(m2) {
   return `${Math.round(m2).toLocaleString('es-AR')} m²`;
 }
 
+// "850 m", "3,2 km"
+export function formatDistance(meters) {
+  if (meters < 1000) {
+    return `${Math.round(meters).toLocaleString('es-AR')} m`;
+  }
+
+  return `${(meters / 1000).toLocaleString('es-AR', { maximumFractionDigits: 1 })} km`;
+}
+
+const COMPASS = ['N', 'NE', 'E', 'SE', 'S', 'SO', 'O', 'NO'];
+
+// 45 -> "NE", 200 -> "S"
+export function compassPoint(degrees) {
+  return COMPASS[Math.round(degrees / 45) % 8];
+}
+
 // Center of the ring's bounding box: good enough to place a label
 export function ringCenter(ring) {
   const lons = ring.map(([lon]) => lon);
