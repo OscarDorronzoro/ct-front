@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import AuthContext from './AuthContext';
 
 import {
@@ -14,6 +14,8 @@ import logger from '../../utils/logger';
 export default function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  // The session could not be checked (no connection, server down): neither logged in nor out
+  const [connectionError, setConnectionError] = useState(null);
 
   useEffect(() => {
     setSessionExpiredHandler(() => {
@@ -25,34 +27,48 @@ export default function AuthProvider({ children }) {
     };
   }, []);
 
-  // Check logged user on app start up
-  useEffect(() => {
-    getCurrentUser()
-      .then(setUser)
-
-      .catch((error) => {
-        // User logged out
-        if (error instanceof ApiError && error.status === 401) {
-          setUser(null);
-          return;
-        }
-
-        // Another error
-        logger.error('Error verificando sesión:', error);
+  const checkSession = useCallback(() => getCurrentUser()
+    .then((currentUser) => {
+      setUser(currentUser);
+      setConnectionError(null);
+    })
+    .catch((error) => {
+      // Not logged in (or the session expired)
+      if (error instanceof ApiError && error.status === 401) {
         setUser(null);
-      })
+        setConnectionError(null);
+        return;
+      }
 
-      .finally(() => {
-        setLoading(false);
-      });
+      // Unknown: don't send the user to the login page for a network or server problem
+      logger.error('Error verificando sesión:', error);
+      setConnectionError(error);
+    })
+    .finally(() => {
+      setLoading(false);
+    }), []);
 
-  }, []);
+  // Check the logged user on app start up
+  useEffect(() => {
+    checkSession();
+  }, [checkSession]);
+
+  // Back online: check again
+  useEffect(() => {
+    if (!connectionError) {
+      return undefined;
+    }
+
+    window.addEventListener('online', checkSession);
+    return () => window.removeEventListener('online', checkSession);
+  }, [connectionError, checkSession]);
 
   async function login(credentials) {
     await loginRequest(credentials);
 
     const currentUser = await getCurrentUser();
     setUser(currentUser);
+    setConnectionError(null);
 
     return currentUser;
   }
@@ -70,6 +86,8 @@ export default function AuthProvider({ children }) {
       value={{
         user,
         loading,
+        connectionError,
+        retry: checkSession,
         login,
         logout,
       }}

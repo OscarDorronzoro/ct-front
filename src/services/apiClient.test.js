@@ -90,7 +90,27 @@ describe('apiClient', () => {
       expect(onExpired).toHaveBeenCalledOnce();
     });
 
-    it('does not refresh a failed login', async () => {
+    it('keeps the session when the refresh fails for a server error', async () => {
+      mockFetch({
+        '/cows': [json({}, 401)],
+        '/auth/refresh': [new Response('Bad gateway', { status: 502 })],
+      });
+
+      await expect(apiClient('/cows')).rejects.toMatchObject({ status: 502, code: 'SERVER_UNAVAILABLE' });
+      expect(onExpired).not.toHaveBeenCalled();
+    });
+
+    it('keeps the session when the refresh cannot reach the server', async () => {
+      mockFetch({
+        '/cows': [json({}, 401)],
+        '/auth/refresh': [() => Promise.reject(new TypeError('Failed to fetch'))],
+      });
+
+      await expect(apiClient('/cows')).rejects.toMatchObject({ status: 0, code: 'NETWORK_ERROR' });
+      expect(onExpired).not.toHaveBeenCalled();
+    });
+
+        it('does not refresh a failed login', async () => {
       const fetchMock = mockFetch({ '/auth/login': [json({ error: 'Invalid username or password' }, 401)] });
 
       await expect(apiClient('/auth/login', { method: 'POST' })).rejects.toMatchObject({
@@ -111,6 +131,14 @@ describe('apiClient', () => {
   });
 
   describe('backend errors', () => {
+    it('reports a failed connection as NETWORK_ERROR', async () => {
+      mockFetch({ '/cows': [() => Promise.reject(new TypeError('Failed to fetch'))] });
+
+      await expect(apiClient('/cows')).rejects.toMatchObject({
+        name: 'ApiError', status: 0, code: 'NETWORK_ERROR', message: 'No se pudo conectar con el servidor.',
+      });
+    });
+
     it('uses the error code as message and keeps the data', async () => {
       mockFetch({ '/cows/1': [json({ error: 'COW_NOT_FOUND' }, 404)] });
 

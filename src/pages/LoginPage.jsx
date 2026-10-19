@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { Navigate, useLocation, useNavigate } from 'react-router';
 import FormField from '../components/form/FormField';
 import formStyles from '../components/form/Form.module.css';
 import Button from '../components/ui/Button';
@@ -8,8 +8,11 @@ import styles from './LoginPage.module.css';
 import useAuth from '../context/auth/useAuth';
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { user, loading: checkingSession, login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  // Page that sent the user here (ProtectedRoute), to go back after logging in
+  const from = location.state?.from?.pathname ?? '/';
 
   const [form, setForm] = useState({
     username: '',
@@ -43,7 +46,7 @@ export default function LoginPage() {
 
       await login(form);
 
-      navigate('/');
+      navigate(from, { replace: true });
 
     } catch {
       setError('Usuario o contraseña incorrectos.');
@@ -51,6 +54,11 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
+
+  // Already logged in: nothing to do here
+  if (!checkingSession && user) {
+    return <Navigate to={from} replace />;
+  }
 
   return (
     <div className={styles.screen}>

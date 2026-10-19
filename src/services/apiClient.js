@@ -11,13 +11,28 @@ export function setSessionExpiredHandler(handler) {
   onSessionExpired = handler;
 }
 
+// The server could not be reached (no connection, DNS, CORS...): not a session problem
+function networkError(err) {
+  logger.error('Network error', err);
+  return new ApiError('No se pudo conectar con el servidor.', 0, { code: 'NETWORK_ERROR' });
+}
+
+// fetch that turns a failed connection into an ApiError
+async function request(url, options) {
+  try {
+    return await fetch(url, options);
+  } catch (err) {
+    throw networkError(err);
+  }
+}
+
 async function refreshAccessToken() {
   // Wait ongoing refresh
   if (refreshPromise) {
     return refreshPromise;
   }
 
-  refreshPromise = fetch(`${API_URL}/auth/refresh`, {
+  refreshPromise = request(`${API_URL}/auth/refresh`, {
     method: 'POST',
     credentials: 'include',
   })
@@ -49,7 +64,7 @@ async function parseResponse(response) {
 
 export default async function apiClient(path, options = {}, retry = true) {
 
-  const response = await fetch(`${API_URL}${path}`, {
+  const response = await request(`${API_URL}${path}`, {
     ...options,
     credentials: 'include',
     headers: {
@@ -76,7 +91,16 @@ export default async function apiClient(path, options = {}, retry = true) {
       return apiClient(path, options, false);
     }
 
-    // Logout
+    // Only a rejected refresh token ends the session. A server error (5xx while the backend
+    // restarts, for example) keeps the user logged in: the next request can succeed.
+    if (refreshResponse.status !== 401 && refreshResponse.status !== 403) {
+      throw new ApiError(
+        'El servidor no está disponible. Intentá de nuevo en unos segundos.',
+        refreshResponse.status,
+        { code: 'SERVER_UNAVAILABLE' },
+      );
+    }
+
     onSessionExpired?.();
 
     throw new ApiError(
