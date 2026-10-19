@@ -99,8 +99,9 @@ function loadDayDistance(collarId, timestamp) {
   endOfDay.setDate(endOfDay.getDate() + 1);
   const to = new Date(Math.min(endOfDay, Date.now()));
 
+  // One row for the collar; none if it has no positions in the range
   return getDistances({ dateFrom: from.toISOString(), dateTo: to.toISOString(), collarId })
-    .then((rows) => rows.reduce((total, row) => total + row.meters, 0));
+    .then(([row]) => row?.meters ?? 0);
 }
 
 // Selected position: cow, collar, battery, sleep state and signal.

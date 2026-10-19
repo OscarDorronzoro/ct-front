@@ -37,7 +37,7 @@ export function getLatestPositions({ maxAgeHours } = {}) {
   return apiClient(`${endpoint}/latest${query ? `?${query}` : ''}`);
 }
 
-// Distance traveled per collar in a range: [{ collarId, cowId, positions, meters }]
+// Distance traveled per collar in a range: [{ collarId, positions, meters }]
 export function getDistances({ dateFrom, dateTo, collarId } = {}) {
   const params = new URLSearchParams({ dateFrom, dateTo });
   if (collarId) {

@@ -115,14 +115,11 @@ export default function MapView({
     return new Map([...groups].filter(([collarId]) => !hidden.has(collarId)));
   }, [groups, hidden]);
 
-  // History: distance traveled by each collar in the range (sum over its cows)
-  const metersByCollar = useMemo(() => {
-    const map = new Map();
-    (distances ?? []).forEach(({ collarId, meters }) => {
-      map.set(collarId, (map.get(collarId) ?? 0) + meters);
-    });
-    return map;
-  }, [distances]);
+  // History: distance traveled by each collar in the range, indexed by collar
+  const metersByCollar = useMemo(
+    () => new Map((distances ?? []).map(({ collarId, meters }) => [collarId, meters])),
+    [distances],
+  );
 
   const legendItems = useMemo(() => [...groups]
     .sort(([a], [b]) => a - b)
