@@ -8,7 +8,7 @@ describe('zoneTypeStyle', () => {
   });
 
   it('falls back to a neutral color, keeping the type name', () => {
-    expect(zoneTypeStyle('manga')).toMatchObject({ label: 'manga' });
+    expect(zoneTypeStyle('bebedero')).toMatchObject({ label: 'bebedero' });
     expect(zoneTypeStyle(undefined)).toMatchObject({ label: 'Zona' });
   });
 });

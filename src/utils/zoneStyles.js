@@ -8,6 +8,7 @@ const TYPE_STYLES = {
   tambo: { color: '#a855f7', label: 'Tambo' },
   aguada: { color: '#06b6d4', label: 'Aguada' },
   exclusion: { color: '#ef4444', label: 'Exclusión' },
+  manga: { color: '#ec4899', label: 'Manga' },
 };
 
 const DEFAULT_STYLE = { color: '#94a3b8', label: 'Zona' };
