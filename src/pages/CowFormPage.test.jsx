@@ -9,11 +9,13 @@ import { getCow, getAllCows, updateCow, createCow } from '../services/cow';
 import { getAllCollars } from '../services/collar';
 import { getAllBreeds } from '../services/breed';
 import { getAllGroups } from '../services/group';
+import { getAllCategories } from '../services/category';
 
 vi.mock('../services/cow');
 vi.mock('../services/collar');
 vi.mock('../services/breed');
 vi.mock('../services/group');
+vi.mock('../services/category');
 
 const angela = {
   id: 8,
@@ -22,6 +24,8 @@ const angela = {
   currentCollarId: 123,
   imageUrl: '/images/cows/a.webp',
   breedId: null,
+  sex: 'female',
+  categoryId: 3,
   birthDate: null,
   groups: [{ id: 2, name: 'Rodeo 1' }],
 };
@@ -56,6 +60,11 @@ describe('CowFormPage', () => {
     getAllCollars.mockResolvedValue([{ id: 123, code: 12 }, { id: 129, code: 29 }, { id: 140, code: 40 }]);
     getAllBreeds.mockResolvedValue([]);
     getAllGroups.mockResolvedValue([{ id: 2, name: 'Rodeo 1' }, { id: 3, name: 'Rodeo 2' }]);
+    getAllCategories.mockResolvedValue([
+      { id: 2, name: 'Vaquillona', sex: 'female' },
+      { id: 3, name: 'Vaca', sex: 'female' },
+      { id: 6, name: 'Novillo', sex: 'male' },
+    ]);
     updateCow.mockResolvedValue({});
     createCow.mockResolvedValue({});
   });
@@ -72,9 +81,40 @@ describe('CowFormPage', () => {
     expect(await submitted(updateCow)).toEqual([
       ['alias', 'Ángela'],
       ['earTag', 'A-100'],
+      ['sex', 'female'],
       ['groupIds[]', '2'],
       ['currentCollarId', '123'],
+      ['categoryId', '3'],
     ]);
+  });
+
+  it('offers only the categories of the sex, and drops the category when the sex changes', async () => {
+    const user = renderForm('/settings/cows/8');
+    await user.click(await screen.findByRole('button', { name: 'Vaca' }));
+
+    expect(screen.getByRole('option', { name: 'Vaquillona' })).toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: 'Novillo' })).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('option', { name: 'Vaca' }));
+    await user.click(screen.getByRole('button', { name: 'Hembra' }));
+    await user.click(screen.getByRole('option', { name: 'Macho' }));
+
+    await user.click(screen.getByRole('button', { name: 'Sin categoría' }));
+    expect(screen.getByRole('option', { name: 'Novillo' })).toBeInTheDocument();
+    await user.click(screen.getByRole('option', { name: 'Novillo' }));
+
+    await user.click(screen.getByRole('button', { name: 'Guardar' }));
+
+    const fields = await submitted(updateCow);
+    expect(fields).toContainEqual(['sex', 'male']);
+    expect(fields).toContainEqual(['categoryId', '6']);
+  });
+
+  it('asks for the sex before the category on a new cow', async () => {
+    renderForm('/settings/cows/new');
+
+    expect(await screen.findByText('Elija primero el sexo.')).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: 'Sin categoría' })).toBeDisabled();
   });
 
   it('unassigns the collar with an empty currentCollarId', async () => {

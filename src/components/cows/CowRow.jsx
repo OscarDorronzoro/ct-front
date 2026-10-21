@@ -13,6 +13,7 @@ export default function CowRow({ cow, onDelete }) {
       meta={[
         `Caravana ${cow.earTag || 'S/N'}`,
         cow.currentCollarId ? `Collar ${cow.currentCollarId}` : 'Sin collar',
+        cow.category?.name,
         cow.breed?.name,
       ]}
       tags={cow.groups?.length > 0 && cow.groups.map(group => (

@@ -1,5 +1,10 @@
 // Display names of the entities
 
+export const SEX_LABELS = {
+  female: 'Hembra',
+  male: 'Macho',
+};
+
 export function collarLabel(collar) {
   return `Collar ${collar.code ?? collar.id}`;
 }

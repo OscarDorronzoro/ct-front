@@ -17,10 +17,13 @@ import {
 import { getAllCollars } from '../services/collar';
 import { getAllBreeds } from '../services/breed';
 import { getAllGroups } from '../services/group';
+import { getAllCategories } from '../services/category';
 
 import logger from '../utils/logger';
 import { toDateInput } from '../utils/dateHelper';
-import { collarLabel, cowLabel } from '../utils/labels';
+import { collarLabel, cowLabel, SEX_LABELS } from '../utils/labels';
+
+const sexOptions = Object.entries(SEX_LABELS).map(([value, label]) => ({ value, label }));
 
 const emptyForm = {
   alias: '',
@@ -28,6 +31,8 @@ const emptyForm = {
   currentCollarId: '',
   imageUrl: '',
   breedId: '',
+  sex: '',
+  categoryId: '',
   groupIds: [],
   birthDate: '',
 };
@@ -44,10 +49,13 @@ export default function CowFormPage() {
   const [collarOwners, setCollarOwners] = useState(new Map());
   const [initialCollarId, setInitialCollarId] = useState('');
   const [breeds, setBreeds] = useState([]);
+  // [{ id, name, sex }]: the form offers those of the cow's sex
+  const [categories, setCategories] = useState([]);
   const [groups, setGroups] = useState([]);
   const [loadingOptions, setLoadingOptions] = useState({
     collars: false,
     breeds: false,
+    categories: false,
     groups: false,
   });
 
@@ -61,6 +69,21 @@ export default function CowFormPage() {
       ...form,
       [name]: value,
     }));
+  };
+
+  // A category is for one sex: changing the sex drops a category of the other one
+  const handleSexChange = (e) => {
+    const sex = e.target.value;
+
+    setForm(form => {
+      const category = categories.find((c) => c.id === form.categoryId);
+
+      return {
+        ...form,
+        sex,
+        categoryId: category && category.sex !== sex ? '' : form.categoryId,
+      };
+    });
   };
 
   const handleCancel = () => {
@@ -81,7 +104,7 @@ export default function CowFormPage() {
       const formData = new FormData();
       const isEdit = Boolean(form.id);
 
-      ['alias', 'earTag', 'breedId', 'birthDate'].forEach((key) => {
+      ['alias', 'earTag', 'breedId', 'sex', 'birthDate'].forEach((key) => {
         if (form[key] !== null && form[key] !== undefined && form[key] !== '') {
           formData.append(key, form[key]);
         }
@@ -99,6 +122,11 @@ export default function CowFormPage() {
       // Editing: always sent, empty unassigns the collar. New cow: only when chosen.
       if (isEdit || form.currentCollarId !== '') {
         formData.append('currentCollarId', form.currentCollarId);
+      }
+
+      // Editing: always sent, empty removes the category. New cow: only when chosen.
+      if (isEdit || form.categoryId !== '') {
+        formData.append('categoryId', form.categoryId);
       }
 
       if (imageChange) {
@@ -139,6 +167,8 @@ export default function CowFormPage() {
           setForm({
             ...cow,
             currentCollarId: cow.currentCollarId ?? '',
+            sex: cow.sex ?? '',
+            categoryId: cow.categoryId ?? '',
             birthDate: toDateInput(cow.birthDate),
             groupIds: cow.groups ? cow.groups.map(g => g.id) : [],
           });
@@ -185,6 +215,15 @@ export default function CowFormPage() {
       }
 
       try {
+        setLoadingOptions(prev => ({ ...prev, categories: true }));
+        setCategories(await getAllCategories());
+      } catch (err) {
+        logger.error('Error loading categories', err);
+      } finally {
+        setLoadingOptions(prev => ({ ...prev, categories: false }));
+      }
+
+      try {
         setLoadingOptions(prev => ({ ...prev, groups: true }));
         const groupsData = await getAllGroups();
         setGroups(groupsData.map(group => ({
@@ -221,6 +260,13 @@ export default function CowFormPage() {
   const collarHint = selectedOwner
     ? `Está asignado a ${cowLabel(selectedOwner)}: se le quitará al guardar.`
     : unassigning ? 'El collar actual se desasignará al guardar.' : null;
+
+  const categoryOptions = [
+    { value: '', label: 'Sin categoría' },
+    ...categories
+      .filter((category) => category.sex === form.sex)
+      .map((category) => ({ value: category.id, label: category.name })),
+  ];
 
   return (
     <Page
@@ -279,6 +325,27 @@ export default function CowFormPage() {
           options={breeds}
           placeholder="Seleccione una raza"
           loading={loadingOptions.breeds}
+        />
+
+        <SelectField
+          label="Sexo"
+          name="sex"
+          value={form.sex}
+          onChange={handleSexChange}
+          options={sexOptions}
+          placeholder="Seleccione el sexo"
+        />
+
+        <SelectField
+          label="Categoría"
+          name="categoryId"
+          value={form.categoryId}
+          onChange={handleChange}
+          options={categoryOptions}
+          placeholder="Seleccione una categoría"
+          loading={loadingOptions.categories}
+          disabled={!form.sex}
+          hint={form.sex ? null : 'Elija primero el sexo.'}
         />
 
         <MultiSelectField
