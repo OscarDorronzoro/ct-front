@@ -5,7 +5,7 @@ import { Pencil, Trash2 } from 'lucide-react';
 import IconButton from './IconButton';
 import styles from './EntityRow.module.css';
 
-// Row of an entity list. The whole row opens `to`.
+// Row of an entity list. The whole row opens `to`; without it (no permission to edit) it is static.
 // avatar: icon element, or { src, fallback } for an image. meta: list of texts. tags: badges.
 export default function EntityRow({
   avatar,
@@ -35,14 +35,12 @@ export default function EntityRow({
 
   const visibleMeta = meta.filter(Boolean);
 
+  const linkProps = to
+    ? { role: 'link', tabIndex: 0, onClick: open, onKeyDown: handleKeyDown }
+    : {};
+
   return (
-    <div
-      role="link"
-      tabIndex={0}
-      className={styles.row}
-      onClick={open}
-      onKeyDown={handleKeyDown}
-    >
+    <div className={styles.row} {...linkProps}>
       <div className={styles.avatar}>
         {avatar?.src
           ? (imageFailed
@@ -65,13 +63,15 @@ export default function EntityRow({
       </div>
 
       <div className={styles.actions}>
-        <span className={styles.edit}>
-          <IconButton
-            icon={Pencil}
-            label={`Editar ${entityLabel}`}
-            onClick={stop(open)}
-          />
-        </span>
+        {to && (
+          <span className={styles.edit}>
+            <IconButton
+              icon={Pencil}
+              label={`Editar ${entityLabel}`}
+              onClick={stop(open)}
+            />
+          </span>
+        )}
 
         {onDelete && (
           <IconButton

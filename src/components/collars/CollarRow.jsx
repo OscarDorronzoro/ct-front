@@ -4,7 +4,8 @@ import EntityRow from '../ui/EntityRow';
 import Badge from '../ui/Badge';
 import { collarLabel } from '../../utils/labels';
 
-export default function CollarRow({ collar, onDelete }) {
+// editable: opens the form; onDelete: only when the user can delete
+export default function CollarRow({ collar, editable = true, onDelete }) {
   return (
     <EntityRow
       avatar={<SatelliteDish size={22} />}
@@ -15,9 +16,9 @@ export default function CollarRow({ collar, onDelete }) {
           {collar.firmwareVersion ? `Firmware ${collar.firmwareVersion}` : 'Firmware desconocido'}
         </Badge>
       }
-      to={`/settings/collars/${collar.id}`}
+      to={editable ? `/settings/collars/${collar.id}` : undefined}
       entityLabel="collar"
-      onDelete={() => onDelete(collar)}
+      onDelete={onDelete && (() => onDelete(collar))}
     />
   );
 }

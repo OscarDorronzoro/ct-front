@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Routes, Route } from 'react-router';
 
 import CowFormPage from './CowFormPage';
+import AuthContext from '../context/auth/AuthContext';
 import { getCow, getAllCows, updateCow, createCow } from '../services/cow';
 import { getAllCollars } from '../services/collar';
 import { getAllBreeds } from '../services/breed';
@@ -30,15 +31,22 @@ const angela = {
   groups: [{ id: 2, name: 'Rodeo 1' }],
 };
 
-function renderForm(path) {
+// Permissions of the logged user (backend roles): manager by default
+const MANAGER = ['cows:read', 'cows:write', 'cows:assignCollar'];
+const VETERINARIAN = ['cows:read', 'cows:write'];
+const TECHNICIAN = ['cows:read', 'cows:assignCollar'];
+
+function renderForm(path, permissions = MANAGER) {
   render(
-    <MemoryRouter initialEntries={[path]}>
-      <Routes>
-        <Route path="/settings/cows/new" element={<CowFormPage />} />
-        <Route path="/settings/cows/:cowId" element={<CowFormPage />} />
-        <Route path="/settings/cows" element={<div>Lista de vacas</div>} />
-      </Routes>
-    </MemoryRouter>,
+    <AuthContext.Provider value={{ user: { id: 1, permissions } }}>
+      <MemoryRouter initialEntries={[path]}>
+        <Routes>
+          <Route path="/settings/cows/new" element={<CowFormPage />} />
+          <Route path="/settings/cows/:cowId" element={<CowFormPage />} />
+          <Route path="/settings/cows" element={<div>Lista de vacas</div>} />
+        </Routes>
+      </MemoryRouter>
+    </AuthContext.Provider>,
   );
   return userEvent.setup();
 }
@@ -83,9 +91,36 @@ describe('CowFormPage', () => {
       ['earTag', 'A-100'],
       ['sex', 'female'],
       ['groupIds[]', '2'],
-      ['currentCollarId', '123'],
       ['categoryId', '3'],
+      ['currentCollarId', '123'],
     ]);
+  });
+
+  it('lets a veterinarian edit the cow but not its collar', async () => {
+    const user = renderForm('/settings/cows/8', VETERINARIAN);
+    const collar = await loaded();
+
+    expect(collar).toBeDisabled();
+    expect(screen.getByText('Solo un encargado o un técnico pueden cambiar el collar.')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Guardar' }));
+
+    const fields = await submitted(updateCow);
+    expect(fields).toContainEqual(['alias', 'Ángela']);
+    expect(fields.some(([key]) => key === 'currentCollarId')).toBe(false);
+  });
+
+  it('lets a technician change only the collar', async () => {
+    const user = renderForm('/settings/cows/8', TECHNICIAN);
+    await user.click(await loaded());
+    await user.click(screen.getByRole('option', { name: /Collar 40/ }));
+
+    expect(screen.getByLabelText(/Alias/)).toBeDisabled();
+    expect(screen.queryByText('Imagen')).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Guardar' }));
+
+    expect(await submitted(updateCow)).toEqual([['currentCollarId', '140']]);
   });
 
   it('offers only the categories of the sex, and drops the category when the sex changes', async () => {

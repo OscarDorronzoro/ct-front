@@ -12,6 +12,7 @@ import ConfirmDialog from '../components/utils/ConfirmDialog';
 import UserRow from '../components/users/UserRow';
 
 import useEntityList from '../hooks/useEntityList';
+import useCan from '../hooks/useCan';
 import { userLabel } from '../utils/labels';
 import useListSearch from '../hooks/useListSearch';
 import { getAllUsers, deleteUser } from '../services/user';
@@ -29,6 +30,9 @@ const toSearchResult = (user) => ({
 
 export default function UsersPage() {
   const navigate = useNavigate();
+  const can = useCan();
+  const canWrite = can('users:manage');
+  const canEdit = canWrite;
 
   const list = useEntityList({ load: getAllUsers, remove: removeUser });
   const { search, setSearch, results } = useListSearch(list.items, {
@@ -42,11 +46,11 @@ export default function UsersPage() {
     <Page
       title="Usuarios"
       hideHeaderOnMobile
-      actions={
+      actions={canWrite && (
         <Button icon={Plus} to={NEW_PATH}>
           Agregar usuario
         </Button>
-      }
+      )}
     >
       <ActionError
         error={list.actionError}
@@ -59,7 +63,7 @@ export default function UsersPage() {
           onChange={setSearch}
           placeholder="Buscar usuario..."
           results={results}
-          onSelect={(result) => navigate(`/settings/users/${result.id}`)}
+          onSelect={canEdit ? (result) => navigate(`/settings/users/${result.id}`) : undefined}
         />
       </Toolbar>
 
@@ -77,12 +81,13 @@ export default function UsersPage() {
           <UserRow
             key={user.id}
             user={user}
-            onDelete={list.requestDelete}
+            editable={canEdit}
+            onDelete={canWrite ? list.requestDelete : undefined}
           />
         )}
       />
 
-      <Fab icon={Plus} label="Agregar usuario" to={NEW_PATH} />
+      {canWrite && <Fab icon={Plus} label="Agregar usuario" to={NEW_PATH} />}
 
       <ConfirmDialog
         open={!!item}

@@ -12,6 +12,7 @@ import ConfirmDialog from '../components/utils/ConfirmDialog';
 import CollarRow from '../components/collars/CollarRow';
 
 import useEntityList from '../hooks/useEntityList';
+import useCan from '../hooks/useCan';
 import { collarLabel } from '../utils/labels';
 import useListSearch from '../hooks/useListSearch';
 import { getAllCollars, deleteCollar } from '../services/collar';
@@ -29,6 +30,9 @@ const toSearchResult = (collar) => ({
 
 export default function CollarsPage() {
   const navigate = useNavigate();
+  const can = useCan();
+  const canWrite = can('collars:write');
+  const canEdit = canWrite;
 
   const list = useEntityList({ load: getAllCollars, remove: removeCollar });
   const { search, setSearch, results } = useListSearch(list.items, {
@@ -42,11 +46,11 @@ export default function CollarsPage() {
     <Page
       title="Collares"
       hideHeaderOnMobile
-      actions={
+      actions={canWrite && (
         <Button icon={Plus} to={NEW_PATH}>
           Agregar collar
         </Button>
-      }
+      )}
     >
       <ActionError
         error={list.actionError}
@@ -59,7 +63,7 @@ export default function CollarsPage() {
           onChange={setSearch}
           placeholder="Buscar collar..."
           results={results}
-          onSelect={(result) => navigate(`/settings/collars/${result.id}`)}
+          onSelect={canEdit ? (result) => navigate(`/settings/collars/${result.id}`) : undefined}
         />
       </Toolbar>
 
@@ -78,12 +82,13 @@ export default function CollarsPage() {
           <CollarRow
             key={collar.id}
             collar={collar}
-            onDelete={list.requestDelete}
+            editable={canEdit}
+            onDelete={canWrite ? list.requestDelete : undefined}
           />
         )}
       />
 
-      <Fab icon={Plus} label="Agregar collar" to={NEW_PATH} />
+      {canWrite && <Fab icon={Plus} label="Agregar collar" to={NEW_PATH} />}
 
       <ConfirmDialog
         open={!!item}

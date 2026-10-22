@@ -13,6 +13,7 @@ import ConfirmDialog from '../components/utils/ConfirmDialog';
 import CowRow from '../components/cows/CowRow';
 
 import useEntityList from '../hooks/useEntityList';
+import useCan from '../hooks/useCan';
 import { cowLabel } from '../utils/labels';
 import useListSearch from '../hooks/useListSearch';
 import { getAllCows, deleteCow } from '../services/cow';
@@ -30,6 +31,10 @@ const toSearchResult = (cow) => ({
 
 export default function CowsPage() {
   const navigate = useNavigate();
+  const can = useCan();
+  const canWrite = can('cows:write');
+  // The technician can open a cow only to change its collar
+  const canEdit = can(...['cows:write', 'cows:assignCollar']);
 
   const list = useEntityList({ load: getAllCows, remove: removeCow });
   const { search, setSearch, results } = useListSearch(list.items, {
@@ -43,11 +48,11 @@ export default function CowsPage() {
     <Page
       title="Vacas"
       hideHeaderOnMobile
-      actions={
+      actions={canWrite && (
         <Button icon={Plus} to={NEW_PATH}>
           Agregar vaca
         </Button>
-      }
+      )}
     >
       <ActionError
         error={list.actionError}
@@ -60,7 +65,7 @@ export default function CowsPage() {
           onChange={setSearch}
           placeholder="Buscar vaca..."
           results={results}
-          onSelect={(result) => navigate(`/settings/cows/${result.id}`)}
+          onSelect={canEdit ? (result) => navigate(`/settings/cows/${result.id}`) : undefined}
         />
       </Toolbar>
 
@@ -78,12 +83,13 @@ export default function CowsPage() {
           <CowRow
             key={cow.id}
             cow={cow}
-            onDelete={list.requestDelete}
+            editable={canEdit}
+            onDelete={canWrite ? list.requestDelete : undefined}
           />
         )}
       />
 
-      <Fab icon={Plus} label="Agregar vaca" to={NEW_PATH} />
+      {canWrite && <Fab icon={Plus} label="Agregar vaca" to={NEW_PATH} />}
 
       <ConfirmDialog
         open={!!item}

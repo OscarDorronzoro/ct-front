@@ -5,7 +5,8 @@ import Badge from '../ui/Badge';
 import { formatArea, ringAreaM2 } from '../../utils/geo';
 import { zoneTypeStyle, COLLAR_ZONE_MAX_VERTICES } from '../../utils/zoneStyles';
 
-export default function ZoneRow({ zone, typeName, onDelete }) {
+// editable: opens the form; onDelete: only when the user can delete
+export default function ZoneRow({ zone, typeName, editable = true, onDelete }) {
   const { color, label } = zoneTypeStyle(typeName);
 
   return (
@@ -20,9 +21,9 @@ export default function ZoneRow({ zone, typeName, onDelete }) {
       tags={zone.ring.length > COLLAR_ZONE_MAX_VERTICES && (
         <Badge tone="warning">No se puede cargar en un collar</Badge>
       )}
-      to={`/settings/zones/${zone.id}`}
+      to={editable ? `/settings/zones/${zone.id}` : undefined}
       entityLabel="zona"
-      onDelete={() => onDelete(zone)}
+      onDelete={onDelete && (() => onDelete(zone))}
     />
   );
 }

@@ -9,8 +9,7 @@ import GroupFormPage from '../pages/GroupFormPage';
 import UsersPage from '../pages/UsersPage';
 import UserFormPage from '../pages/UserFormPage';
 
-import RequireRole from '../components/auth/RequiredRole';
-import USER_ROLES from '../utils/userRoles'
+import RequirePermission from '../components/auth/RequirePermission';
 
 const loadZoneFormPage = async () => ({
   Component: (await import('../pages/ZoneFormPage')).default,
@@ -25,65 +24,54 @@ export const settingsRoute = {
       element: <CowsPage />,
     },
     {
-      path: 'cows/new',
-      element: <CowFormPage />,
-    },
-    {
-      path: 'cows/:cowId',
-      element: <CowFormPage />,
-    },
-    {
       path: 'collars',
       element: <CollarsPage />,
-    },
-    {
-      path: 'collars/new',
-      element: <CollarFormPage />,
-    },
-    {
-      path: 'collars/:collarId',
-      element: <CollarFormPage />,
     },
     {
       path: 'groups',
       element: <GroupsPage />,
     },
     {
-      path: 'groups/new',
-      element: <GroupFormPage />,
-    },
-    {
-      path: 'groups/:groupId',
-      element: <GroupFormPage />,
-    },
-    {
       path: 'zones',
       element: <ZonesPage />,
     },
-    // Lazy: the zone editor brings terra-draw, only needed here
+    // Forms: only for who can change something in them (the backend checks each request)
     {
-      path: 'zones/new',
-      lazy: loadZoneFormPage,
-    },
-    {
-      path: 'zones/:zoneId',
-      lazy: loadZoneFormPage,
-    },
-    {
-      element: <RequireRole role={USER_ROLES.ADMIN} />,
+      element: <RequirePermission anyOf={['cows:write']} />,
       children: [
-        {
-          path: 'users',
-          element: <UsersPage />,
-        },
-        {
-          path: 'users/new',
-          element: <UserFormPage />,
-        },
-        {
-          path: 'users/:userId',
-          element: <UserFormPage />,
-        },
+        { path: 'cows/new', element: <CowFormPage /> },
+        { path: 'groups/new', element: <GroupFormPage /> },
+        { path: 'groups/:groupId', element: <GroupFormPage /> },
+      ],
+    },
+    {
+      // The technician edits only the collar of the cow
+      element: <RequirePermission anyOf={['cows:write', 'cows:assignCollar']} />,
+      children: [
+        { path: 'cows/:cowId', element: <CowFormPage /> },
+      ],
+    },
+    {
+      element: <RequirePermission anyOf={['collars:write']} />,
+      children: [
+        { path: 'collars/new', element: <CollarFormPage /> },
+        { path: 'collars/:collarId', element: <CollarFormPage /> },
+      ],
+    },
+    {
+      // Lazy: the zone editor brings terra-draw, only needed here
+      element: <RequirePermission anyOf={['zones:write']} />,
+      children: [
+        { path: 'zones/new', lazy: loadZoneFormPage },
+        { path: 'zones/:zoneId', lazy: loadZoneFormPage },
+      ],
+    },
+    {
+      element: <RequirePermission anyOf={['users:manage']} />,
+      children: [
+        { path: 'users', element: <UsersPage /> },
+        { path: 'users/new', element: <UserFormPage /> },
+        { path: 'users/:userId', element: <UserFormPage /> },
       ],
     },
   ]

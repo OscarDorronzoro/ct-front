@@ -14,6 +14,7 @@ import ZoneRow from '../components/zones/ZoneRow';
 import ZonesOverviewMap from '../components/zones/ZonesOverviewMap';
 
 import useEntityList from '../hooks/useEntityList';
+import useCan from '../hooks/useCan';
 import useListSearch from '../hooks/useListSearch';
 import { getAllZones, getZoneTypes, deleteZone } from '../services/zone';
 import { zonesToGeoJSON } from '../utils/zoneStyles';
@@ -33,6 +34,7 @@ const toSearchResult = (zone) => ({
 
 export default function ZonesPage() {
   const navigate = useNavigate();
+  const canWrite = useCan()('zones:write');
   const [zoneTypes, setZoneTypes] = useState([]);
 
   const list = useEntityList({ load: getAllZones, remove: removeZone });
@@ -57,7 +59,7 @@ export default function ZonesPage() {
     [list.items, zoneTypes],
   );
 
-  const openZone = (id) => navigate(`/settings/zones/${id}`);
+  const openZone = canWrite ? (id) => navigate(`/settings/zones/${id}`) : undefined;
   const item = list.itemToDelete;
 
   return (
@@ -65,11 +67,11 @@ export default function ZonesPage() {
       title="Zonas"
       hideHeaderOnMobile
       width="full"
-      actions={
+      actions={canWrite && (
         <Button icon={Plus} to={NEW_PATH}>
           Agregar zona
         </Button>
-      }
+      )}
     >
       <div className={styles.layout}>
         <div className={styles.map}>
@@ -88,7 +90,7 @@ export default function ZonesPage() {
               onChange={setSearch}
               placeholder="Buscar zona..."
               results={results}
-              onSelect={(result) => openZone(result.id)}
+              onSelect={openZone && ((result) => openZone(result.id))}
             />
           </Toolbar>
 
@@ -103,20 +105,21 @@ export default function ZonesPage() {
               emptyMessage: 'Dibujá los potreros, corrales y aguadas del campo para seguir dónde está cada vaca.',
             }}
             emptyIcon={LandPlot}
-            emptyAction={<Button icon={Plus} size="sm" to={NEW_PATH}>Dibujar zona</Button>}
+            emptyAction={canWrite && <Button icon={Plus} size="sm" to={NEW_PATH}>Dibujar zona</Button>}
             renderItem={(zone) => (
               <ZoneRow
                 key={zone.id}
                 zone={zone}
                 typeName={typeNames.get(zone.zoneTypeId)}
-                onDelete={list.requestDelete}
+                editable={canWrite}
+                onDelete={canWrite ? list.requestDelete : undefined}
               />
             )}
           />
         </div>
       </div>
 
-      <Fab icon={Plus} label="Agregar zona" to={NEW_PATH} />
+      {canWrite && <Fab icon={Plus} label="Agregar zona" to={NEW_PATH} />}
 
       <ConfirmDialog
         open={!!item}

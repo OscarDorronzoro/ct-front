@@ -3,32 +3,21 @@ import { UserRound } from 'lucide-react';
 import EntityRow from '../ui/EntityRow';
 import Badge from '../ui/Badge';
 import { userLabel } from '../../utils/labels';
+import { roleInfo } from '../../utils/userRoles';
 
-const ROLE_LABELS = {
-  0: 'Administrador',
-  1: 'Operador',
-  2: 'Solo lectura',
-};
-
-const ROLE_TONES = {
-  0: 'accent',
-  1: 'primary',
-  2: 'neutral',
-};
-
-export default function UserRow({ user, onDelete }) {
+// editable: opens the form; onDelete: only when the user can delete
+export default function UserRow({ user, editable = true, onDelete }) {
   return (
     <EntityRow
       avatar={<UserRound size={22} />}
       title={userLabel(user)}
-      tags={
-        <Badge tone={ROLE_TONES[user.role] ?? 'neutral'}>
-          {ROLE_LABELS[user.role] || 'Rol desconocido'}
-        </Badge>
-      }
-      to={`/settings/users/${user.id}`}
+      tags={user.roles.map((role) => {
+        const { label, tone } = roleInfo(role);
+        return <Badge key={role} tone={tone}>{label}</Badge>;
+      })}
+      to={editable ? `/settings/users/${user.id}` : undefined}
       entityLabel="usuario"
-      onDelete={() => onDelete(user)}
+      onDelete={onDelete && (() => onDelete(user))}
     />
   );
 }

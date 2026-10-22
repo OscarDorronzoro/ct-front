@@ -19,6 +19,7 @@ import { getAllBreeds } from '../services/breed';
 import { getAllGroups } from '../services/group';
 import { getAllCategories } from '../services/category';
 
+import useCan from '../hooks/useCan';
 import logger from '../utils/logger';
 import { toDateInput } from '../utils/dateHelper';
 import { collarLabel, cowLabel, SEX_LABELS } from '../utils/labels';
@@ -62,6 +63,12 @@ export default function CowFormPage() {
   const { cowId } = useParams();
   const navigate = useNavigate();
 
+  // The collar is equipment (manager, technician); the rest is cow data (manager, veterinarian).
+  // Fields the user can't change are shown disabled and not sent.
+  const can = useCan();
+  const canWrite = can('cows:write');
+  const canAssignCollar = can('cows:assignCollar');
+
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -104,35 +111,37 @@ export default function CowFormPage() {
       const formData = new FormData();
       const isEdit = Boolean(form.id);
 
-      ['alias', 'earTag', 'breedId', 'sex', 'birthDate'].forEach((key) => {
-        if (form[key] !== null && form[key] !== undefined && form[key] !== '') {
-          formData.append(key, form[key]);
+      if (canWrite) {
+        ['alias', 'earTag', 'breedId', 'sex', 'birthDate'].forEach((key) => {
+          if (form[key] !== null && form[key] !== undefined && form[key] !== '') {
+            formData.append(key, form[key]);
+          }
+        });
+
+        form.groupIds.forEach((groupId) => {
+          formData.append('groupIds[]', groupId);
+        });
+
+        // A form can't send an empty list: an empty value means "no groups"
+        if (form.groupIds.length === 0) {
+          formData.append('groupIds', '');
         }
-      });
 
-      form.groupIds.forEach((groupId) => {
-        formData.append('groupIds[]', groupId);
-      });
+        // Editing: always sent, empty removes the category. New cow: only when chosen.
+        if (isEdit || form.categoryId !== '') {
+          formData.append('categoryId', form.categoryId);
+        }
 
-      // A form can't send an empty list: an empty value means "no groups"
-      if (form.groupIds.length === 0) {
-        formData.append('groupIds', '');
+        if (imageChange) {
+          formData.append('image', imageChange);
+        } else if (imageChange === null && form.imageUrl) {
+          formData.append('removeImage', 'true');
+        }
       }
 
       // Editing: always sent, empty unassigns the collar. New cow: only when chosen.
-      if (isEdit || form.currentCollarId !== '') {
+      if (canAssignCollar && (isEdit || form.currentCollarId !== '')) {
         formData.append('currentCollarId', form.currentCollarId);
-      }
-
-      // Editing: always sent, empty removes the category. New cow: only when chosen.
-      if (isEdit || form.categoryId !== '') {
-        formData.append('categoryId', form.categoryId);
-      }
-
-      if (imageChange) {
-        formData.append('image', imageChange);
-      } else if (imageChange === null && form.imageUrl) {
-        formData.append('removeImage', 'true');
       }
 
       if (form.id) {
@@ -257,9 +266,11 @@ export default function CowFormPage() {
   const selectedOwner = form.currentCollarId !== '' ? otherOwner(form.currentCollarId) : null;
   const unassigning = Boolean(initialCollarId) && form.currentCollarId === '';
 
-  const collarHint = selectedOwner
-    ? `Está asignado a ${cowLabel(selectedOwner)}: se le quitará al guardar.`
-    : unassigning ? 'El collar actual se desasignará al guardar.' : null;
+  const collarHint = !canAssignCollar
+    ? 'Solo un encargado o un técnico pueden cambiar el collar.'
+    : selectedOwner
+      ? `Está asignado a ${cowLabel(selectedOwner)}: se le quitará al guardar.`
+      : unassigning ? 'El collar actual se desasignará al guardar.' : null;
 
   const categoryOptions = [
     { value: '', label: 'Sin categoría' },
@@ -289,6 +300,7 @@ export default function CowFormPage() {
           onChange={handleChange}
           placeholder="Nombre de la vaca"
           required
+          disabled={!canWrite}
         />
 
         <FormField
@@ -297,6 +309,7 @@ export default function CowFormPage() {
           value={form.earTag}
           onChange={handleChange}
           placeholder="Número de caravana"
+          disabled={!canWrite}
         />
 
         <SelectField
@@ -307,15 +320,18 @@ export default function CowFormPage() {
           options={collarOptions}
           placeholder="Seleccione un collar"
           loading={loadingOptions.collars}
+          disabled={!canAssignCollar}
           hint={collarHint}
         />
 
-        <ImageField
-          key={form.imageUrl || 'no-image'}
-          label="Imagen"
-          initialImage={form.imageUrl}
-          onChange={setImageChange}
-        />
+        {canWrite && (
+          <ImageField
+            key={form.imageUrl || 'no-image'}
+            label="Imagen"
+            initialImage={form.imageUrl}
+            onChange={setImageChange}
+          />
+        )}
 
         <SelectField
           label="Raza"
@@ -325,6 +341,7 @@ export default function CowFormPage() {
           options={breeds}
           placeholder="Seleccione una raza"
           loading={loadingOptions.breeds}
+          disabled={!canWrite}
         />
 
         <SelectField
@@ -334,6 +351,7 @@ export default function CowFormPage() {
           onChange={handleSexChange}
           options={sexOptions}
           placeholder="Seleccione el sexo"
+          disabled={!canWrite}
         />
 
         <SelectField
@@ -344,7 +362,7 @@ export default function CowFormPage() {
           options={categoryOptions}
           placeholder="Seleccione una categoría"
           loading={loadingOptions.categories}
-          disabled={!form.sex}
+          disabled={!canWrite || !form.sex}
           hint={form.sex ? null : 'Elija primero el sexo.'}
         />
 
@@ -355,6 +373,7 @@ export default function CowFormPage() {
           onChange={handleChange}
           options={groups}
           placeholder="Seleccione un grupo"
+          disabled={!canWrite}
         />
 
         <FormField
@@ -363,6 +382,7 @@ export default function CowFormPage() {
           type="date"
           value={form.birthDate}
           onChange={handleChange}
+          disabled={!canWrite}
         />
 
         {/* Actions */}

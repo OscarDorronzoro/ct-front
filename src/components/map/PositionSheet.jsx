@@ -6,6 +6,7 @@ import {
 import MapSheet from './MapSheet';
 import Button from '../ui/Button';
 import Spinner from '../ui/Spinner';
+import useCan from '../../hooks/useCan';
 import CowIcon from '../icons/CowIcon';
 import { getPositionDetails, getDistances } from '../../services/position';
 import { formatDistance, compassPoint } from '../../utils/geo';
@@ -140,6 +141,7 @@ export default function PositionSheet({ point, onClose }) {
     return () => { cancelled = true; };
   }, [id, collarId, timestamp]);
 
+  const canEditCow = useCan()('cows:write', 'cows:assignCollar');
   const cow = details?.cow;
   const collarCode = details?.collar?.code ?? collarId;
   const { position, signal } = details ?? {};
@@ -150,7 +152,7 @@ export default function PositionSheet({ point, onClose }) {
       title={cow?.alias || (cowId ? `Vaca ${cowId}` : 'Sin vaca asignada')}
       subtitle={`Collar ${collarCode}\u00A0· ${toTimeElapsed(timestamp).text}`}
       onClose={onClose}
-      actions={cow && (
+      actions={cow && canEditCow && (
         <Button variant="secondary" icon={ExternalLink} to={`/settings/cows/${cow.id}`}>
           Ver vaca
         </Button>

@@ -12,6 +12,7 @@ import ConfirmDialog from '../components/utils/ConfirmDialog';
 import GroupRow from '../components/groups/GroupRow';
 
 import useEntityList from '../hooks/useEntityList';
+import useCan from '../hooks/useCan';
 import { groupLabel } from '../utils/labels';
 import useListSearch from '../hooks/useListSearch';
 import { getAllGroups, deleteGroup } from '../services/group';
@@ -29,6 +30,9 @@ const toSearchResult = (group) => ({
 
 export default function GroupsPage() {
   const navigate = useNavigate();
+  const can = useCan();
+  const canWrite = can('cows:write');
+  const canEdit = canWrite;
 
   const list = useEntityList({ load: getAllGroups, remove: removeGroup });
   const { search, setSearch, results } = useListSearch(list.items, {
@@ -42,11 +46,11 @@ export default function GroupsPage() {
     <Page
       title="Grupos"
       hideHeaderOnMobile
-      actions={
+      actions={canWrite && (
         <Button icon={Plus} to={NEW_PATH}>
           Agregar grupo
         </Button>
-      }
+      )}
     >
       <ActionError
         error={list.actionError}
@@ -59,7 +63,7 @@ export default function GroupsPage() {
           onChange={setSearch}
           placeholder="Buscar grupo..."
           results={results}
-          onSelect={(result) => navigate(`/settings/groups/${result.id}`)}
+          onSelect={canEdit ? (result) => navigate(`/settings/groups/${result.id}`) : undefined}
         />
       </Toolbar>
 
@@ -77,12 +81,13 @@ export default function GroupsPage() {
           <GroupRow
             key={group.id}
             group={group}
-            onDelete={list.requestDelete}
+            editable={canEdit}
+            onDelete={canWrite ? list.requestDelete : undefined}
           />
         )}
       />
 
-      <Fab icon={Plus} label="Agregar grupo" to={NEW_PATH} />
+      {canWrite && <Fab icon={Plus} label="Agregar grupo" to={NEW_PATH} />}
 
       <ConfirmDialog
         open={!!item}

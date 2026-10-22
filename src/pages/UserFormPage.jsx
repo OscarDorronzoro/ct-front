@@ -7,7 +7,7 @@ import formStyles from '../components/form/Form.module.css';
 import Page from '../components/ui/Page';
 import Card from '../components/ui/Card';
 import Alert from '../components/ui/Alert';
-import SelectField from '../components/form/SelectField';
+import CheckboxGroupField from '../components/form/CheckboxGroupField';
 import UserSessions from '../components/users/UserSessions';
 
 import {
@@ -16,28 +16,15 @@ import {
   createUser,
 } from '../services/user';
 
+import useAuth from '../context/auth/useAuth';
+import USER_ROLES from '../utils/userRoles';
 import logger from '../utils/logger';
 
 const emptyForm = {
   username: '',
   password: '',
-  role: '',
+  roles: [],
 };
-
-const roleOptions = [
-  {
-    value: 0,
-    label: 'Administrador',
-  },
-  {
-    value: 1,
-    label: 'Operador',
-  },
-  {
-    value: 2,
-    label: 'Solo lectura',
-  },
-];
 
 export default function UserFormPage() {
   const [form, setForm] = useState(emptyForm);
@@ -46,6 +33,14 @@ export default function UserFormPage() {
 
   const { userId } = useParams();
   const navigate = useNavigate();
+  const { user: currentUser } = useAuth();
+
+  // An admin can't take the admin role away from themselves (the backend refuses it too)
+  const isSelf = userId !== undefined && Number(userId) === currentUser?.id;
+  const roleOptions = USER_ROLES.map((role) => ({
+    ...role,
+    disabled: isSelf && role.value === 'admin',
+  }));
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -69,12 +64,17 @@ export default function UserFormPage() {
 
     setError(null);
 
+    if (form.roles.length === 0) {
+      setError('Elija al menos un rol.');
+      return;
+    }
+
     try {
       setSaving(true);
 
       const data = {
         username: form.username,
-        role: Number(form.role),
+        roles: form.roles,
       };
 
       if (form.password) {
@@ -115,7 +115,7 @@ export default function UserFormPage() {
           setForm({
             username: user.username ?? '',
             password: '',
-            role: user.role ?? '',
+            roles: user.roles ?? [],
           });
         }
       })
@@ -168,13 +168,16 @@ export default function UserFormPage() {
           required={!userId}
         />
 
-        <SelectField
-          label="Rol"
-          name="role"
-          value={form.role}
+        <CheckboxGroupField
+          label="Roles"
+          name="roles"
+          values={form.roles}
           onChange={handleChange}
           options={roleOptions}
-          placeholder="Seleccione un rol"
+          required
+          hint={isSelf
+            ? 'No puede quitarse su propio rol de administrador.'
+            : 'Puede elegir varios: el usuario podrá hacer lo de todos ellos.'}
         />
 
         {/* Actions */}

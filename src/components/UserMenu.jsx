@@ -2,13 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 import { LogOut, User } from 'lucide-react';
 
 import useAuth from '../context/auth/useAuth';
+import { roleInfo } from '../utils/userRoles';
 import styles from './UserMenu.module.css';
-
-const ROLE_LABELS = {
-  0: 'Administrador',
-  1: 'Operador',
-  2: 'Solo lectura',
-};
 
 // placement: down (map top bar) | right (bottom of the sidebar)
 export default function UserMenu({ placement = 'down' }) {
@@ -57,7 +52,7 @@ export default function UserMenu({ placement = 'down' }) {
         <div className={`${styles.menu} ${styles[placement]}`}>
           <div className={styles.user}>
             <div className={styles.username}>{user.username}</div>
-            <div className={styles.role}>{ROLE_LABELS[user.role]}</div>
+            <div className={styles.role}>{user.roles?.map((role) => roleInfo(role).label).join(', ')}</div>
           </div>
 
           <button type="button" onClick={handleLogout} className={styles.option}>
