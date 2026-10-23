@@ -65,6 +65,27 @@ describe('HealthEventFormPage', () => {
     });
   });
 
+  it('offers castration only for males, and sends its method', async () => {
+    getCow.mockResolvedValue({ id: 8, alias: 'Pampa', sex: 'male' });
+    const user = renderForm();
+
+    await user.click(await screen.findByRole('button', { name: 'Castración' }));
+    await user.click(screen.getByRole('button', { name: 'Sin indicar' }));
+    await user.click(screen.getByRole('option', { name: 'Quirúrgica' }));
+    await user.click(screen.getByRole('button', { name: 'Guardar' }));
+
+    await screen.findByText('Ficha de la vaca');
+    expect(recordEvent).toHaveBeenCalledWith('8', expect.objectContaining({ type: 'castration', method: 'surgical' }));
+  });
+
+  it('does not offer castration for a female', async () => {
+    getCow.mockResolvedValue({ id: 8, alias: 'Ángela', sex: 'female' });
+    renderForm();
+
+    await screen.findByRole('button', { name: 'Seleccione un producto' });
+    expect(screen.queryByRole('button', { name: 'Castración' })).not.toBeInTheDocument();
+  });
+
   it('asks for the product before sending a vaccination', async () => {
     const user = renderForm();
     await screen.findByRole('button', { name: 'Seleccione un producto' });

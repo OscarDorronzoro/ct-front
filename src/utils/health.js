@@ -1,5 +1,5 @@
 import {
-  Syringe, Pill, Stethoscope, Scale,
+  Syringe, Pill, Stethoscope, Scale, Scissors,
 } from 'lucide-react';
 
 // How the clinical history is shown. The backend computes the data (withdrawal, boosters...).
@@ -9,7 +9,22 @@ export const EVENT_TYPES = [
   { value: 'treatment', label: 'Tratamiento', icon: Pill },
   { value: 'examination', label: 'Revisación', icon: Stethoscope },
   { value: 'weighing', label: 'Pesaje', icon: Scale },
+  // Only for males: moves them to the steer categories (backend)
+  { value: 'castration', label: 'Castración', icon: Scissors, sex: 'male' },
 ];
+
+export const CASTRATION_METHODS = [
+  { value: 'surgical', label: 'Quirúrgica' },
+  { value: 'band', label: 'Gomita (elastrador)' },
+  { value: 'burdizzo', label: 'Pinza (Burdizzo)' },
+];
+
+// Where a category of the history came from
+export const CATEGORY_SOURCES = {
+  manual: 'manual',
+  automatic: 'por edad',
+  event: 'por evento',
+};
 
 export const PRODUCT_TYPES = [
   { value: 'vaccine', label: 'Vacuna' },
@@ -83,6 +98,7 @@ export function eventDetails(event) {
       ),
     ],
     weighing: () => [`${decimal(d.weightKg)} kg`],
+    castration: () => [d.method && `Método: ${labelOf(CASTRATION_METHODS, d.method)}`],
   };
 
   const withdrawal = [

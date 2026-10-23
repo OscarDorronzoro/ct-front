@@ -20,7 +20,9 @@ import useCowHealth from '../hooks/useCowHealth';
 import { getCow } from '../services/cow';
 import { voidEvent } from '../services/health';
 import { cowLabel, collarLabel, SEX_LABELS } from '../utils/labels';
-import { EVENT_TYPES, formatDay, formatAge } from '../utils/health';
+import {
+  EVENT_TYPES, CATEGORY_SOURCES, formatDay, formatAge,
+} from '../utils/health';
 import logger from '../utils/logger';
 import styles from './CowDetailPage.module.css';
 
@@ -87,9 +89,15 @@ export default function CowDetailPage() {
     );
   }
 
+  const history = cow.categoryHistory ?? [];
+  const currentCategory = history.find((h) => !h.dateTo);
+
   const facts = [
     ['Caravana', cow.earTag || 'S/N'],
-    ['Categoría', cow.category?.name],
+    ['Categoría', cow.category && [
+      cow.category.name,
+      currentCategory && `desde ${formatDay(currentCategory.dateFrom)}`,
+    ].filter(Boolean).join(' · ')],
     ['Sexo', SEX_LABELS[cow.sex]],
     ['Raza', cow.breed?.name],
     ['Nacimiento', cow.birthDate && `${formatDay(cow.birthDate)} · ${formatAge(cow.birthDate)}`],
@@ -123,6 +131,24 @@ export default function CowDetailPage() {
             </div>
           ))}
         </dl>
+
+        {history.length > 1 && (
+          <details className={styles.categoryHistory}>
+            <summary>Historial de categorías</summary>
+            <ul>
+              {history.map((h) => (
+                <li key={h.id}>
+                  <strong>{h.category.name}</strong>
+                  {' '}
+                  {formatDay(h.dateFrom)}
+                  {h.dateTo ? ` – ${formatDay(h.dateTo)}` : ' – hoy'}
+                  {' · '}
+                  {CATEGORY_SOURCES[h.source] ?? h.source}
+                </li>
+              ))}
+            </ul>
+          </details>
+        )}
 
         {cow.groups?.length > 0 && (
           <div className={styles.groups}>

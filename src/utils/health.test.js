@@ -32,6 +32,11 @@ describe('eventDetails', () => {
     }))).toEqual(['39,5 °C']);
   });
 
+  it('describes a castration', () => {
+    expect(eventDetails(event('castration', { method: 'band' }))).toEqual(['Método: Gomita (elastrador)']);
+    expect(eventDetails(event('castration', { method: null }))).toEqual([]);
+  });
+
   it('describes a weighing', () => {
     expect(eventDetails(event('weighing', { weightKg: 412.5 }))).toEqual(['412,5 kg']);
   });

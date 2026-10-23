@@ -50,7 +50,20 @@ function renderCard(permissions) {
 describe('CowDetailPage', () => {
   beforeEach(() => {
     getCow.mockResolvedValue({
-      id: 8, alias: 'Ángela', earTag: 'A-100', sex: 'female', category: { name: 'Vaca' }, groups: [],
+      id: 8,
+      alias: 'Ángela',
+      earTag: 'A-100',
+      sex: 'female',
+      category: { name: 'Vaca' },
+      categoryHistory: [
+        {
+          id: 2, category: { name: 'Vaca' }, dateFrom: '2026-05-10T12:00:00Z', dateTo: null, source: 'manual',
+        },
+        {
+          id: 1, category: { name: 'Vaquillona' }, dateFrom: '2025-03-01T12:00:00Z', dateTo: '2026-05-10T12:00:00Z', source: 'automatic',
+        },
+      ],
+      groups: [],
     });
     getCowHealth.mockResolvedValue(health);
     voidEvent.mockResolvedValue({});
@@ -65,6 +78,14 @@ describe('CowDetailPage', () => {
     expect(screen.getByRole('heading', { name: 'Pesaje' })).toBeInTheDocument();
     expect(screen.getByText('Registrado por ana')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Registrar evento/ })).toBeInTheDocument();
+  });
+
+  it('shows the current category since when, and its history', async () => {
+    renderCard(TECHNICIAN);
+
+    expect(await screen.findByText('Vaca · desde 10/05/2026')).toBeInTheDocument();
+    expect(screen.getByText('Historial de categorías')).toBeInTheDocument();
+    expect(screen.getByText(/01\/03\/2025 – 10\/05\/2026 · por edad/)).toBeInTheDocument();
   });
 
   it('hides the clinical history from who cannot read it', async () => {

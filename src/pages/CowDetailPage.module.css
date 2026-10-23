@@ -54,6 +54,25 @@
   gap: var(--space-2);
 }
 
+.categoryHistory {
+  grid-column: 1 / -1;
+  font-size: var(--text-sm);
+  color: var(--color-text);
+}
+
+.categoryHistory summary {
+  cursor: pointer;
+  color: var(--color-text-muted);
+}
+
+.categoryHistory ul {
+  margin: var(--space-2) 0 0;
+  padding-left: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
 .history {
   display: flex;
   flex-direction: column;

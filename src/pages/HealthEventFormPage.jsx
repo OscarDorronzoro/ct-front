@@ -12,7 +12,9 @@ import healthStyles from '../components/health/Health.module.css';
 
 import { getCow } from '../services/cow';
 import { getProducts, recordEvent } from '../services/health';
-import { EVENT_TYPES, PRODUCT_TYPES_BY_EVENT, ROUTES } from '../utils/health';
+import {
+  EVENT_TYPES, PRODUCT_TYPES_BY_EVENT, ROUTES, CASTRATION_METHODS,
+} from '../utils/health';
 import { toDateValue, toTimeValue, fromInputs } from '../utils/dateRange';
 import { cowLabel } from '../utils/labels';
 import logger from '../utils/logger';
@@ -29,6 +31,7 @@ const emptyFields = {
   temperature: '',
   bodyCondition: '',
   weightKg: '',
+  method: '',
   notes: '',
 };
 
@@ -38,6 +41,7 @@ const FIELDS_BY_TYPE = {
   treatment: ['productId', 'diagnosis', 'dose', 'route', 'durationDays'],
   examination: ['finding', 'temperature', 'bodyCondition'],
   weighing: ['weightKg'],
+  castration: ['method'],
 };
 
 const NUMBER_FIELDS = ['productId', 'durationDays', 'temperature', 'bodyCondition', 'weightKg'];
@@ -137,7 +141,7 @@ export default function HealthEventFormPage() {
         {error && <Alert tone="danger">{error}</Alert>}
 
         <div className={healthStyles.filters} role="group" aria-label="Tipo de evento">
-          {EVENT_TYPES.map(({ value, label }) => (
+          {EVENT_TYPES.filter((t) => !t.sex || t.sex === cow?.sex).map(({ value, label }) => (
             <button
               key={value}
               type="button"
@@ -268,6 +272,18 @@ export default function HealthEventFormPage() {
             value={fields.weightKg}
             onChange={handleChange}
             required
+          />
+        )}
+
+        {type === 'castration' && (
+          <SelectField
+            label="Método"
+            name="method"
+            value={fields.method}
+            onChange={handleChange}
+            options={[{ value: '', label: 'Sin indicar' }, ...CASTRATION_METHODS]}
+            placeholder="Sin indicar"
+            hint="Pasa a la categoría de novillito o novillo según la edad."
           />
         )}
 
