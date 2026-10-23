@@ -12,6 +12,9 @@ export default function ConfirmDialog({
   onConfirm,
   onCancel,
   danger = false,
+  // Extra content between the message and the buttons (e.g. a field), and a way to block confirming
+  children,
+  confirmDisabled = false,
 }) {
   useEffect(() => {
     if (!open) {
@@ -45,9 +48,13 @@ export default function ConfirmDialog({
           {title}
         </h2>
 
-        <p className={styles.message}>
-          {message}
-        </p>
+        {message && (
+          <p className={styles.message}>
+            {message}
+          </p>
+        )}
+
+        {children}
 
         <div className={styles.actions}>
           <Button variant="secondary" onClick={onCancel}>
@@ -57,7 +64,8 @@ export default function ConfirmDialog({
           <Button
             variant={danger ? 'danger' : 'primary'}
             onClick={onConfirm}
-            autoFocus
+            disabled={confirmDisabled}
+            autoFocus={!children}
           >
             {confirmLabel}
           </Button>

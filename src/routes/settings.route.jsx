@@ -8,6 +8,10 @@ import CollarFormPage from '../pages/CollarFormPage';
 import GroupFormPage from '../pages/GroupFormPage';
 import UsersPage from '../pages/UsersPage';
 import UserFormPage from '../pages/UserFormPage';
+import CowDetailPage from '../pages/CowDetailPage';
+import HealthEventFormPage from '../pages/HealthEventFormPage';
+import ProductsPage from '../pages/ProductsPage';
+import ProductFormPage from '../pages/ProductFormPage';
 
 import RequirePermission from '../components/auth/RequirePermission';
 
@@ -22,6 +26,11 @@ export const settingsRoute = {
     {
       path: 'cows',
       element: <CowsPage />,
+    },
+    // Card of the cow, with its clinical history for who can read it
+    {
+      path: 'cows/:cowId',
+      element: <CowDetailPage />,
     },
     {
       path: 'collars',
@@ -48,7 +57,21 @@ export const settingsRoute = {
       // The technician edits only the collar of the cow
       element: <RequirePermission anyOf={['cows:write', 'cows:assignCollar']} />,
       children: [
-        { path: 'cows/:cowId', element: <CowFormPage /> },
+        { path: 'cows/:cowId/edit', element: <CowFormPage /> },
+      ],
+    },
+    {
+      element: <RequirePermission anyOf={['health:read']} />,
+      children: [
+        { path: 'products', element: <ProductsPage /> },
+      ],
+    },
+    {
+      element: <RequirePermission anyOf={['health:write']} />,
+      children: [
+        { path: 'cows/:cowId/events/new', element: <HealthEventFormPage /> },
+        { path: 'products/new', element: <ProductFormPage /> },
+        { path: 'products/:productId', element: <ProductFormPage /> },
       ],
     },
     {

@@ -150,7 +150,7 @@ export default function CowFormPage() {
           await createCow(formData);
       }
 
-      navigate('/settings/cows');
+      navigate(form.id ? `/settings/cows/${form.id}` : '/settings/cows');
 
     } catch (err) {
       logger.error(err);
@@ -282,7 +282,7 @@ export default function CowFormPage() {
   return (
     <Page
       title={cowId ? 'Editar vaca' : 'Nueva vaca'}
-      backTo="/settings/cows"
+      backTo={cowId ? `/settings/cows/${cowId}` : '/settings/cows'}
       width="narrow"
     >
       <Card

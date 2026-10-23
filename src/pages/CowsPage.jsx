@@ -33,8 +33,8 @@ export default function CowsPage() {
   const navigate = useNavigate();
   const can = useCan();
   const canWrite = can('cows:write');
-  // The technician can open a cow only to change its collar
-  const canEdit = can(...['cows:write', 'cows:assignCollar']);
+  // Everyone opens the card of a cow; the pencil (edit form) is for who can change something
+  const canEdit = can('cows:write', 'cows:assignCollar');
 
   const list = useEntityList({ load: getAllCows, remove: removeCow });
   const { search, setSearch, results } = useListSearch(list.items, {
@@ -65,7 +65,7 @@ export default function CowsPage() {
           onChange={setSearch}
           placeholder="Buscar vaca..."
           results={results}
-          onSelect={canEdit ? (result) => navigate(`/settings/cows/${result.id}`) : undefined}
+          onSelect={(result) => navigate(`/settings/cows/${result.id}`)}
         />
       </Toolbar>
 

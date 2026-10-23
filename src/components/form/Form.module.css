@@ -108,6 +108,19 @@
   color: var(--color-danger-text);
 }
 
+/* Two fields side by side (one per line on phones) */
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+@media (max-width: 480px) {
+  .row {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Checkbox group ----------------------------------------------------------------------------------- */
 
 fieldset.field {

@@ -3,7 +3,8 @@ import Badge from '../ui/Badge';
 import CowIcon from '../icons/CowIcon';
 import { cowLabel } from '../../utils/labels';
 
-// editable: opens the form; onDelete: only when the user can delete
+// The row opens the card of the cow. editable: the pencil opens the form; onDelete: only when
+// the user can delete
 export default function CowRow({ cow, editable = true, onDelete }) {
   return (
     <EntityRow
@@ -20,7 +21,8 @@ export default function CowRow({ cow, editable = true, onDelete }) {
       tags={cow.groups?.length > 0 && cow.groups.map(group => (
         <Badge key={group.id} tone="accent">{group.name}</Badge>
       ))}
-      to={editable ? `/settings/cows/${cow.id}` : undefined}
+      to={`/settings/cows/${cow.id}`}
+      editTo={editable ? `/settings/cows/${cow.id}/edit` : null}
       entityLabel="vaca"
       onDelete={onDelete && (() => onDelete(cow))}
     />

@@ -42,7 +42,8 @@ function renderForm(path, permissions = MANAGER) {
       <MemoryRouter initialEntries={[path]}>
         <Routes>
           <Route path="/settings/cows/new" element={<CowFormPage />} />
-          <Route path="/settings/cows/:cowId" element={<CowFormPage />} />
+          <Route path="/settings/cows/:cowId/edit" element={<CowFormPage />} />
+          <Route path="/settings/cows/:cowId" element={<div>Ficha de la vaca</div>} />
           <Route path="/settings/cows" element={<div>Lista de vacas</div>} />
         </Routes>
       </MemoryRouter>
@@ -51,9 +52,10 @@ function renderForm(path, permissions = MANAGER) {
   return userEvent.setup();
 }
 
-// What the form sent: [field, value] pairs, the image as its name
+// What the form sent: [field, value] pairs, the image as its name. After saving it goes to the
+// card of the cow (edit) or to the list (new).
 async function submitted(saveMock) {
-  await screen.findByText('Lista de vacas');
+  await screen.findByText(/Ficha de la vaca|Lista de vacas/);
   const formData = saveMock.mock.lastCall.at(-1);
   return [...formData.entries()].map(([key, value]) => [key, value instanceof File ? value.name : value]);
 }
@@ -80,7 +82,7 @@ describe('CowFormPage', () => {
   const loaded = () => screen.findByRole('button', { name: 'Collar 12' });
 
   it('sends the cow as it is when nothing changes', async () => {
-    const user = renderForm('/settings/cows/8');
+    const user = renderForm('/settings/cows/8/edit');
     await loaded();
 
     await user.click(screen.getByRole('button', { name: 'Guardar' }));
@@ -97,7 +99,7 @@ describe('CowFormPage', () => {
   });
 
   it('lets a veterinarian edit the cow but not its collar', async () => {
-    const user = renderForm('/settings/cows/8', VETERINARIAN);
+    const user = renderForm('/settings/cows/8/edit', VETERINARIAN);
     const collar = await loaded();
 
     expect(collar).toBeDisabled();
@@ -111,7 +113,7 @@ describe('CowFormPage', () => {
   });
 
   it('lets a technician change only the collar', async () => {
-    const user = renderForm('/settings/cows/8', TECHNICIAN);
+    const user = renderForm('/settings/cows/8/edit', TECHNICIAN);
     await user.click(await loaded());
     await user.click(screen.getByRole('option', { name: /Collar 40/ }));
 
@@ -124,7 +126,7 @@ describe('CowFormPage', () => {
   });
 
   it('offers only the categories of the sex, and drops the category when the sex changes', async () => {
-    const user = renderForm('/settings/cows/8');
+    const user = renderForm('/settings/cows/8/edit');
     await user.click(await screen.findByRole('button', { name: 'Vaca' }));
 
     expect(screen.getByRole('option', { name: 'Vaquillona' })).toBeInTheDocument();
@@ -153,7 +155,7 @@ describe('CowFormPage', () => {
   });
 
   it('unassigns the collar with an empty currentCollarId', async () => {
-    const user = renderForm('/settings/cows/8');
+    const user = renderForm('/settings/cows/8/edit');
     await user.click(await loaded());
     await user.click(screen.getByRole('option', { name: 'Sin collar' }));
 
@@ -165,7 +167,7 @@ describe('CowFormPage', () => {
   });
 
   it('warns when the chosen collar belongs to another cow', async () => {
-    const user = renderForm('/settings/cows/8');
+    const user = renderForm('/settings/cows/8/edit');
     await user.click(await loaded());
     await user.click(screen.getByRole('option', { name: /Collar 29/ }));
 
@@ -173,7 +175,7 @@ describe('CowFormPage', () => {
   });
 
   it('asks to remove the image only when it is removed', async () => {
-    const user = renderForm('/settings/cows/8');
+    const user = renderForm('/settings/cows/8/edit');
     await loaded();
 
     await user.click(screen.getByRole('button', { name: 'Quitar imagen' }));
@@ -183,7 +185,7 @@ describe('CowFormPage', () => {
   });
 
   it('sends an empty groupIds when every group is removed', async () => {
-    const user = renderForm('/settings/cows/8');
+    const user = renderForm('/settings/cows/8/edit');
     // The group shows once the group options have loaded
     await screen.findByRole('button', { name: 'Rodeo 1' });
 

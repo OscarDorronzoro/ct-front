@@ -6,6 +6,7 @@ import IconButton from './IconButton';
 import styles from './EntityRow.module.css';
 
 // Row of an entity list. The whole row opens `to`; without it (no permission to edit) it is static.
+// editTo: where the pencil goes, when it isn't `to` (e.g. the row opens a detail page).
 // avatar: icon element, or { src, fallback } for an image. meta: list of texts. tags: badges.
 export default function EntityRow({
   avatar,
@@ -13,6 +14,7 @@ export default function EntityRow({
   meta = [],
   tags,
   to,
+  editTo = to,
   entityLabel,
   onDelete,
 }) {
@@ -63,12 +65,12 @@ export default function EntityRow({
       </div>
 
       <div className={styles.actions}>
-        {to && (
+        {editTo && (
           <span className={styles.edit}>
             <IconButton
               icon={Pencil}
               label={`Editar ${entityLabel}`}
-              onClick={stop(open)}
+              onClick={stop(() => navigate(editTo))}
             />
           </span>
         )}
