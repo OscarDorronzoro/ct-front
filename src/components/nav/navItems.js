@@ -1,5 +1,5 @@
 import {
-  Radio, History, SatelliteDish, Users, LandPlot, UserRound, FlaskConical,
+  Radio, History, SatelliteDish, Users, LandPlot, UserRound, FlaskConical, ChartColumn,
 } from 'lucide-react';
 
 import CowIcon from '../icons/CowIcon';
@@ -8,6 +8,7 @@ import { can } from '../../utils/permissions';
 export const MAP_ITEMS = [
   { to: '/', end: true, label: 'En vivo', icon: Radio },
   { to: '/history', label: 'Historial', icon: History },
+  { to: '/analytics', label: 'Análisis', icon: ChartColumn },
 ];
 
 export const SETTINGS_ITEMS = [
