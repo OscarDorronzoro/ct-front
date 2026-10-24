@@ -1,9 +1,9 @@
-const FORBIDDEN = 'No tenés permiso para hacer esto.';
+const FORBIDDEN = 'No tiene permiso para hacer esto.';
 
 // Text for the user of each error code of the backend ({ error: CODE } in the response body).
 // A code that isn't here gets the message of its HTTP status (statusMessage).
 export const ERROR_MESSAGES: Record<string, string> = {
-  VALIDATION_ERROR: 'Hay datos inválidos. Revisá el formulario.',
+  VALIDATION_ERROR: 'Hay datos inválidos. Revise el formulario.',
   FORBIDDEN,
 
   // Livestock
@@ -12,9 +12,9 @@ export const ERROR_MESSAGES: Record<string, string> = {
   BREED_ALREADY_EXISTS: 'Ya existe una raza con ese nombre.',
   CATEGORY_NOT_FOUND: 'La categoría no existe.',
   CATEGORY_SEX_MISMATCH: 'La categoría no corresponde al sexo de la vaca.',
-  SEX_REQUIRED_FOR_CATEGORY: 'Indicá el sexo para poder asignar una categoría.',
+  SEX_REQUIRED_FOR_CATEGORY: 'Indique el sexo para poder asignar una categoría.',
   GROUP_NOT_FOUND: 'El grupo no existe o fue eliminado.',
-  INVALID_IMAGE: 'La imagen no es válida. Probá con una foto JPG, PNG o WebP.',
+  INVALID_IMAGE: 'La imagen no es válida. Pruebe con una foto JPG, PNG o WebP.',
   LIMIT_FILE_SIZE: 'La imagen es demasiado grande.',
 
   // Health
@@ -24,7 +24,7 @@ export const ERROR_MESSAGES: Record<string, string> = {
   ALREADY_CASTRATED: 'La vaca ya tiene una castración registrada.',
   PRODUCT_NOT_FOUND: 'El producto no existe.',
   PRODUCT_ALREADY_EXISTS: 'Ya existe un producto con ese nombre.',
-  PRODUCT_INACTIVE: 'El producto está inactivo: activalo para usarlo en eventos nuevos.',
+  PRODUCT_INACTIVE: 'El producto está inactivo: actívelo para usarlo en eventos nuevos.',
   PRODUCT_TYPE_MISMATCH: 'El producto no es del tipo que corresponde a este evento.',
 
   // Devices
@@ -47,13 +47,13 @@ export const ERROR_MESSAGES: Record<string, string> = {
   // Users
   USER_NOT_FOUND: 'El usuario no existe o fue eliminado.',
   USERNAME_ALREADY_EXISTS: 'Ya existe un usuario con ese nombre.',
-  CANNOT_DELETE_YOURSELF: 'No podés eliminar tu propio usuario.',
-  CANNOT_REMOVE_OWN_ADMIN_ROLE: 'No podés quitarte el rol de administrador.',
+  CANNOT_DELETE_YOURSELF: 'No puede eliminar su propio usuario.',
+  CANNOT_REMOVE_OWN_ADMIN_ROLE: 'No puede quitarse el rol de administrador.',
   LAST_ADMIN: 'Tiene que quedar al menos un administrador.',
   SESSION_NOT_FOUND: 'La sesión ya no existe.',
 
   // Analytics
-  QUERY_TIMEOUT: 'La consulta tardó demasiado: acotá el período o los agrupamientos.',
+  QUERY_TIMEOUT: 'La consulta tardó demasiado: acote el período o los agrupamientos.',
   UNKNOWN_DATASET: 'Esos datos ya no están disponibles.',
   UNKNOWN_MEASURE: 'Una de las medidas ya no está disponible.',
   UNKNOWN_DIMENSION: 'Uno de los agrupamientos ya no está disponible.',
@@ -75,7 +75,7 @@ export function statusMessage(status: number) {
     return 'El archivo es demasiado grande.';
   }
   if (status >= 500) {
-    return 'El servidor tuvo un problema. Intentá de nuevo en unos segundos.';
+    return 'El servidor tuvo un problema. Intente de nuevo en unos segundos.';
   }
   return GENERIC_MESSAGE;
 }

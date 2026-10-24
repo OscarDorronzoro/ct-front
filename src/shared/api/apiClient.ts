@@ -124,7 +124,7 @@ async function send<T>(path: string, options: ApiOptions<T>, retry: boolean): Pr
     // restarts, for example) keeps the user logged in: the next request can succeed.
     if (refreshResponse.status !== 401 && refreshResponse.status !== 403) {
       throw new ApiError(
-        'El servidor no está disponible. Intentá de nuevo en unos segundos.',
+        'El servidor no está disponible. Intente de nuevo en unos segundos.',
         refreshResponse.status,
         { code: 'SERVER_UNAVAILABLE' },
       );

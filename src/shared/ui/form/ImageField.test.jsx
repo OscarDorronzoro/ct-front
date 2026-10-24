@@ -70,7 +70,7 @@ describe('ImageField', () => {
     expect(screen.getByText('La imagen no debe superar los 5 MB.')).toBeInTheDocument();
 
     choose(image(1000, 'application/pdf'));
-    expect(screen.getByText('Seleccioná un archivo de imagen válido.')).toBeInTheDocument();
+    expect(screen.getByText('Seleccione un archivo de imagen válido.')).toBeInTheDocument();
 
     expect(onChange).not.toHaveBeenCalled();
   });

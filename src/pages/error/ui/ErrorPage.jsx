@@ -26,7 +26,7 @@ export default function ErrorPage() {
         <h1 className={styles.title}>Algo salió mal</h1>
 
         <p className={styles.text}>
-          Ocurrió un error inesperado o la página no existe. Volvé al inicio para seguir.
+          Ocurrió un error inesperado o la página no existe. Vuelva al inicio para seguir.
         </p>
 
         <Button icon={House} onClick={() => window.location.assign('/')}>

@@ -39,7 +39,7 @@ export default function ImageField({
     if (!file) {return;}
 
     if (!file.type.startsWith('image/')) {
-      setError('Seleccioná un archivo de imagen válido.');
+      setError('Seleccione un archivo de imagen válido.');
       return;
     }
 

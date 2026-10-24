@@ -24,7 +24,7 @@ export default function LoginPage() {
           </div>
 
           <h1 className={styles.title}>Rastreo de Vacas</h1>
-          <p className={styles.subtitle}>Ingresá a tu cuenta</p>
+          <p className={styles.subtitle}>Ingrese a su cuenta</p>
         </div>
 
         <LoginForm onLoggedIn={() => navigate(from, { replace: true })} />

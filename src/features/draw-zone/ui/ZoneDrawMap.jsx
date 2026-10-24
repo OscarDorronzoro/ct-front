@@ -64,13 +64,13 @@ function selectStyles(color) {
 }
 
 const HINTS = {
-  empty: 'Tocá "Dibujar" para empezar el polígono.',
+  empty: 'Toque "Dibujar" para empezar el polígono.',
   drawing: TOUCH
-    ? 'Mové el mapa hasta la mira y tocá "Agregar punto". Con 3 o más, "Cerrar".'
-    : 'Hacé clic para agregar vértices. Hacé clic en el primero para cerrar la zona.',
+    ? 'Mueva el mapa hasta la mira y toque "Agregar punto". Con 3 o más, "Cerrar".'
+    : 'Haga clic para agregar vértices. Haga clic en el primero para cerrar la zona.',
   done: TOUCH
-    ? 'Arrastrá los vértices para ajustar. Tocá un punto intermedio para agregar uno.'
-    : 'Arrastrá los vértices para ajustar. Hacé clic en un punto intermedio para agregar uno.',
+    ? 'Arrastre los vértices para ajustar. Toque un punto intermedio para agregar uno.'
+    : 'Arrastre los vértices para ajustar. Haga clic en un punto intermedio para agregar uno.',
 };
 
 // terra-draw rejects coordinates with more decimals than its precision (9); 7 are ~1 cm
@@ -235,7 +235,7 @@ export default function ZoneDrawMap({
   const closeZone = () => {
     const { valid } = notSelfIntersecting(toPolygon(points));
     if (!valid || !selectPolygon(points)) {
-      setNotice('Los lados no pueden cruzarse: deshacé el último punto o movelo.');
+      setNotice('Los lados no pueden cruzarse: deshaga el último punto o muévalo.');
       return;
     }
 

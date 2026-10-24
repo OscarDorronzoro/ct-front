@@ -64,7 +64,7 @@ export default function ZonesPage() {
       labels={{
         error: 'No se pudieron cargar las zonas.',
         empty: 'Todavía no hay zonas',
-        emptyMessage: 'Dibujá los potreros, corrales y aguadas del campo para seguir dónde está cada vaca.',
+        emptyMessage: 'Dibuje los potreros, corrales y aguadas del campo para seguir dónde está cada vaca.',
       }}
       emptyIcon={LandPlot}
       emptyAction={canWrite && <Button icon={Plus} size="sm" to={NEW_PATH}>Dibujar zona</Button>}

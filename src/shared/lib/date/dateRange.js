@@ -123,7 +123,7 @@ export function rangeSummary(range, now = new Date()) {
 // An end at (or after) the current time means "until now".
 export function customRange(from, to, untilNow, now = new Date()) {
   if (!from || (!untilNow && !to)) {
-    return { error: 'Completá fecha y hora.' };
+    return { error: 'Complete fecha y hora.' };
   }
 
   const live = untilNow || to >= now - LIVE_MARGIN_MS;

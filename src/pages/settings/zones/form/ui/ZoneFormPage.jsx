@@ -35,9 +35,9 @@ const toForm = (zone) => ({
 
 function validate(form) {
   if (!form.ring) {
-    return 'Dibujá la zona en el mapa y cerrala tocando el primer vértice.';
+    return 'Dibuje la zona en el mapa y ciérrela.';
   }
-  return form.zoneTypeId ? null : 'Elegí el tipo de zona.';
+  return form.zoneTypeId ? null : 'Elija el tipo de zona.';
 }
 
 // Reasons why the zone can't be loaded into a collar (still valid as a zone)

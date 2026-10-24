@@ -31,7 +31,7 @@ export default function LoginForm({ onLoggedIn }) {
     setError('');
 
     if (!form.username || !form.password) {
-      setError('Completá usuario y contraseña.');
+      setError('Complete usuario y contraseña.');
       return;
     }
 

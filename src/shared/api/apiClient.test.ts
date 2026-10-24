@@ -203,7 +203,7 @@ describe('apiClient', () => {
       mockFetch({ '/collars': [json(body, 400)] });
 
       await expect(apiClient('/collars', { method: 'POST' })).rejects.toMatchObject({
-        message: 'Hay datos inválidos. Revisá el formulario.', data: body,
+        message: 'Hay datos inválidos. Revise el formulario.', data: body,
       });
     });
 
@@ -211,7 +211,7 @@ describe('apiClient', () => {
       mockFetch({ '/a': [new Response('Bad gateway', { status: 502 })] });
 
       await expect(apiClient('/a')).rejects.toMatchObject({
-        status: 502, data: 'Bad gateway', message: 'El servidor tuvo un problema. Intentá de nuevo en unos segundos.',
+        status: 502, data: 'Bad gateway', message: 'El servidor tuvo un problema. Intente de nuevo en unos segundos.',
       });
     });
   });

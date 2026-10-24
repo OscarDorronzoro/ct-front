@@ -10,7 +10,7 @@ export default function ConnectionError({ onRetry }) {
         title="No se pudo conectar con el servidor"
         onRetry={onRetry}
       />
-      <p className={styles.hint}>Revisá tu conexión. Se vuelve a intentar al recuperarla.</p>
+      <p className={styles.hint}>Revise su conexión. Se vuelve a intentar al recuperarla.</p>
     </div>
   );
 }

@@ -132,7 +132,7 @@ describe('customRange', () => {
   const now = at(14, 10);
 
   it('needs both ends unless it runs until now', () => {
-    expect(customRange(at(14, 8), null, false, now)).toEqual({ error: 'Completá fecha y hora.' });
+    expect(customRange(at(14, 8), null, false, now)).toEqual({ error: 'Complete fecha y hora.' });
     expect(customRange(null, at(14, 9), false, now).error).toBeDefined();
   });
 
