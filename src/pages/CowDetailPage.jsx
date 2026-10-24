@@ -11,7 +11,7 @@ import { ActionError } from '@/shared/ui/alert';
 import { CowIcon } from '@/shared/ui/icons';
 import { ChipGroup } from '@/shared/ui/chip-group';
 import {
-  HealthSummary, HealthEventItem, useCowHealth, voidEvent, EVENT_TYPES,
+  HealthSummary, HealthEventItem, useCowHealth, EVENT_TYPES,
 } from '@/entities/health-event';
 import { useCan } from '@/entities/viewer';
 import {
@@ -19,7 +19,7 @@ import {
 } from '@/entities/cow';
 import { collarLabel } from '@/entities/collar';
 import { formatDay } from '@/shared/lib/date';
-import VoidEventDialog from '@/components/health/VoidEventDialog';
+import { VoidEventDialog } from '@/features/void-health-event';
 
 import { logger } from '@/shared/lib/logger';
 import styles from './CowDetailPage.module.css';
@@ -60,18 +60,6 @@ export default function CowDetailPage() {
 
     return () => { cancelled = true; };
   }, [cowId]);
-
-  const confirmVoid = async (event, reason) => {
-    setEventToVoid(null);
-
-    try {
-      await voidEvent(event.id, reason);
-      loadHealth();
-    } catch (err) {
-      logger.error('Error voiding event', err);
-      setActionError(err);
-    }
-  };
 
   if (cowError) {
     return (
@@ -202,8 +190,9 @@ export default function CowDetailPage() {
       <VoidEventDialog
         key={eventToVoid?.id ?? 'none'}
         event={eventToVoid}
-        onConfirm={confirmVoid}
-        onCancel={() => setEventToVoid(null)}
+        onVoided={loadHealth}
+        onError={setActionError}
+        onClose={() => setEventToVoid(null)}
       />
     </Page>
   );

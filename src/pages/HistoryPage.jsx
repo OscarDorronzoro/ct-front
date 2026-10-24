@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import { useOutletContext } from 'react-router';
 import MapView from '@/components/MapView';
-import RangePicker from '@/components/history/RangePicker';
+import { RangePicker } from '@/features/select-history-range';
 import UpdatingBadge from '@/components/map/UpdatingBadge';
 import { usePolling } from '@/shared/lib/polling';
 import { getPositions, getDistances } from '@/entities/position';

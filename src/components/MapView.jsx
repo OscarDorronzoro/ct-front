@@ -10,7 +10,7 @@ import ZoneCard from '@/components/map/ZoneCard';
 import HistoryLegend from '@/components/map/HistoryLegend';
 import {
   addZoneLayers, setZoneData, setZonesVisible, createZoneLabels, ZONE_FILL_LAYER,
-} from '@/components/map/zoneLayers';
+} from '@/entities/zone';
 import {
   addPositionLayers, setHeatView,
   POINTS_SOURCE, TRACKS_SOURCE, HITBOX_LAYER, HALO_LAYER,

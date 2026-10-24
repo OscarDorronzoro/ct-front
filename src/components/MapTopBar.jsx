@@ -1,32 +1,10 @@
-import { useState, useEffect } from 'react';
-import SearchBox from '@/components/search/SearchBox';
+import { EntitySearch } from '@/features/search-entities';
 import UserMenu from './UserMenu';
 import { useIsMobile } from '@/shared/lib/media';
-import { search as searchEntities } from '@/services/search';
-import { logger } from '@/shared/lib/logger';
-
-const DEBOUNCE = 300;
 
 // onSelect(result): a search result was picked (centered on the map by the page)
 export default function MapTopBar({ onSelect }) {
   const isMobile = useIsMobile();
-
-  const [search, setSearch] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
-
-  useEffect(() => {
-    const timeout = setTimeout(async () => {
-      try {
-        const results = await searchEntities(search);
-        setSearchResults(results);
-      } catch (error) {
-        logger.error('Search error:', error);
-        setSearchResults([]);
-      }
-    }, DEBOUNCE);
-
-    return () => clearTimeout(timeout);
-  }, [search]);
 
   return (
     <>
@@ -70,16 +48,10 @@ export default function MapTopBar({ onSelect }) {
             minWidth: 0,
           }}
         >
-          <SearchBox
-            value={search}
-            onChange={setSearch}
+          <EntitySearch
             placeholder="Buscar vaca o collar..."
             border={false}
-            results={searchResults}
-            onSelect={(result) => {
-              setSearch(result.label);
-              onSelect?.(result);
-            }}
+            onSelect={onSelect}
           />
         </div>
 

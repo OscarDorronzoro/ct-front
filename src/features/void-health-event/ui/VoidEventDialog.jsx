@@ -1,12 +1,29 @@
 import { useState } from 'react';
 import { ConfirmDialog } from '@/shared/ui/dialog';
-import { eventTitle } from '@/entities/health-event';
+import { eventTitle, voidEvent } from '@/entities/health-event';
 import { formatDay } from '@/shared/lib/date';
+import { logger } from '@/shared/lib/logger';
 import { formStyles } from '@/shared/ui/form';
 
-// Asks why the event is voided: the reason stays in the history
-export default function VoidEventDialog({ event, onConfirm, onCancel }) {
+// Asks why the event is voided (the reason stays in the history) and voids it.
+// event: the one to void, or null (closed). onVoided() / onError(error) after trying; onClose()
+// when it closes, either way. Render it with key={event id}: each event starts without a reason.
+export default function VoidEventDialog({
+  event, onVoided, onError, onClose,
+}) {
   const [reason, setReason] = useState('');
+
+  const confirm = async () => {
+    onClose();
+
+    try {
+      await voidEvent(event.id, reason.trim());
+      onVoided?.();
+    } catch (err) {
+      logger.error('Error voiding event', err);
+      onError?.(err);
+    }
+  };
 
   return (
     <ConfirmDialog
@@ -16,8 +33,8 @@ export default function VoidEventDialog({ event, onConfirm, onCancel }) {
       confirmLabel="Anular"
       danger
       confirmDisabled={!reason.trim()}
-      onConfirm={() => onConfirm(event, reason.trim())}
-      onCancel={onCancel}
+      onConfirm={confirm}
+      onCancel={onClose}
     >
       <label className={formStyles.field}>
         <span className={formStyles.label}>Motivo</span>

@@ -11,7 +11,7 @@ import { TerraDrawMapLibreGLAdapter } from 'terra-draw-maplibre-gl-adapter';
 import { Pencil, Undo2, RotateCcw } from 'lucide-react';
 import { BaseMap } from '@/shared/ui/map';
 import { Button } from '@/shared/ui/button';
-import { addZoneLayers, setZoneData } from '@/components/map/zoneLayers';
+import { addZoneLayers, setZoneData } from '@/entities/zone';
 import { closeRing, openRing, ringsBounds } from '@/shared/lib/geo';
 import { getSavedMapConfig } from '@/shared/lib/map-config';
 import styles from './ZoneDrawMap.module.css';

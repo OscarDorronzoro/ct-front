@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { BaseMap } from '@/shared/ui/map';
 import {
   addZoneLayers, setZoneData, createZoneLabels, ZONE_FILL_LAYER,
-} from '@/components/map/zoneLayers';
+} from '@/entities/zone';
 import { openRing, ringsBounds } from '@/shared/lib/geo';
 import { getSavedMapConfig } from '@/shared/lib/map-config';
 

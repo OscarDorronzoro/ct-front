@@ -9,3 +9,6 @@ export {
   zoneTypeStyle, zonesToGeoJSON, COLLAR_ZONE_MAX_VERTICES, COLLAR_ZONE_MAX_RADIUS_M,
 } from './model/zoneStyles';
 export { default as ZoneRow } from './ui/ZoneRow';
+export {
+  addZoneLayers, setZoneData, setZonesVisible, createZoneLabels, ZONE_FILL_LAYER,
+} from './ui/zoneLayers';

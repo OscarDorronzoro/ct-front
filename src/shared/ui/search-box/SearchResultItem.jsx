@@ -1,23 +1,12 @@
-import {
-  SatelliteDish, Users, UserRound, LandPlot,
-} from 'lucide-react';
-import { CowIcon } from '@/shared/ui/icons';
+import { Search } from 'lucide-react';
 import styles from './Search.module.css';
 
-const ICONS = {
-  cow: CowIcon,
-  collar: SatelliteDish,
-  group: Users,
-  user: UserRound,
-  zone: LandPlot,
-};
-
+// result: { label, description, icon } (icon: component, optional)
 export default function SearchResultItem({
   result,
   onSelect,
 }) {
-  const { type, label, description } = result;
-  const Icon = ICONS[type] ?? SatelliteDish;
+  const { label, description, icon: Icon = Search } = result;
 
   return (
     <button

@@ -4,7 +4,7 @@ import { Page } from '@/shared/ui/page';
 import { Button, Fab } from '@/shared/ui/button';
 import { EntityList } from '@/shared/ui/list';
 import { Toolbar } from '@/shared/ui/toolbar';
-import SearchBox from '@/components/search/SearchBox';
+import { SearchBox } from '@/shared/ui/search-box';
 import { ActionError } from '@/shared/ui/alert';
 import { ConfirmDialog } from '@/shared/ui/dialog';
 import {
