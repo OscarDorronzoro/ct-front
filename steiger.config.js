@@ -5,9 +5,9 @@ import { defineConfig } from 'steiger';
 export default defineConfig([
   ...fsd.configs.recommended,
   {
-    // While the migration lasts: pages is still a flat folder (one slice for Steiger) and the
-    // code in components/ and hooks/ isn't in a layer, so every entity looks used only once.
-    // Enable again when the pages are sliced by route.
+    // Slices used from a single place are kept on purpose: each one is a unit of the domain
+    // (breed, category) or a user action / page section (login, zone drawing, explorer...),
+    // and they keep the pages small.
     rules: {
       'fsd/insignificant-slice': 'off',
     },
