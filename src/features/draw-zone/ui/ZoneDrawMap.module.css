@@ -40,3 +40,44 @@
   background: var(--color-surface);
   box-shadow: var(--shadow-lg);
 }
+
+.hintError {
+  background: var(--color-danger);
+}
+
+/* Touch: where the next vertex goes (the map moves under it) */
+.crosshair {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: var(--z-map-controls);
+  width: 36px;
+  height: 36px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+
+  border: 2px solid #ffffff;
+  border-radius: var(--radius-full);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35), inset 0 0 0 1px rgba(0, 0, 0, 0.35);
+}
+
+.crosshair::before,
+.crosshair::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35);
+  transform: translate(-50%, -50%);
+}
+
+.crosshair::before {
+  width: 2px;
+  height: 52px;
+}
+
+.crosshair::after {
+  width: 52px;
+  height: 2px;
+}
