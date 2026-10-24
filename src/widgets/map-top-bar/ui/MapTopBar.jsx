@@ -1,5 +1,5 @@
 import { EntitySearch } from '@/features/search-entities';
-import UserMenu from './UserMenu';
+import { UserMenu } from '@/features/logout';
 import { useIsMobile } from '@/shared/lib/media';
 
 // onSelect(result): a search result was picked (centered on the map by the page)

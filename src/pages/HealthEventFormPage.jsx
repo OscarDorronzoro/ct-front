@@ -7,7 +7,6 @@ import { ChipGroup } from '@/shared/ui/chip-group';
 import {
   FormField, SelectField, FormActions, formStyles,
 } from '@/shared/ui/form';
-
 import { getCow, cowLabel } from '@/entities/cow';
 import { getProducts } from '@/entities/product';
 import {

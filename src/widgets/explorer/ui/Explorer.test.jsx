@@ -5,10 +5,10 @@ import {
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
-import ExplorerPage from './ExplorerPage';
-import { getCatalog, runQuery } from '@/services/analytics';
+import Explorer from './Explorer';
+import { getCatalog, runQuery } from '../api/analyticsApi';
 
-vi.mock('@/services/analytics');
+vi.mock('../api/analyticsApi');
 
 const CATALOG = [
   {
@@ -46,11 +46,11 @@ const weekly = {
 };
 
 function renderPage() {
-  render(<MemoryRouter><ExplorerPage /></MemoryRouter>);
+  render(<MemoryRouter><Explorer /></MemoryRouter>);
   return userEvent.setup();
 }
 
-describe('ExplorerPage', () => {
+describe('Explorer', () => {
   beforeAll(() => {
     // jsdom doesn't lay out: the charts get a fixed width
     globalThis.ResizeObserver = class {

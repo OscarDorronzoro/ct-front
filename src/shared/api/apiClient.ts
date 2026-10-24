@@ -1,5 +1,4 @@
 import { z, type ZodType } from 'zod';
-
 import { logger } from '@/shared/lib/logger';
 import { ApiError } from './ApiError';
 

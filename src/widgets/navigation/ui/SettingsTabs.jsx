@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router';
 import { useAuth } from '@/entities/viewer';
-import { SETTINGS_ITEMS, visibleItems } from './navItems';
+import { SETTINGS_ITEMS, visibleItems } from '../model/navItems';
 import styles from './SettingsTabs.module.css';
 
 export default function SettingsTabs() {

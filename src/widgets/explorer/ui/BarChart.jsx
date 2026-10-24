@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import useWidth from './useWidth';
 import { Legend, Tooltip } from './ChartParts';
-import { niceScale, formatNumber, formatX } from '@/utils/explorer';
+import { niceScale, formatNumber, formatX } from '../model/explorer';
 import styles from './Explorer.module.css';
 
 const BAR = 20;

@@ -11,9 +11,7 @@ import {
   GroupRow, groupLabel, getAllGroups, deleteGroup,
 } from '@/entities/group';
 import { useCan } from '@/entities/viewer';
-
 import { useEntityList, useListSearch } from '@/shared/lib/list';
-
 
 const NEW_PATH = '/settings/groups/new';
 

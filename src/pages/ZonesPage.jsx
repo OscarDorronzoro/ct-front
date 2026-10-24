@@ -12,7 +12,7 @@ import {
   ZoneRow, getAllZones, getZoneTypes, deleteZone, zonesToGeoJSON,
 } from '@/entities/zone';
 import { useCan } from '@/entities/viewer';
-import ZonesOverviewMap from '@/components/zones/ZonesOverviewMap';
+import { ZonesOverviewMap } from '@/widgets/zones-overview';
 
 import { useEntityList, useListSearch } from '@/shared/lib/list';
 

@@ -7,9 +7,7 @@ import { Toolbar } from '@/shared/ui/toolbar';
 import { SearchBox } from '@/shared/ui/search-box';
 import { ProductRow, getProducts, productTypeLabel } from '@/entities/product';
 import { useCan } from '@/entities/viewer';
-
 import { useEntityList, useListSearch } from '@/shared/lib/list';
-
 
 const NEW_PATH = '/settings/products/new';
 

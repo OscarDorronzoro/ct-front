@@ -6,7 +6,6 @@ import {
   logout as logoutRequest,
 } from '../api/viewerApi';
 import { setSessionExpiredHandler, ApiError } from '@/shared/api';
-
 import { logger } from '@/shared/lib/logger';
 
 export default function AuthProvider({ children }) {

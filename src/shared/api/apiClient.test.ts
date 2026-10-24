@@ -2,7 +2,6 @@ import {
   describe, it, expect, beforeEach, vi, type Mock,
 } from 'vitest';
 import { z } from 'zod';
-
 import { apiClient, setSessionExpiredHandler } from './apiClient';
 
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status });

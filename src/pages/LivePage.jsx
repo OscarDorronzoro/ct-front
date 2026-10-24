@@ -1,6 +1,5 @@
 import { useOutletContext } from 'react-router';
-import MapView from '@/components/MapView';
-import UpdatingBadge from '@/components/map/UpdatingBadge';
+import { MapView, UpdatingBadge } from '@/widgets/map';
 import { usePolling } from '@/shared/lib/polling';
 import { getLatestPositions } from '@/entities/position';
 

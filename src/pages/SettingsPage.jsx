@@ -1,5 +1,5 @@
 import { Outlet, useLocation } from 'react-router';
-import SettingsTabs from '@/components/nav/SettingsTabs';
+import { SettingsTabs } from '@/widgets/navigation';
 import { useIsMobile } from '@/shared/lib/media';
 import styles from './SettingsPage.module.css';
 

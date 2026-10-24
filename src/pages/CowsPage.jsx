@@ -12,9 +12,7 @@ import {
   CowRow, cowLabel, getAllCows, deleteCow,
 } from '@/entities/cow';
 import { useCan } from '@/entities/viewer';
-
 import { useEntityList, useListSearch } from '@/shared/lib/list';
-
 
 const NEW_PATH = '/settings/cows/new';
 

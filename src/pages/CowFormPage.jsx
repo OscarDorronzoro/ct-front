@@ -6,7 +6,6 @@ import {
 import { Page } from '@/shared/ui/page';
 import { Card } from '@/shared/ui/card';
 import { Alert } from '@/shared/ui/alert';
-
 import {
   getCow, getAllCows, updateCow, createCow, cowLabel, SEX_LABELS,
 } from '@/entities/cow';

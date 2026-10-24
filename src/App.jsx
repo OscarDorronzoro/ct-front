@@ -1,7 +1,6 @@
 import { Outlet, useLocation } from 'react-router';
 import { useIsMobile } from '@/shared/lib/media';
-import AppSidebar from '@/components/nav/AppSidebar';
-import BottomNav from '@/components/nav/BottomNav';
+import { AppSidebar, BottomNav } from '@/widgets/navigation';
 
 function App() {
   const isMobile = useIsMobile();

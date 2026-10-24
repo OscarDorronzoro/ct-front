@@ -1,6 +1,6 @@
 import { NavLink, useLocation } from 'react-router';
 import { Settings } from 'lucide-react';
-import { MAP_ITEMS } from './navItems';
+import { MAP_ITEMS } from '../model/navItems';
 import styles from './BottomNav.module.css';
 
 const ITEMS = [

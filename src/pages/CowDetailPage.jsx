@@ -20,7 +20,6 @@ import {
 import { collarLabel } from '@/entities/collar';
 import { formatDay } from '@/shared/lib/date';
 import { VoidEventDialog } from '@/features/void-health-event';
-
 import { logger } from '@/shared/lib/logger';
 import styles from './CowDetailPage.module.css';
 

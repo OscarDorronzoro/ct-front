@@ -3,28 +3,28 @@ import {
 } from 'react';
 import maplibregl from 'maplibre-gl';
 import { BaseMap } from '@/shared/ui/map';
-import PositionSheet from '@/components/map/PositionSheet';
-import MapControls from '@/components/map/MapControls';
-import MapNotice from '@/components/map/MapNotice';
-import ZoneCard from '@/components/map/ZoneCard';
-import HistoryLegend from '@/components/map/HistoryLegend';
+import PositionSheet from './PositionSheet';
+import MapControls from './MapControls';
+import MapNotice from './MapNotice';
+import ZoneCard from './ZoneCard';
+import HistoryLegend from './HistoryLegend';
 import {
   addZoneLayers, setZoneData, setZonesVisible, createZoneLabels, ZONE_FILL_LAYER,
 } from '@/entities/zone';
 import {
   addPositionLayers, setHeatView,
   POINTS_SOURCE, TRACKS_SOURCE, HITBOX_LAYER, HALO_LAYER,
-} from '@/components/map/positionLayers';
-import tooltipStyles from '@/components/map/MapTooltip.module.css';
+} from '../lib/positionLayers';
+import tooltipStyles from './MapTooltip.module.css';
 import { useIsMobile } from '@/shared/lib/media';
-import useZoneLayer from '@/hooks/useZoneLayer';
-import useMapLabels from '@/hooks/useMapLabels';
+import useZoneLayer from '../model/useZoneLayer';
+import useMapLabels from '../model/useMapLabels';
 import { getSavedMapConfig } from '@/shared/lib/map-config';
 import { toTimeElapsed } from '@/shared/lib/date';
 import { formatDistance } from '@/shared/lib/geo';
 import {
   groupByCollar, collarColors, tracksGeoJSON, heatWeights,
-} from '@/utils/mapPoints';
+} from '../lib/mapPoints';
 
 // Zoom used when centering on a searched cow or collar (only zooms in)
 const FOCUS_ZOOM = 17;

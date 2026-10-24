@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { SelectField, MultiSelectField } from '@/shared/ui/form';
 import { IconButton } from '@/shared/ui/button';
-import { getDimensionValues } from '@/services/analytics';
+import { getDimensionValues } from '../api/analyticsApi';
 import { logger } from '@/shared/lib/logger';
 import styles from './Explorer.module.css';
 

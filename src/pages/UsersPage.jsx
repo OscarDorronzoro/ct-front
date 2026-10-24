@@ -11,9 +11,7 @@ import {
   UserRow, userLabel, getAllUsers, deleteUser,
 } from '@/entities/user';
 import { useCan } from '@/entities/viewer';
-
 import { useEntityList, useListSearch } from '@/shared/lib/list';
-
 
 const NEW_PATH = '/settings/users/new';
 

@@ -11,9 +11,7 @@ import {
   CollarRow, collarLabel, getAllCollars, deleteCollar,
 } from '@/entities/collar';
 import { useCan } from '@/entities/viewer';
-
 import { useEntityList, useListSearch } from '@/shared/lib/list';
-
 
 const NEW_PATH = '/settings/collars/new';
 

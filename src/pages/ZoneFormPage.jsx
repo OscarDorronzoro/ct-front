@@ -7,7 +7,6 @@ import {
   FormField, SelectField, FormActions, formStyles,
 } from '@/shared/ui/form';
 import { ZoneDrawMap } from '@/features/draw-zone';
-
 import {
   getZone, getAllZones, getZoneTypes, createZone, updateZone, zoneTypeStyle, zonesToGeoJSON, COLLAR_ZONE_MAX_VERTICES, COLLAR_ZONE_MAX_RADIUS_M,
 } from '@/entities/zone';

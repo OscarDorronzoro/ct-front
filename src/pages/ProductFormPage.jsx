@@ -6,7 +6,6 @@ import {
 import { Page } from '@/shared/ui/page';
 import { Card } from '@/shared/ui/card';
 import { Alert } from '@/shared/ui/alert';
-
 import {
   getProduct, createProduct, updateProduct, PRODUCT_TYPES,
 } from '@/entities/product';

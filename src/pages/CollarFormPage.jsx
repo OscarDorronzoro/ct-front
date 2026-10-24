@@ -4,7 +4,6 @@ import { FormField, FormActions, formStyles } from '@/shared/ui/form';
 import { Page } from '@/shared/ui/page';
 import { Card } from '@/shared/ui/card';
 import { Alert } from '@/shared/ui/alert';
-
 import { getCollar, updateCollar, createCollar } from '@/entities/collar';
 
 import { logger } from '@/shared/lib/logger';
