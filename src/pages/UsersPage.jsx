@@ -7,13 +7,13 @@ import { Toolbar } from '@/shared/ui/toolbar';
 import SearchBox from '@/components/search/SearchBox';
 import { ActionError } from '@/shared/ui/alert';
 import { ConfirmDialog } from '@/shared/ui/dialog';
-import UserRow from '@/components/users/UserRow';
+import {
+  UserRow, userLabel, getAllUsers, deleteUser,
+} from '@/entities/user';
+import { useCan } from '@/entities/viewer';
 
 import { useEntityList, useListSearch } from '@/shared/lib/list';
-import useCan from '@/hooks/useCan';
-import { userLabel } from '@/utils/labels';
 
-import { getAllUsers, deleteUser } from '@/services/user';
 
 const NEW_PATH = '/settings/users/new';
 

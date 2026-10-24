@@ -8,14 +8,14 @@ import { Toolbar } from '@/shared/ui/toolbar';
 import SearchBox from '@/components/search/SearchBox';
 import { ActionError } from '@/shared/ui/alert';
 import { ConfirmDialog } from '@/shared/ui/dialog';
-import ZoneRow from '@/components/zones/ZoneRow';
+import {
+  ZoneRow, getAllZones, getZoneTypes, deleteZone, zonesToGeoJSON,
+} from '@/entities/zone';
+import { useCan } from '@/entities/viewer';
 import ZonesOverviewMap from '@/components/zones/ZonesOverviewMap';
 
 import { useEntityList, useListSearch } from '@/shared/lib/list';
-import useCan from '@/hooks/useCan';
 
-import { getAllZones, getZoneTypes, deleteZone } from '@/services/zone';
-import { zonesToGeoJSON } from '@/utils/zoneStyles';
 import { logger } from '@/shared/lib/logger';
 import styles from './ZonesPage.module.css';
 

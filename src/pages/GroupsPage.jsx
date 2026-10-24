@@ -7,13 +7,13 @@ import { Toolbar } from '@/shared/ui/toolbar';
 import SearchBox from '@/components/search/SearchBox';
 import { ActionError } from '@/shared/ui/alert';
 import { ConfirmDialog } from '@/shared/ui/dialog';
-import GroupRow from '@/components/groups/GroupRow';
+import {
+  GroupRow, groupLabel, getAllGroups, deleteGroup,
+} from '@/entities/group';
+import { useCan } from '@/entities/viewer';
 
 import { useEntityList, useListSearch } from '@/shared/lib/list';
-import useCan from '@/hooks/useCan';
-import { groupLabel } from '@/utils/labels';
 
-import { getAllGroups, deleteGroup } from '@/services/group';
 
 const NEW_PATH = '/settings/groups/new';
 

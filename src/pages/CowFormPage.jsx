@@ -8,17 +8,16 @@ import { Card } from '@/shared/ui/card';
 import { Alert } from '@/shared/ui/alert';
 
 import {
-  getCow, getAllCows, updateCow, createCow,
-} from '@/services/cow';
-import { getAllCollars } from '@/services/collar';
-import { getAllBreeds } from '@/services/breed';
-import { getAllGroups } from '@/services/group';
-import { getAllCategories } from '@/services/category';
+  getCow, getAllCows, updateCow, createCow, cowLabel, SEX_LABELS,
+} from '@/entities/cow';
+import { getAllCollars, collarLabel } from '@/entities/collar';
+import { getAllBreeds } from '@/entities/breed';
+import { getAllGroups } from '@/entities/group';
+import { getAllCategories } from '@/entities/category';
+import { useCan } from '@/entities/viewer';
 
-import useCan from '@/hooks/useCan';
 import { logger } from '@/shared/lib/logger';
 import { toDateInput } from '@/shared/lib/date';
-import { collarLabel, cowLabel, SEX_LABELS } from '@/utils/labels';
 
 const sexOptions = Object.entries(SEX_LABELS).map(([value, label]) => ({ value, label }));
 
@@ -171,6 +170,10 @@ export default function CowFormPage() {
           setInitialCollarId(cow.currentCollarId ?? '');
           setForm({
             ...cow,
+            alias: cow.alias ?? '',
+            earTag: cow.earTag ?? '',
+            breedId: cow.breedId ?? '',
+            imageUrl: cow.imageUrl ?? '',
             currentCollarId: cow.currentCollarId ?? '',
             sex: cow.sex ?? '',
             categoryId: cow.categoryId ?? '',

@@ -2,7 +2,7 @@ import {
   Radio, History, SatelliteDish, Users, LandPlot, UserRound, FlaskConical, ChartColumn,
 } from 'lucide-react';
 import { CowIcon } from '@/shared/ui/icons';
-import { can } from '@/utils/permissions';
+import { can } from '@/entities/viewer';
 
 export const MAP_ITEMS = [
   { to: '/', end: true, label: 'En vivo', icon: Radio },

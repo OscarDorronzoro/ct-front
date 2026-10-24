@@ -4,18 +4,20 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Routes, Route } from 'react-router';
 import CowFormPage from './CowFormPage';
-import AuthContext from '@/context/auth/AuthContext';
-import { getCow, getAllCows, updateCow, createCow } from '@/services/cow';
-import { getAllCollars } from '@/services/collar';
-import { getAllBreeds } from '@/services/breed';
-import { getAllGroups } from '@/services/group';
-import { getAllCategories } from '@/services/category';
+import { AuthContext } from '@/entities/viewer';
+import {
+  getCow, getAllCows, updateCow, createCow,
+} from '@/entities/cow';
+import { getAllCollars } from '@/entities/collar';
+import { getAllBreeds } from '@/entities/breed';
+import { getAllGroups } from '@/entities/group';
+import { getAllCategories } from '@/entities/category';
 
-vi.mock('@/services/cow');
-vi.mock('@/services/collar');
-vi.mock('@/services/breed');
-vi.mock('@/services/group');
-vi.mock('@/services/category');
+vi.mock('@/entities/cow/api/cowApi');
+vi.mock('@/entities/collar/api/collarApi');
+vi.mock('@/entities/breed/api/breedApi');
+vi.mock('@/entities/group/api/groupApi');
+vi.mock('@/entities/category/api/categoryApi');
 
 const angela = {
   id: 8,

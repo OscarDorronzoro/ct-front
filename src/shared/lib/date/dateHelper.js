@@ -34,3 +34,12 @@ export function toTimeElapsed(date) {
 export function toDateInput(value) {
   return value ? value.slice(0, 10) : '';
 }
+
+// 22/10/2026
+export function formatDay(value) {
+  const date = typeof value === 'string' && value.length === 10
+    ? new Date(`${value}T12:00:00`)
+    : new Date(value);
+
+  return date.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+}

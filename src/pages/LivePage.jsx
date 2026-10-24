@@ -2,7 +2,7 @@ import { useOutletContext } from 'react-router';
 import MapView from '@/components/MapView';
 import UpdatingBadge from '@/components/map/UpdatingBadge';
 import { usePolling } from '@/shared/lib/polling';
-import { getLatestPositions } from '@/services/position';
+import { getLatestPositions } from '@/entities/position';
 
 const POLL_MS = 30000;
 const NO_POINTS = [];

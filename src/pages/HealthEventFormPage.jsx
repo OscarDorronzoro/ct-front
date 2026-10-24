@@ -3,18 +3,17 @@ import { useNavigate, useParams } from 'react-router';
 import { Page } from '@/shared/ui/page';
 import { Card } from '@/shared/ui/card';
 import { Alert } from '@/shared/ui/alert';
+import { ChipGroup } from '@/shared/ui/chip-group';
 import {
   FormField, SelectField, FormActions, formStyles,
 } from '@/shared/ui/form';
-import healthStyles from '@/components/health/Health.module.css';
 
-import { getCow } from '@/services/cow';
-import { getProducts, recordEvent } from '@/services/health';
+import { getCow, cowLabel } from '@/entities/cow';
+import { getProducts } from '@/entities/product';
 import {
-  EVENT_TYPES, PRODUCT_TYPES_BY_EVENT, ROUTES, CASTRATION_METHODS,
-} from '@/utils/health';
+  recordEvent, EVENT_TYPES, PRODUCT_TYPES_BY_EVENT, ROUTES, CASTRATION_METHODS,
+} from '@/entities/health-event';
 import { toDateValue, toTimeValue, fromInputs } from '@/shared/lib/date';
-import { cowLabel } from '@/utils/labels';
 import { logger } from '@/shared/lib/logger';
 
 const emptyFields = {
@@ -138,19 +137,12 @@ export default function HealthEventFormPage() {
       <Card padded as="form" onSubmit={handleSubmit} className={formStyles.form}>
         {error && <Alert tone="danger">{error}</Alert>}
 
-        <div className={healthStyles.filters} role="group" aria-label="Tipo de evento">
-          {EVENT_TYPES.filter((t) => !t.sex || t.sex === cow?.sex).map(({ value, label }) => (
-            <button
-              key={value}
-              type="button"
-              className={healthStyles.filter}
-              aria-pressed={type === value}
-              onClick={() => changeType(value)}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
+        <ChipGroup
+          label="Tipo de evento"
+          options={EVENT_TYPES.filter((t) => !t.sex || t.sex === cow?.sex)}
+          value={type}
+          onChange={changeType}
+        />
 
         <div className={formStyles.row}>
           <FormField

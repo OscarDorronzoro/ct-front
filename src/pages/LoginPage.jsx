@@ -4,7 +4,7 @@ import { FormField, formStyles } from '@/shared/ui/form';
 import { Button } from '@/shared/ui/button';
 import { Alert } from '@/shared/ui/alert';
 import styles from './LoginPage.module.css';
-import useAuth from '@/context/auth/useAuth';
+import { useAuth } from '@/entities/viewer';
 
 export default function LoginPage() {
   const { user, loading: checkingSession, login } = useAuth();

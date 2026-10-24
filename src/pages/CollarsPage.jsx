@@ -7,13 +7,13 @@ import { Toolbar } from '@/shared/ui/toolbar';
 import SearchBox from '@/components/search/SearchBox';
 import { ActionError } from '@/shared/ui/alert';
 import { ConfirmDialog } from '@/shared/ui/dialog';
-import CollarRow from '@/components/collars/CollarRow';
+import {
+  CollarRow, collarLabel, getAllCollars, deleteCollar,
+} from '@/entities/collar';
+import { useCan } from '@/entities/viewer';
 
 import { useEntityList, useListSearch } from '@/shared/lib/list';
-import useCan from '@/hooks/useCan';
-import { collarLabel } from '@/utils/labels';
 
-import { getAllCollars, deleteCollar } from '@/services/collar';
 
 const NEW_PATH = '/settings/collars/new';
 

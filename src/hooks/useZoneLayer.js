@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { getAllZones, getZoneTypes } from '@/services/zone';
-import { zonesToGeoJSON } from '@/utils/zoneStyles';
+import { getAllZones, getZoneTypes, zonesToGeoJSON } from '@/entities/zone';
 import { logger } from '@/shared/lib/logger';
 
 const VISIBLE_KEY = 'mapZonesVisible';

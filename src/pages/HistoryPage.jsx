@@ -4,7 +4,7 @@ import MapView from '@/components/MapView';
 import RangePicker from '@/components/history/RangePicker';
 import UpdatingBadge from '@/components/map/UpdatingBadge';
 import { usePolling } from '@/shared/lib/polling';
-import { getPosition, getDistances } from '@/services/position';
+import { getPositions, getDistances } from '@/entities/position';
 import { defaultRange, resolveRange } from '@/shared/lib/date';
 
 const POLL_MS = 30000;
@@ -22,7 +22,7 @@ export default function HistoryPage() {
     const params = { dateFrom: from.toISOString(), dateTo: to.toISOString() };
 
     return Promise.all([
-      getPosition(params),
+      getPositions(params),
       // Secondary: the map still works without it
       getDistances(params).catch(() => []),
     ]).then(([points, distances]) => ({

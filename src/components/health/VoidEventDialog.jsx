@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ConfirmDialog } from '@/shared/ui/dialog';
-import { eventTitle, formatDay } from '@/utils/health';
+import { eventTitle } from '@/entities/health-event';
+import { formatDay } from '@/shared/lib/date';
 import { formStyles } from '@/shared/ui/form';
 
 // Asks why the event is voided: the reason stays in the history

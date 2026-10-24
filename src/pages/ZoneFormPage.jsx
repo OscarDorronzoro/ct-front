@@ -9,12 +9,9 @@ import {
 import ZoneDrawMap from '@/components/zones/ZoneDrawMap';
 
 import {
-  getZone, getAllZones, getZoneTypes, createZone, updateZone,
-} from '@/services/zone';
+  getZone, getAllZones, getZoneTypes, createZone, updateZone, zoneTypeStyle, zonesToGeoJSON, COLLAR_ZONE_MAX_VERTICES, COLLAR_ZONE_MAX_RADIUS_M,
+} from '@/entities/zone';
 import { distanceMeters, formatArea, ringAreaM2 } from '@/shared/lib/geo';
-import {
-  zoneTypeStyle, zonesToGeoJSON, COLLAR_ZONE_MAX_VERTICES, COLLAR_ZONE_MAX_RADIUS_M,
-} from '@/utils/zoneStyles';
 import { logger } from '@/shared/lib/logger';
 import styles from './ZoneFormPage.module.css';
 

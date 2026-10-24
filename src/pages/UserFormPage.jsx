@@ -10,13 +10,10 @@ import { Alert } from '@/shared/ui/alert';
 import UserSessions from '@/components/users/UserSessions';
 
 import {
-  getUser,
-  updateUser,
-  createUser,
-} from '@/services/user';
+  getUser, updateUser, createUser, USER_ROLES,
+} from '@/entities/user';
+import { useAuth } from '@/entities/viewer';
 
-import useAuth from '@/context/auth/useAuth';
-import USER_ROLES from '@/utils/userRoles';
 import { logger } from '@/shared/lib/logger';
 
 const emptyForm = {

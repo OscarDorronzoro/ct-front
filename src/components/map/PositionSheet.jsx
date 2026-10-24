@@ -6,7 +6,7 @@ import MapSheet from './MapSheet';
 import { Button } from '@/shared/ui/button';
 import { Spinner } from '@/shared/ui/spinner';
 import { CowIcon } from '@/shared/ui/icons';
-import { getPositionDetails, getDistances } from '@/services/position';
+import { getPositionDetails, getDistances } from '@/entities/position';
 import { formatDistance, compassPoint } from '@/shared/lib/geo';
 import { toTimeElapsed } from '@/shared/lib/date';
 import { logger } from '@/shared/lib/logger';

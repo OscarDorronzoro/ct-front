@@ -4,11 +4,13 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Routes, Route } from 'react-router';
 import HealthEventFormPage from './HealthEventFormPage';
-import { getCow } from '@/services/cow';
-import { getProducts, recordEvent } from '@/services/health';
+import { getCow } from '@/entities/cow';
+import { getProducts } from '@/entities/product';
+import { recordEvent } from '@/entities/health-event';
 
-vi.mock('@/services/cow');
-vi.mock('@/services/health');
+vi.mock('@/entities/cow/api/cowApi');
+vi.mock('@/entities/health-event/api/healthEventApi');
+vi.mock('@/entities/product/api/productApi');
 
 function renderForm() {
   render(

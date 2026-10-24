@@ -5,13 +5,11 @@ import { Button, Fab } from '@/shared/ui/button';
 import { EntityList } from '@/shared/ui/list';
 import { Toolbar } from '@/shared/ui/toolbar';
 import SearchBox from '@/components/search/SearchBox';
-import ProductRow from '@/components/products/ProductRow';
+import { ProductRow, getProducts, productTypeLabel } from '@/entities/product';
+import { useCan } from '@/entities/viewer';
 
 import { useEntityList, useListSearch } from '@/shared/lib/list';
-import useCan from '@/hooks/useCan';
 
-import { getProducts } from '@/services/health';
-import { productTypeLabel } from '@/utils/health';
 
 const NEW_PATH = '/settings/products/new';
 

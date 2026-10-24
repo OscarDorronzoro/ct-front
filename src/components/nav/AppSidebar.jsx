@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router';
 import UserMenu from '@/components/UserMenu';
-import useAuth from '@/context/auth/useAuth';
+import { useAuth } from '@/entities/viewer';
 import { MAP_ITEMS, SETTINGS_ITEMS, visibleItems } from './navItems';
 import styles from './AppSidebar.module.css';
 

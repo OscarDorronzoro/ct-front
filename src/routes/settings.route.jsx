@@ -12,7 +12,7 @@ import CowDetailPage from '@/pages/CowDetailPage';
 import HealthEventFormPage from '@/pages/HealthEventFormPage';
 import ProductsPage from '@/pages/ProductsPage';
 import ProductFormPage from '@/pages/ProductFormPage';
-import RequirePermission from '@/components/auth/RequirePermission';
+import { RequirePermission } from '@/entities/viewer';
 
 const loadZoneFormPage = async () => ({
   Component: (await import('@/pages/ZoneFormPage')).default,

@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import { getAllCows } from '@/services/cow';
-import { getAllCollars } from '@/services/collar';
-import { cowLabel, collarLabel } from '@/utils/labels';
+import { getAllCows, cowLabel } from '@/entities/cow';
+import { getAllCollars, collarLabel } from '@/entities/collar';
 import { logger } from '@/shared/lib/logger';
 
 // Names for map positions: the cow, or the collar when it has no cow

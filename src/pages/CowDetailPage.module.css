@@ -93,14 +93,6 @@
   color: var(--color-text-strong);
 }
 
-.filters {
-  composes: filters from '../components/health/Health.module.css';
-}
-
-.filter {
-  composes: filter from '../components/health/Health.module.css';
-}
-
 @media (max-width: 480px) {
   .profile {
     grid-template-columns: 1fr;

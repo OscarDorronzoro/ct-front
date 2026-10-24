@@ -156,3 +156,12 @@ export function apiClient(path: string, options?: ApiOptions<unknown>): Promise<
 export function apiClient<T>(path: string, options: ApiOptions<T> = {}) {
   return send(path, options, true);
 }
+
+// Options of a request with a JSON body
+export function jsonBody(method: 'POST' | 'PUT' | 'PATCH', body: unknown): RequestInit {
+  return {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  };
+}

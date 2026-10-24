@@ -7,8 +7,9 @@ import { Page } from '@/shared/ui/page';
 import { Card } from '@/shared/ui/card';
 import { Alert } from '@/shared/ui/alert';
 
-import { getProduct, createProduct, updateProduct } from '@/services/health';
-import { PRODUCT_TYPES } from '@/utils/health';
+import {
+  getProduct, createProduct, updateProduct, PRODUCT_TYPES,
+} from '@/entities/product';
 import { logger } from '@/shared/lib/logger';
 
 const emptyForm = {

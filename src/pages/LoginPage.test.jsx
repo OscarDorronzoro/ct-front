@@ -4,9 +4,9 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Routes, Route } from 'react-router';
 import LoginPage from './LoginPage';
-import useAuth from '@/context/auth/useAuth';
+import { useAuth } from '@/entities/viewer';
 
-vi.mock('@/context/auth/useAuth');
+vi.mock('@/entities/viewer/model/useAuth');
 
 function renderLogin(state) {
   render(

@@ -8,13 +8,13 @@ import { Toolbar } from '@/shared/ui/toolbar';
 import SearchBox from '@/components/search/SearchBox';
 import { ActionError } from '@/shared/ui/alert';
 import { ConfirmDialog } from '@/shared/ui/dialog';
-import CowRow from '@/components/cows/CowRow';
+import {
+  CowRow, cowLabel, getAllCows, deleteCow,
+} from '@/entities/cow';
+import { useCan } from '@/entities/viewer';
 
 import { useEntityList, useListSearch } from '@/shared/lib/list';
-import useCan from '@/hooks/useCan';
-import { cowLabel } from '@/utils/labels';
 
-import { getAllCows, deleteCow } from '@/services/cow';
 
 const NEW_PATH = '/settings/cows/new';
 

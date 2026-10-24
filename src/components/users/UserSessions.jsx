@@ -6,9 +6,7 @@ import { Button, IconButton } from '@/shared/ui/button';
 import { ActionError } from '@/shared/ui/alert';
 import { ConfirmDialog } from '@/shared/ui/dialog';
 import { SkeletonRows, EmptyState, ErrorState } from '@/shared/ui/list';
-import {
-  getUserSessions, revokeUserSession, revokeAllUserSessions,
-} from '@/services/user';
+import { getUserSessions, revokeUserSession, revokeAllUserSessions } from '@/entities/user';
 import { describeUserAgent } from '@/shared/lib/user-agent';
 import { toTimeElapsed } from '@/shared/lib/date';
 import { logger } from '@/shared/lib/logger';

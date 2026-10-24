@@ -9,20 +9,22 @@ import { Spinner } from '@/shared/ui/spinner';
 import { EntityList, ErrorState } from '@/shared/ui/list';
 import { ActionError } from '@/shared/ui/alert';
 import { CowIcon } from '@/shared/ui/icons';
-import HealthSummary from '@/components/health/HealthSummary';
-import HealthEventItem from '@/components/health/HealthEventItem';
+import { ChipGroup } from '@/shared/ui/chip-group';
+import {
+  HealthSummary, HealthEventItem, useCowHealth, voidEvent, EVENT_TYPES,
+} from '@/entities/health-event';
+import { useCan } from '@/entities/viewer';
+import {
+  getCow, cowLabel, SEX_LABELS, CATEGORY_SOURCES, formatAge,
+} from '@/entities/cow';
+import { collarLabel } from '@/entities/collar';
+import { formatDay } from '@/shared/lib/date';
 import VoidEventDialog from '@/components/health/VoidEventDialog';
 
-import useCan from '@/hooks/useCan';
-import useCowHealth from '@/hooks/useCowHealth';
-import { getCow } from '@/services/cow';
-import { voidEvent } from '@/services/health';
-import { cowLabel, collarLabel, SEX_LABELS } from '@/utils/labels';
-import {
-  EVENT_TYPES, CATEGORY_SOURCES, formatDay, formatAge,
-} from '@/utils/health';
 import { logger } from '@/shared/lib/logger';
 import styles from './CowDetailPage.module.css';
+
+const TYPE_FILTERS = [{ value: null, label: 'Todos' }, ...EVENT_TYPES];
 
 // Card of a cow: its data and, for who can read it, its clinical history
 export default function CowDetailPage() {
@@ -168,19 +170,12 @@ export default function CowDetailPage() {
 
           {health && <HealthSummary summary={health.summary} />}
 
-          <div className={styles.filters} role="group" aria-label="Filtrar por tipo">
-            {[{ value: null, label: 'Todos' }, ...EVENT_TYPES].map(({ value, label }) => (
-              <button
-                key={label}
-                type="button"
-                className={styles.filter}
-                aria-pressed={typeFilter === value}
-                onClick={() => setTypeFilter(value)}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
+          <ChipGroup
+            label="Filtrar por tipo"
+            options={TYPE_FILTERS}
+            value={typeFilter}
+            onChange={setTypeFilter}
+          />
 
           <EntityList
             items={events}
