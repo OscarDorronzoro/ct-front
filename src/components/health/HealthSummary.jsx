@@ -1,8 +1,7 @@
 import {
   ShieldAlert, ShieldCheck, Scale, CalendarClock,
 } from 'lucide-react';
-
-import { formatDay } from '../../utils/health';
+import { formatDay } from '@/utils/health';
 import styles from './Health.module.css';
 
 const Chip = ({ tone, icon: Icon, children }) => (

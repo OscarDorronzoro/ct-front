@@ -2,15 +2,14 @@ import { useEffect, useState } from 'react';
 import {
   BatteryFull, BatteryMedium, BatteryLow, BatteryWarning, Moon, Activity, ExternalLink,
 } from 'lucide-react';
-
 import MapSheet from './MapSheet';
-import Button from '../ui/Button';
-import Spinner from '../ui/Spinner';
-import CowIcon from '../icons/CowIcon';
-import { getPositionDetails, getDistances } from '../../services/position';
-import { formatDistance, compassPoint } from '../../utils/geo';
-import { toTimeElapsed } from '../../utils/dateHelper';
-import logger from '../../utils/logger';
+import { Button } from '@/shared/ui/button';
+import { Spinner } from '@/shared/ui/spinner';
+import { CowIcon } from '@/shared/ui/icons';
+import { getPositionDetails, getDistances } from '@/services/position';
+import { formatDistance, compassPoint } from '@/shared/lib/geo';
+import { toTimeElapsed } from '@/shared/lib/date';
+import { logger } from '@/shared/lib/logger';
 import styles from './PositionSheet.module.css';
 
 const BATTERY_ICONS = {

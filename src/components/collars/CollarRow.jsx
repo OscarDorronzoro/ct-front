@@ -1,8 +1,7 @@
 import { SatelliteDish } from 'lucide-react';
-
-import EntityRow from '../ui/EntityRow';
-import Badge from '../ui/Badge';
-import { collarLabel } from '../../utils/labels';
+import { EntityRow } from '@/shared/ui/list';
+import { Badge } from '@/shared/ui/badge';
+import { collarLabel } from '@/utils/labels';
 
 // editable: opens the form; onDelete: only when the user can delete
 export default function CollarRow({ collar, editable = true, onDelete }) {

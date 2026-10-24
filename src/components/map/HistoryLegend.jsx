@@ -1,5 +1,4 @@
 import { CircleDot, Flame } from 'lucide-react';
-
 import styles from './HistoryLegend.module.css';
 
 const VIEWS = [

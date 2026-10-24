@@ -1,5 +1,4 @@
 import { RefreshCw, WifiOff } from 'lucide-react';
-
 import styles from './UpdatingBadge.module.css';
 
 // Over the map while the data on screen is old: refreshing after coming back to the page,

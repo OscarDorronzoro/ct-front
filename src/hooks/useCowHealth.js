@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-
-import { getCowHealth } from '../services/health';
-import logger from '../utils/logger';
+import { getCowHealth } from '@/services/health';
+import { logger } from '@/shared/lib/logger';
 
 // Clinical history of a cow ({ summary, events }), with reload (e.g. after voiding an event).
 // enabled: false for users who can't read it (nothing is requested).

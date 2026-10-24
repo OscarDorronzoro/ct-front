@@ -1,6 +1,5 @@
 import { Navigate, Outlet, useLocation } from 'react-router';
-
-import useAuth from '../../context/auth/useAuth';
+import useAuth from '@/context/auth/useAuth';
 import ConnectionError from './ConnectionError';
 
 export default function ProtectedRoute() {

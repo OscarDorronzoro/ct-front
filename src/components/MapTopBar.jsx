@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
-import SearchBox from './search/SearchBox';
+import SearchBox from '@/components/search/SearchBox';
 import UserMenu from './UserMenu';
-
-import useIsMobile from '../hooks/useIsMobile';
-import { search as searchEntities } from '../services/search';
-import logger from '../utils/logger';
+import { useIsMobile } from '@/shared/lib/media';
+import { search as searchEntities } from '@/services/search';
+import { logger } from '@/shared/lib/logger';
 
 const DEBOUNCE = 300;
 

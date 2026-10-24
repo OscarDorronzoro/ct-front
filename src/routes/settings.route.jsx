@@ -1,22 +1,21 @@
-import SettingsPage from '../pages/SettingsPage';
-import CowsPage from '../pages/CowsPage';
-import CollarsPage from '../pages/CollarsPage';
-import ZonesPage from '../pages/ZonesPage';
-import GroupsPage from '../pages/GroupsPage';
-import CowFormPage from '../pages/CowFormPage';
-import CollarFormPage from '../pages/CollarFormPage';
-import GroupFormPage from '../pages/GroupFormPage';
-import UsersPage from '../pages/UsersPage';
-import UserFormPage from '../pages/UserFormPage';
-import CowDetailPage from '../pages/CowDetailPage';
-import HealthEventFormPage from '../pages/HealthEventFormPage';
-import ProductsPage from '../pages/ProductsPage';
-import ProductFormPage from '../pages/ProductFormPage';
-
-import RequirePermission from '../components/auth/RequirePermission';
+import SettingsPage from '@/pages/SettingsPage';
+import CowsPage from '@/pages/CowsPage';
+import CollarsPage from '@/pages/CollarsPage';
+import ZonesPage from '@/pages/ZonesPage';
+import GroupsPage from '@/pages/GroupsPage';
+import CowFormPage from '@/pages/CowFormPage';
+import CollarFormPage from '@/pages/CollarFormPage';
+import GroupFormPage from '@/pages/GroupFormPage';
+import UsersPage from '@/pages/UsersPage';
+import UserFormPage from '@/pages/UserFormPage';
+import CowDetailPage from '@/pages/CowDetailPage';
+import HealthEventFormPage from '@/pages/HealthEventFormPage';
+import ProductsPage from '@/pages/ProductsPage';
+import ProductFormPage from '@/pages/ProductFormPage';
+import RequirePermission from '@/components/auth/RequirePermission';
 
 const loadZoneFormPage = async () => ({
-  Component: (await import('../pages/ZoneFormPage')).default,
+  Component: (await import('@/pages/ZoneFormPage')).default,
 });
 
 export const settingsRoute = {

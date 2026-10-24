@@ -1,4 +1,4 @@
-import { ErrorState } from '../ui/ListState';
+import { ErrorState } from '@/shared/ui/list';
 import styles from './ConnectionError.module.css';
 
 // Full screen: the server couldn't be reached while checking the session.

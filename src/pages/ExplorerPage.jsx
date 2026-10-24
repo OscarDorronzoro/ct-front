@@ -1,24 +1,22 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Plus, ChartColumn } from 'lucide-react';
+import { Page } from '@/shared/ui/page';
+import { Card } from '@/shared/ui/card';
+import { Button } from '@/shared/ui/button';
+import { EmptyState, ErrorState } from '@/shared/ui/list';
+import { Spinner } from '@/shared/ui/spinner';
+import { SelectField, CheckboxGroupField } from '@/shared/ui/form';
+import FilterRow from '@/components/analytics/FilterRow';
+import LineChart from '@/components/analytics/LineChart';
+import BarChart from '@/components/analytics/BarChart';
+import ResultTable from '@/components/analytics/ResultTable';
+import styles from '@/components/analytics/Explorer.module.css';
 
-import Page from '../components/ui/Page';
-import Card from '../components/ui/Card';
-import Button from '../components/ui/Button';
-import { EmptyState, ErrorState } from '../components/ui/ListState';
-import Spinner from '../components/ui/Spinner';
-import SelectField from '../components/form/SelectField';
-import CheckboxGroupField from '../components/form/CheckboxGroupField';
-import FilterRow from '../components/analytics/FilterRow';
-import LineChart from '../components/analytics/LineChart';
-import BarChart from '../components/analytics/BarChart';
-import ResultTable from '../components/analytics/ResultTable';
-import styles from '../components/analytics/Explorer.module.css';
-
-import { getCatalog, runQuery } from '../services/analytics';
+import { getCatalog, runQuery } from '@/services/analytics';
 import {
   RANGE_PRESETS, presetDates, chartsOf, withUnit, MAX_SERIES,
-} from '../utils/explorer';
-import logger from '../utils/logger';
+} from '@/utils/explorer';
+import { logger } from '@/shared/lib/logger';
 
 const MAX_MEASURES = 4;
 const MAX_FILTERS = 5;

@@ -1,4 +1,4 @@
-import { FRESHNESS } from '../../utils/mapPoints';
+import { FRESHNESS } from '@/utils/mapPoints';
 
 // Map layers for positions. Sources: 'points' (both modes) and 'tracks' (history).
 // Point features carry: id, collarId, cowId, color, opacity, ageMinutes, isLast, selected, weight.

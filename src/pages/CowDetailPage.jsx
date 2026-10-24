@@ -1,29 +1,27 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import { Pencil, Plus, ClipboardList } from 'lucide-react';
+import { Page } from '@/shared/ui/page';
+import { Card } from '@/shared/ui/card';
+import { Badge } from '@/shared/ui/badge';
+import { Button } from '@/shared/ui/button';
+import { Spinner } from '@/shared/ui/spinner';
+import { EntityList, ErrorState } from '@/shared/ui/list';
+import { ActionError } from '@/shared/ui/alert';
+import { CowIcon } from '@/shared/ui/icons';
+import HealthSummary from '@/components/health/HealthSummary';
+import HealthEventItem from '@/components/health/HealthEventItem';
+import VoidEventDialog from '@/components/health/VoidEventDialog';
 
-import Page from '../components/ui/Page';
-import Card from '../components/ui/Card';
-import Badge from '../components/ui/Badge';
-import Button from '../components/ui/Button';
-import Spinner from '../components/ui/Spinner';
-import EntityList from '../components/ui/EntityList';
-import { ErrorState } from '../components/ui/ListState';
-import ActionError from '../components/utils/ActionError';
-import CowIcon from '../components/icons/CowIcon';
-import HealthSummary from '../components/health/HealthSummary';
-import HealthEventItem from '../components/health/HealthEventItem';
-import VoidEventDialog from '../components/health/VoidEventDialog';
-
-import useCan from '../hooks/useCan';
-import useCowHealth from '../hooks/useCowHealth';
-import { getCow } from '../services/cow';
-import { voidEvent } from '../services/health';
-import { cowLabel, collarLabel, SEX_LABELS } from '../utils/labels';
+import useCan from '@/hooks/useCan';
+import useCowHealth from '@/hooks/useCowHealth';
+import { getCow } from '@/services/cow';
+import { voidEvent } from '@/services/health';
+import { cowLabel, collarLabel, SEX_LABELS } from '@/utils/labels';
 import {
   EVENT_TYPES, CATEGORY_SOURCES, formatDay, formatAge,
-} from '../utils/health';
-import logger from '../utils/logger';
+} from '@/utils/health';
+import { logger } from '@/shared/lib/logger';
 import styles from './CowDetailPage.module.css';
 
 // Card of a cow: its data and, for who can read it, its clinical history

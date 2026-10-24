@@ -1,9 +1,8 @@
 import { UserRound } from 'lucide-react';
-
-import EntityRow from '../ui/EntityRow';
-import Badge from '../ui/Badge';
-import { userLabel } from '../../utils/labels';
-import { roleInfo } from '../../utils/userRoles';
+import { EntityRow } from '@/shared/ui/list';
+import { Badge } from '@/shared/ui/badge';
+import { userLabel } from '@/utils/labels';
+import { roleInfo } from '@/utils/userRoles';
 
 // editable: opens the form; onDelete: only when the user can delete
 export default function UserRow({ user, editable = true, onDelete }) {

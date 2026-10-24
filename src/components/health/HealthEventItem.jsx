@@ -1,9 +1,8 @@
 import { Ban } from 'lucide-react';
-
-import IconButton from '../ui/IconButton';
+import { IconButton } from '@/shared/ui/button';
 import {
   eventTypeInfo, eventTitle, eventDetails, formatDay,
-} from '../../utils/health';
+} from '@/utils/health';
 import styles from './Health.module.css';
 
 // An event of the clinical history. Voided ones stay, crossed out, with the reason.

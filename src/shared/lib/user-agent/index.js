@@ -1,0 +1,1 @@
+export { describeUserAgent } from './userAgent';

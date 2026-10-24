@@ -1,5 +1,4 @@
 import { describe, it, expect } from 'vitest';
-
 import {
   groupByCollar, collarColors, tracksGeoJSON, heatWeights, COLLAR_PALETTE,
 } from './mapPoints';

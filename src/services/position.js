@@ -1,4 +1,4 @@
-import apiClient from './apiClient';
+import { apiClient } from '@/shared/api';
 
 const endpoint = '/positions';
 
@@ -23,8 +23,6 @@ export async function getPosition({ dateFrom, dateTo } = {}) {
 
   return apiClient(`${endpoint}?${params.toString()}`);
 }
-
-
 
 // Latest position of each active collar (backend default: last 72 h)
 export function getLatestPositions({ maxAgeHours } = {}) {

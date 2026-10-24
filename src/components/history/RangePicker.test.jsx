@@ -1,9 +1,8 @@
 // @vitest-environment jsdom
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-
 import RangePicker from './RangePicker';
-import { presetRange } from '../../utils/dateRange';
+import { presetRange } from '@/shared/lib/date';
 
 const NOW = new Date(2026, 9, 14, 10, 0);
 

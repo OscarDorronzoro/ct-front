@@ -1,19 +1,17 @@
 import { useCallback, useEffect, useState } from 'react';
 import { LogOut, Monitor, Smartphone } from 'lucide-react';
-
-import Card from '../ui/Card';
-import Badge from '../ui/Badge';
-import Button from '../ui/Button';
-import IconButton from '../ui/IconButton';
-import ActionError from '../utils/ActionError';
-import ConfirmDialog from '../utils/ConfirmDialog';
-import { SkeletonRows, EmptyState, ErrorState } from '../ui/ListState';
+import { Card } from '@/shared/ui/card';
+import { Badge } from '@/shared/ui/badge';
+import { Button, IconButton } from '@/shared/ui/button';
+import { ActionError } from '@/shared/ui/alert';
+import { ConfirmDialog } from '@/shared/ui/dialog';
+import { SkeletonRows, EmptyState, ErrorState } from '@/shared/ui/list';
 import {
   getUserSessions, revokeUserSession, revokeAllUserSessions,
-} from '../../services/user';
-import { describeUserAgent } from '../../utils/userAgent';
-import { toTimeElapsed } from '../../utils/dateHelper';
-import logger from '../../utils/logger';
+} from '@/services/user';
+import { describeUserAgent } from '@/shared/lib/user-agent';
+import { toTimeElapsed } from '@/shared/lib/date';
+import { logger } from '@/shared/lib/logger';
 import styles from './UserSessions.module.css';
 
 const dateFormat = new Intl.DateTimeFormat('es-AR', {

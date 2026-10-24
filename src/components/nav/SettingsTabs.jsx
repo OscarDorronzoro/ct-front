@@ -1,6 +1,5 @@
 import { NavLink } from 'react-router';
-
-import useAuth from '../../context/auth/useAuth';
+import useAuth from '@/context/auth/useAuth';
 import { SETTINGS_ITEMS, visibleItems } from './navItems';
 import styles from './SettingsTabs.module.css';
 

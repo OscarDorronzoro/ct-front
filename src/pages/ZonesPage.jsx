@@ -1,24 +1,22 @@
 import { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { Plus, LandPlot } from 'lucide-react';
+import { Page } from '@/shared/ui/page';
+import { Button, Fab } from '@/shared/ui/button';
+import { EntityList } from '@/shared/ui/list';
+import { Toolbar } from '@/shared/ui/toolbar';
+import SearchBox from '@/components/search/SearchBox';
+import { ActionError } from '@/shared/ui/alert';
+import { ConfirmDialog } from '@/shared/ui/dialog';
+import ZoneRow from '@/components/zones/ZoneRow';
+import ZonesOverviewMap from '@/components/zones/ZonesOverviewMap';
 
-import Page from '../components/ui/Page';
-import Button from '../components/ui/Button';
-import Fab from '../components/ui/Fab';
-import EntityList from '../components/ui/EntityList';
-import Toolbar from '../components/utils/Toolbar';
-import SearchBox from '../components/search/SearchBox';
-import ActionError from '../components/utils/ActionError';
-import ConfirmDialog from '../components/utils/ConfirmDialog';
-import ZoneRow from '../components/zones/ZoneRow';
-import ZonesOverviewMap from '../components/zones/ZonesOverviewMap';
+import { useEntityList, useListSearch } from '@/shared/lib/list';
+import useCan from '@/hooks/useCan';
 
-import useEntityList from '../hooks/useEntityList';
-import useCan from '../hooks/useCan';
-import useListSearch from '../hooks/useListSearch';
-import { getAllZones, getZoneTypes, deleteZone } from '../services/zone';
-import { zonesToGeoJSON } from '../utils/zoneStyles';
-import logger from '../utils/logger';
+import { getAllZones, getZoneTypes, deleteZone } from '@/services/zone';
+import { zonesToGeoJSON } from '@/utils/zoneStyles';
+import { logger } from '@/shared/lib/logger';
 import styles from './ZonesPage.module.css';
 
 const NEW_PATH = '/settings/zones/new';

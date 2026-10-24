@@ -3,14 +3,13 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Routes, Route } from 'react-router';
-
 import CowDetailPage from './CowDetailPage';
-import AuthContext from '../context/auth/AuthContext';
-import { getCow } from '../services/cow';
-import { getCowHealth, voidEvent } from '../services/health';
+import AuthContext from '@/context/auth/AuthContext';
+import { getCow } from '@/services/cow';
+import { getCowHealth, voidEvent } from '@/services/health';
 
-vi.mock('../services/cow');
-vi.mock('../services/health');
+vi.mock('@/services/cow');
+vi.mock('@/services/health');
 
 const VETERINARIAN = ['cows:read', 'cows:write', 'health:read', 'health:write'];
 const TECHNICIAN = ['cows:read', 'cows:assignCollar'];

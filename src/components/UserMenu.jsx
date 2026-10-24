@@ -1,8 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { LogOut, User } from 'lucide-react';
-
-import useAuth from '../context/auth/useAuth';
-import { roleInfo } from '../utils/userRoles';
+import useAuth from '@/context/auth/useAuth';
+import { roleInfo } from '@/utils/userRoles';
 import styles from './UserMenu.module.css';
 
 // placement: down (map top bar) | right (bottom of the sidebar)

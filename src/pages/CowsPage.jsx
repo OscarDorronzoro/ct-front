@@ -1,22 +1,20 @@
 import { useNavigate } from 'react-router';
 import { Plus } from 'lucide-react';
-import CowIcon from '../components/icons/CowIcon';
+import { CowIcon } from '@/shared/ui/icons';
+import { Page } from '@/shared/ui/page';
+import { Button, Fab } from '@/shared/ui/button';
+import { EntityList } from '@/shared/ui/list';
+import { Toolbar } from '@/shared/ui/toolbar';
+import SearchBox from '@/components/search/SearchBox';
+import { ActionError } from '@/shared/ui/alert';
+import { ConfirmDialog } from '@/shared/ui/dialog';
+import CowRow from '@/components/cows/CowRow';
 
-import Page from '../components/ui/Page';
-import Button from '../components/ui/Button';
-import Fab from '../components/ui/Fab';
-import EntityList from '../components/ui/EntityList';
-import Toolbar from '../components/utils/Toolbar';
-import SearchBox from '../components/search/SearchBox';
-import ActionError from '../components/utils/ActionError';
-import ConfirmDialog from '../components/utils/ConfirmDialog';
-import CowRow from '../components/cows/CowRow';
+import { useEntityList, useListSearch } from '@/shared/lib/list';
+import useCan from '@/hooks/useCan';
+import { cowLabel } from '@/utils/labels';
 
-import useEntityList from '../hooks/useEntityList';
-import useCan from '../hooks/useCan';
-import { cowLabel } from '../utils/labels';
-import useListSearch from '../hooks/useListSearch';
-import { getAllCows, deleteCow } from '../services/cow';
+import { getAllCows, deleteCow } from '@/services/cow';
 
 const NEW_PATH = '/settings/cows/new';
 

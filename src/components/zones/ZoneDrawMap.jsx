@@ -9,12 +9,11 @@ import {
 } from 'terra-draw';
 import { TerraDrawMapLibreGLAdapter } from 'terra-draw-maplibre-gl-adapter';
 import { Pencil, Undo2, RotateCcw } from 'lucide-react';
-
-import BaseMap from '../BaseMap';
-import Button from '../ui/Button';
-import { addZoneLayers, setZoneData } from '../map/zoneLayers';
-import { closeRing, openRing, ringsBounds } from '../../utils/geo';
-import { getSavedMapConfig } from '../../utils/mapConfig';
+import { BaseMap } from '@/shared/ui/map';
+import { Button } from '@/shared/ui/button';
+import { addZoneLayers, setZoneData } from '@/components/map/zoneLayers';
+import { closeRing, openRing, ringsBounds } from '@/shared/lib/geo';
+import { getSavedMapConfig } from '@/shared/lib/map-config';
 import styles from './ZoneDrawMap.module.css';
 
 const SELECT_MODE = 'select';

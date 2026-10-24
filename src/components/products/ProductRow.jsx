@@ -1,8 +1,7 @@
 import { FlaskConical } from 'lucide-react';
-
-import EntityRow from '../ui/EntityRow';
-import Badge from '../ui/Badge';
-import { productTypeLabel } from '../../utils/health';
+import { EntityRow } from '@/shared/ui/list';
+import { Badge } from '@/shared/ui/badge';
+import { productTypeLabel } from '@/utils/health';
 
 const days = (n) => `${n} ${n === 1 ? 'día' : 'días'}`;
 

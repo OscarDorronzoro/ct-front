@@ -1,8 +1,7 @@
 import {
   SatelliteDish, Users, UserRound, LandPlot,
 } from 'lucide-react';
-
-import CowIcon from '../icons/CowIcon';
+import { CowIcon } from '@/shared/ui/icons';
 import styles from './Search.module.css';
 
 const ICONS = {

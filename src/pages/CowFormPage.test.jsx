@@ -3,20 +3,19 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Routes, Route } from 'react-router';
-
 import CowFormPage from './CowFormPage';
-import AuthContext from '../context/auth/AuthContext';
-import { getCow, getAllCows, updateCow, createCow } from '../services/cow';
-import { getAllCollars } from '../services/collar';
-import { getAllBreeds } from '../services/breed';
-import { getAllGroups } from '../services/group';
-import { getAllCategories } from '../services/category';
+import AuthContext from '@/context/auth/AuthContext';
+import { getCow, getAllCows, updateCow, createCow } from '@/services/cow';
+import { getAllCollars } from '@/services/collar';
+import { getAllBreeds } from '@/services/breed';
+import { getAllGroups } from '@/services/group';
+import { getAllCategories } from '@/services/category';
 
-vi.mock('../services/cow');
-vi.mock('../services/collar');
-vi.mock('../services/breed');
-vi.mock('../services/group');
-vi.mock('../services/category');
+vi.mock('@/services/cow');
+vi.mock('@/services/collar');
+vi.mock('@/services/breed');
+vi.mock('@/services/group');
+vi.mock('@/services/category');
 
 const angela = {
   id: 8,

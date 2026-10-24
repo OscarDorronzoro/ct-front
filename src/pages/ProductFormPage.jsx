@@ -1,17 +1,15 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
+import {
+  FormField, SelectField, FormActions, formStyles,
+} from '@/shared/ui/form';
+import { Page } from '@/shared/ui/page';
+import { Card } from '@/shared/ui/card';
+import { Alert } from '@/shared/ui/alert';
 
-import FormField from '../components/form/FormField';
-import SelectField from '../components/form/SelectField';
-import FormActions from '../components/form/FormActions';
-import formStyles from '../components/form/Form.module.css';
-import Page from '../components/ui/Page';
-import Card from '../components/ui/Card';
-import Alert from '../components/ui/Alert';
-
-import { getProduct, createProduct, updateProduct } from '../services/health';
-import { PRODUCT_TYPES } from '../utils/health';
-import logger from '../utils/logger';
+import { getProduct, createProduct, updateProduct } from '@/services/health';
+import { PRODUCT_TYPES } from '@/utils/health';
+import { logger } from '@/shared/lib/logger';
 
 const emptyForm = {
   name: '',

@@ -1,24 +1,23 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
+import {
+  FormField, FormActions, formStyles, CheckboxGroupField,
+} from '@/shared/ui/form';
+import { Page } from '@/shared/ui/page';
+import { Card } from '@/shared/ui/card';
+import { Alert } from '@/shared/ui/alert';
 
-import FormField from '../components/form/FormField';
-import FormActions from '../components/form/FormActions';
-import formStyles from '../components/form/Form.module.css';
-import Page from '../components/ui/Page';
-import Card from '../components/ui/Card';
-import Alert from '../components/ui/Alert';
-import CheckboxGroupField from '../components/form/CheckboxGroupField';
-import UserSessions from '../components/users/UserSessions';
+import UserSessions from '@/components/users/UserSessions';
 
 import {
   getUser,
   updateUser,
   createUser,
-} from '../services/user';
+} from '@/services/user';
 
-import useAuth from '../context/auth/useAuth';
-import USER_ROLES from '../utils/userRoles';
-import logger from '../utils/logger';
+import useAuth from '@/context/auth/useAuth';
+import USER_ROLES from '@/utils/userRoles';
+import { logger } from '@/shared/lib/logger';
 
 const emptyForm = {
   username: '',

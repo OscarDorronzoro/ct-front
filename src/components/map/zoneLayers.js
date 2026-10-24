@@ -1,6 +1,5 @@
 import maplibregl from 'maplibre-gl';
-
-import { ringCenter, openRing } from '../../utils/geo';
+import { ringCenter, openRing } from '@/shared/lib/geo';
 import styles from './ZoneLabel.module.css';
 
 const SOURCE = 'zones';

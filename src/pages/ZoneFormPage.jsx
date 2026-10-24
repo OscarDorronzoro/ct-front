@@ -1,23 +1,21 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
-
-import Page from '../components/ui/Page';
-import Alert from '../components/ui/Alert';
-import Spinner from '../components/ui/Spinner';
-import FormField from '../components/form/FormField';
-import SelectField from '../components/form/SelectField';
-import FormActions from '../components/form/FormActions';
-import formStyles from '../components/form/Form.module.css';
-import ZoneDrawMap from '../components/zones/ZoneDrawMap';
+import { Page } from '@/shared/ui/page';
+import { Alert } from '@/shared/ui/alert';
+import { Spinner } from '@/shared/ui/spinner';
+import {
+  FormField, SelectField, FormActions, formStyles,
+} from '@/shared/ui/form';
+import ZoneDrawMap from '@/components/zones/ZoneDrawMap';
 
 import {
   getZone, getAllZones, getZoneTypes, createZone, updateZone,
-} from '../services/zone';
-import { distanceMeters, formatArea, ringAreaM2 } from '../utils/geo';
+} from '@/services/zone';
+import { distanceMeters, formatArea, ringAreaM2 } from '@/shared/lib/geo';
 import {
   zoneTypeStyle, zonesToGeoJSON, COLLAR_ZONE_MAX_VERTICES, COLLAR_ZONE_MAX_RADIUS_M,
-} from '../utils/zoneStyles';
-import logger from '../utils/logger';
+} from '@/utils/zoneStyles';
+import { logger } from '@/shared/lib/logger';
 import styles from './ZoneFormPage.module.css';
 
 const emptyForm = {

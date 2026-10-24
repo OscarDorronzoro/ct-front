@@ -1,5 +1,5 @@
-import apiClient from './apiClient';
-import { normalizeSearchText } from '../utils/search';
+import { apiClient } from '@/shared/api';
+import { normalizeSearchText } from '@/shared/lib/text';
 
 export async function search(query) {
   const q = normalizeSearchText(query);

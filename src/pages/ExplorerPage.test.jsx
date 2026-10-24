@@ -5,11 +5,10 @@ import {
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
-
 import ExplorerPage from './ExplorerPage';
-import { getCatalog, runQuery } from '../services/analytics';
+import { getCatalog, runQuery } from '@/services/analytics';
 
-vi.mock('../services/analytics');
+vi.mock('@/services/analytics');
 
 const CATALOG = [
   {

@@ -1,23 +1,21 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
+import { Page } from '@/shared/ui/page';
+import { Card } from '@/shared/ui/card';
+import { Alert } from '@/shared/ui/alert';
+import {
+  FormField, SelectField, FormActions, formStyles,
+} from '@/shared/ui/form';
+import healthStyles from '@/components/health/Health.module.css';
 
-import Page from '../components/ui/Page';
-import Card from '../components/ui/Card';
-import Alert from '../components/ui/Alert';
-import FormField from '../components/form/FormField';
-import SelectField from '../components/form/SelectField';
-import FormActions from '../components/form/FormActions';
-import formStyles from '../components/form/Form.module.css';
-import healthStyles from '../components/health/Health.module.css';
-
-import { getCow } from '../services/cow';
-import { getProducts, recordEvent } from '../services/health';
+import { getCow } from '@/services/cow';
+import { getProducts, recordEvent } from '@/services/health';
 import {
   EVENT_TYPES, PRODUCT_TYPES_BY_EVENT, ROUTES, CASTRATION_METHODS,
-} from '../utils/health';
-import { toDateValue, toTimeValue, fromInputs } from '../utils/dateRange';
-import { cowLabel } from '../utils/labels';
-import logger from '../utils/logger';
+} from '@/utils/health';
+import { toDateValue, toTimeValue, fromInputs } from '@/shared/lib/date';
+import { cowLabel } from '@/utils/labels';
+import { logger } from '@/shared/lib/logger';
 
 const emptyFields = {
   productId: '',

@@ -1,19 +1,17 @@
 import { useNavigate } from 'react-router';
 import { Plus, FlaskConical } from 'lucide-react';
+import { Page } from '@/shared/ui/page';
+import { Button, Fab } from '@/shared/ui/button';
+import { EntityList } from '@/shared/ui/list';
+import { Toolbar } from '@/shared/ui/toolbar';
+import SearchBox from '@/components/search/SearchBox';
+import ProductRow from '@/components/products/ProductRow';
 
-import Page from '../components/ui/Page';
-import Button from '../components/ui/Button';
-import Fab from '../components/ui/Fab';
-import EntityList from '../components/ui/EntityList';
-import Toolbar from '../components/utils/Toolbar';
-import SearchBox from '../components/search/SearchBox';
-import ProductRow from '../components/products/ProductRow';
+import { useEntityList, useListSearch } from '@/shared/lib/list';
+import useCan from '@/hooks/useCan';
 
-import useEntityList from '../hooks/useEntityList';
-import useCan from '../hooks/useCan';
-import useListSearch from '../hooks/useListSearch';
-import { getProducts } from '../services/health';
-import { productTypeLabel } from '../utils/health';
+import { getProducts } from '@/services/health';
+import { productTypeLabel } from '@/utils/health';
 
 const NEW_PATH = '/settings/products/new';
 

@@ -1,5 +1,4 @@
 import { Plus, Minus, LocateFixed, Layers } from 'lucide-react';
-
 import styles from './MapControls.module.css';
 
 function ControlButton({ icon: Icon, label, active, onClick }) {

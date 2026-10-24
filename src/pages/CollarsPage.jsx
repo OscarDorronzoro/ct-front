@@ -1,21 +1,19 @@
 import { useNavigate } from 'react-router';
 import { Plus, SatelliteDish } from 'lucide-react';
+import { Page } from '@/shared/ui/page';
+import { Button, Fab } from '@/shared/ui/button';
+import { EntityList } from '@/shared/ui/list';
+import { Toolbar } from '@/shared/ui/toolbar';
+import SearchBox from '@/components/search/SearchBox';
+import { ActionError } from '@/shared/ui/alert';
+import { ConfirmDialog } from '@/shared/ui/dialog';
+import CollarRow from '@/components/collars/CollarRow';
 
-import Page from '../components/ui/Page';
-import Button from '../components/ui/Button';
-import Fab from '../components/ui/Fab';
-import EntityList from '../components/ui/EntityList';
-import Toolbar from '../components/utils/Toolbar';
-import SearchBox from '../components/search/SearchBox';
-import ActionError from '../components/utils/ActionError';
-import ConfirmDialog from '../components/utils/ConfirmDialog';
-import CollarRow from '../components/collars/CollarRow';
+import { useEntityList, useListSearch } from '@/shared/lib/list';
+import useCan from '@/hooks/useCan';
+import { collarLabel } from '@/utils/labels';
 
-import useEntityList from '../hooks/useEntityList';
-import useCan from '../hooks/useCan';
-import { collarLabel } from '../utils/labels';
-import useListSearch from '../hooks/useListSearch';
-import { getAllCollars, deleteCollar } from '../services/collar';
+import { getAllCollars, deleteCollar } from '@/services/collar';
 
 const NEW_PATH = '/settings/collars/new';
 

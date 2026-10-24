@@ -1,28 +1,24 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router';
-
-import FormField from '../components/form/FormField';
-import FormActions from '../components/form/FormActions';
-import formStyles from '../components/form/Form.module.css';
-import Page from '../components/ui/Page';
-import Card from '../components/ui/Card';
-import Alert from '../components/ui/Alert';
-import ImageField from '../components/form/ImageField';
-import SelectField from '../components/form/SelectField';
-import MultiSelectField from '../components/form/MultiSelectField';
+import {
+  FormField, FormActions, formStyles, ImageField, SelectField, MultiSelectField,
+} from '@/shared/ui/form';
+import { Page } from '@/shared/ui/page';
+import { Card } from '@/shared/ui/card';
+import { Alert } from '@/shared/ui/alert';
 
 import {
   getCow, getAllCows, updateCow, createCow,
-} from '../services/cow';
-import { getAllCollars } from '../services/collar';
-import { getAllBreeds } from '../services/breed';
-import { getAllGroups } from '../services/group';
-import { getAllCategories } from '../services/category';
+} from '@/services/cow';
+import { getAllCollars } from '@/services/collar';
+import { getAllBreeds } from '@/services/breed';
+import { getAllGroups } from '@/services/group';
+import { getAllCategories } from '@/services/category';
 
-import useCan from '../hooks/useCan';
-import logger from '../utils/logger';
-import { toDateInput } from '../utils/dateHelper';
-import { collarLabel, cowLabel, SEX_LABELS } from '../utils/labels';
+import useCan from '@/hooks/useCan';
+import { logger } from '@/shared/lib/logger';
+import { toDateInput } from '@/shared/lib/date';
+import { collarLabel, cowLabel, SEX_LABELS } from '@/utils/labels';
 
 const sexOptions = Object.entries(SEX_LABELS).map(([value, label]) => ({ value, label }));
 

@@ -1,15 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
 import AuthContext from './AuthContext';
-
 import {
   getCurrentUser,
   login as loginRequest,
   logout as logoutRequest,
-} from '../../services/auth';
+} from '@/services/auth';
+import { setSessionExpiredHandler, ApiError } from '@/shared/api';
 
-import { setSessionExpiredHandler } from '../../services/apiClient';
-import ApiError from '../../errors/ApiError';
-import logger from '../../utils/logger';
+import { logger } from '@/shared/lib/logger';
 
 export default function AuthProvider({ children }) {
   const [user, setUser] = useState(null);

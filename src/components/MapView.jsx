@@ -2,30 +2,29 @@ import {
   useEffect, useState, useMemo, useRef, useCallback, useImperativeHandle,
 } from 'react';
 import maplibregl from 'maplibre-gl';
-
-import BaseMap from './BaseMap';
-import PositionSheet from './map/PositionSheet';
-import MapControls from './map/MapControls';
-import MapNotice from './map/MapNotice';
-import ZoneCard from './map/ZoneCard';
-import HistoryLegend from './map/HistoryLegend';
+import { BaseMap } from '@/shared/ui/map';
+import PositionSheet from '@/components/map/PositionSheet';
+import MapControls from '@/components/map/MapControls';
+import MapNotice from '@/components/map/MapNotice';
+import ZoneCard from '@/components/map/ZoneCard';
+import HistoryLegend from '@/components/map/HistoryLegend';
 import {
   addZoneLayers, setZoneData, setZonesVisible, createZoneLabels, ZONE_FILL_LAYER,
-} from './map/zoneLayers';
+} from '@/components/map/zoneLayers';
 import {
   addPositionLayers, setHeatView,
   POINTS_SOURCE, TRACKS_SOURCE, HITBOX_LAYER, HALO_LAYER,
-} from './map/positionLayers';
-import tooltipStyles from './map/MapTooltip.module.css';
-import useIsMobile from '../hooks/useIsMobile';
-import useZoneLayer from '../hooks/useZoneLayer';
-import useMapLabels from '../hooks/useMapLabels';
-import { getSavedMapConfig } from '../utils/mapConfig';
-import { toTimeElapsed } from '../utils/dateHelper';
-import { formatDistance } from '../utils/geo';
+} from '@/components/map/positionLayers';
+import tooltipStyles from '@/components/map/MapTooltip.module.css';
+import { useIsMobile } from '@/shared/lib/media';
+import useZoneLayer from '@/hooks/useZoneLayer';
+import useMapLabels from '@/hooks/useMapLabels';
+import { getSavedMapConfig } from '@/shared/lib/map-config';
+import { toTimeElapsed } from '@/shared/lib/date';
+import { formatDistance } from '@/shared/lib/geo';
 import {
   groupByCollar, collarColors, tracksGeoJSON, heatWeights,
-} from '../utils/mapPoints';
+} from '@/utils/mapPoints';
 
 // Zoom used when centering on a searched cow or collar (only zooms in)
 const FOCUS_ZOOM = 17;

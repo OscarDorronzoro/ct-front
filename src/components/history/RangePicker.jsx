@@ -2,13 +2,10 @@ import { useEffect, useRef, useState } from 'react';
 import {
   CalendarClock, ChevronDown, ChevronLeft, ChevronRight,
 } from 'lucide-react';
-
-import Button from '../ui/Button';
-import IconButton from '../ui/IconButton';
+import { Button, IconButton } from '@/shared/ui/button';
 import {
-  PRESETS, presetRange, resolveRange, shiftRange, rangeLabel, rangeSummary,
-  customRange, toDateValue, toTimeValue, fromInputs,
-} from '../../utils/dateRange';
+  PRESETS, presetRange, resolveRange, shiftRange, rangeLabel, rangeSummary, customRange, toDateValue, toTimeValue, fromInputs,
+} from '@/shared/lib/date';
 import styles from './RangePicker.module.css';
 
 // Time range of the history map: previous/next period, presets and a custom range

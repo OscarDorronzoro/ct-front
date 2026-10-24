@@ -1,7 +1,7 @@
-import EntityRow from '../ui/EntityRow';
-import Badge from '../ui/Badge';
-import CowIcon from '../icons/CowIcon';
-import { cowLabel } from '../../utils/labels';
+import { EntityRow } from '@/shared/ui/list';
+import { Badge } from '@/shared/ui/badge';
+import { CowIcon } from '@/shared/ui/icons';
+import { cowLabel } from '@/utils/labels';
 
 // The row opens the card of the cow. editable: the pencil opens the form; onDelete: only when
 // the user can delete

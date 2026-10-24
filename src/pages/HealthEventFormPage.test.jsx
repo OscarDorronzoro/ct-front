@@ -3,13 +3,12 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Routes, Route } from 'react-router';
-
 import HealthEventFormPage from './HealthEventFormPage';
-import { getCow } from '../services/cow';
-import { getProducts, recordEvent } from '../services/health';
+import { getCow } from '@/services/cow';
+import { getProducts, recordEvent } from '@/services/health';
 
-vi.mock('../services/cow');
-vi.mock('../services/health');
+vi.mock('@/services/cow');
+vi.mock('@/services/health');
 
 function renderForm() {
   render(

@@ -1,5 +1,4 @@
 import { describe, it, expect } from 'vitest';
-
 import { collarLabel, cowLabel } from './labels';
 
 describe('labels', () => {

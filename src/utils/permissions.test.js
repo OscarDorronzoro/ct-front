@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
-
 import { can } from './permissions';
-import { SETTINGS_ITEMS, visibleItems } from '../components/nav/navItems';
+import { SETTINGS_ITEMS, visibleItems } from '@/components/nav/navItems';
 
 const viewer = { permissions: ['map:read', 'cows:read'] };
 const admin = { permissions: ['map:read', 'cows:read', 'cows:write', 'users:manage'] };

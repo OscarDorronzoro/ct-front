@@ -1,7 +1,6 @@
 import { Outlet, useLocation } from 'react-router';
-
-import SettingsTabs from '../components/nav/SettingsTabs';
-import useIsMobile from '../hooks/useIsMobile';
+import SettingsTabs from '@/components/nav/SettingsTabs';
+import { useIsMobile } from '@/shared/lib/media';
 import styles from './SettingsPage.module.css';
 
 // /settings/<section>, not its forms

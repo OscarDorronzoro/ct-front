@@ -1,13 +1,11 @@
 import { createBrowserRouter } from 'react-router';
-
-import App from '../App';
-import ProtectedRoute from '../components/auth/ProtectedRoute';
-
-import { mapRoute } from './map.route'
-import { settingsRoute } from './settings.route'
+import App from '@/App';
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
+import { mapRoute } from './map.route';
+import { settingsRoute } from './settings.route';
 import { loginRoute } from './login.route';
 import { analyticsRoute } from './analytics.route';
-import ErrorPage from '../pages/ErrorPage';
+import ErrorPage from '@/pages/ErrorPage';
 
 export const router = createBrowserRouter([
   {

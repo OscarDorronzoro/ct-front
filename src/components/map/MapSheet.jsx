@@ -1,6 +1,5 @@
 import { X } from 'lucide-react';
-
-import IconButton from '../ui/IconButton';
+import { IconButton } from '@/shared/ui/button';
 import styles from './MapSheet.module.css';
 
 // Details of something selected on the map. avatar: element, or { src } for an image.

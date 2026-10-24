@@ -1,8 +1,7 @@
 import { useState } from 'react';
-
-import ConfirmDialog from '../utils/ConfirmDialog';
-import { eventTitle, formatDay } from '../../utils/health';
-import formStyles from '../form/Form.module.css';
+import { ConfirmDialog } from '@/shared/ui/dialog';
+import { eventTitle, formatDay } from '@/utils/health';
+import { formStyles } from '@/shared/ui/form';
 
 // Asks why the event is voided: the reason stays in the history
 export default function VoidEventDialog({ event, onConfirm, onCancel }) {

@@ -1,5 +1,4 @@
 import { describe, it, expect } from 'vitest';
-
 import { eventTitle, eventDetails, formatAge } from './health';
 
 const event = (type, details) => ({ type, details });

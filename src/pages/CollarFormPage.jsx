@@ -1,20 +1,17 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
-
-import FormField from '../components/form/FormField';
-import FormActions from '../components/form/FormActions';
-import formStyles from '../components/form/Form.module.css';
-import Page from '../components/ui/Page';
-import Card from '../components/ui/Card';
-import Alert from '../components/ui/Alert';
+import { FormField, FormActions, formStyles } from '@/shared/ui/form';
+import { Page } from '@/shared/ui/page';
+import { Card } from '@/shared/ui/card';
+import { Alert } from '@/shared/ui/alert';
 
 import {
   getCollar,
   updateCollar,
   createCollar,
-} from '../services/collar';
+} from '@/services/collar';
 
-import logger from '../utils/logger';
+import { logger } from '@/shared/lib/logger';
 
 const emptyForm = {
   code: '',

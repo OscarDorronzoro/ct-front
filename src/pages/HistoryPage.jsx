@@ -1,12 +1,11 @@
 import { useCallback, useState } from 'react';
 import { useOutletContext } from 'react-router';
-
-import MapView from '../components/MapView';
-import RangePicker from '../components/history/RangePicker';
-import UpdatingBadge from '../components/map/UpdatingBadge';
-import usePolling from '../hooks/usePolling';
-import { getPosition, getDistances } from '../services/position';
-import { defaultRange, resolveRange } from '../utils/dateRange';
+import MapView from '@/components/MapView';
+import RangePicker from '@/components/history/RangePicker';
+import UpdatingBadge from '@/components/map/UpdatingBadge';
+import { usePolling } from '@/shared/lib/polling';
+import { getPosition, getDistances } from '@/services/position';
+import { defaultRange, resolveRange } from '@/shared/lib/date';
 
 const POLL_MS = 30000;
 const EMPTY = { points: [], distances: [], referenceTime: null };

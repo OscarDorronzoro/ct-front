@@ -1,5 +1,4 @@
 import { describe, it, expect } from 'vitest';
-
 import {
   presetDates, chartsOf, niceScale, formatX, toCsv, SERIES_COLORS,
 } from './explorer';

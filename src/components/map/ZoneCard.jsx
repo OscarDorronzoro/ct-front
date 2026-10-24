@@ -1,10 +1,9 @@
 import { LandPlot, Pencil } from 'lucide-react';
-
-import Button from '../ui/Button';
-import useCan from '../../hooks/useCan';
+import { Button } from '@/shared/ui/button';
+import useCan from '@/hooks/useCan';
 import MapSheet from './MapSheet';
-import { formatArea, ringAreaM2 } from '../../utils/geo';
-import { zoneTypeStyle } from '../../utils/zoneStyles';
+import { formatArea, ringAreaM2 } from '@/shared/lib/geo';
+import { zoneTypeStyle } from '@/utils/zoneStyles';
 
 export default function ZoneCard({ zone, typeName, onClose }) {
   const { color, label } = zoneTypeStyle(typeName);

@@ -1,9 +1,8 @@
 import { LandPlot } from 'lucide-react';
-
-import EntityRow from '../ui/EntityRow';
-import Badge from '../ui/Badge';
-import { formatArea, ringAreaM2 } from '../../utils/geo';
-import { zoneTypeStyle, COLLAR_ZONE_MAX_VERTICES } from '../../utils/zoneStyles';
+import { EntityRow } from '@/shared/ui/list';
+import { Badge } from '@/shared/ui/badge';
+import { formatArea, ringAreaM2 } from '@/shared/lib/geo';
+import { zoneTypeStyle, COLLAR_ZONE_MAX_VERTICES } from '@/utils/zoneStyles';
 
 // editable: opens the form; onDelete: only when the user can delete
 export default function ZoneRow({ zone, typeName, editable = true, onDelete }) {

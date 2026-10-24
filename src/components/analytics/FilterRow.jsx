@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
-
-import SelectField from '../form/SelectField';
-import MultiSelectField from '../form/MultiSelectField';
-import IconButton from '../ui/IconButton';
-import { getDimensionValues } from '../../services/analytics';
-import logger from '../../utils/logger';
+import { SelectField, MultiSelectField } from '@/shared/ui/form';
+import { IconButton } from '@/shared/ui/button';
+import { getDimensionValues } from '@/services/analytics';
+import { logger } from '@/shared/lib/logger';
 import styles from './Explorer.module.css';
 
 // One filter: a dimension and the values to keep (the ones the dimension has in the range)

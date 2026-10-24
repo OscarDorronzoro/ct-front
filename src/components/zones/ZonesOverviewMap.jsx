@@ -1,11 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-
-import BaseMap from '../BaseMap';
+import { BaseMap } from '@/shared/ui/map';
 import {
   addZoneLayers, setZoneData, createZoneLabels, ZONE_FILL_LAYER,
-} from '../map/zoneLayers';
-import { openRing, ringsBounds } from '../../utils/geo';
-import { getSavedMapConfig } from '../../utils/mapConfig';
+} from '@/components/map/zoneLayers';
+import { openRing, ringsBounds } from '@/shared/lib/geo';
+import { getSavedMapConfig } from '@/shared/lib/map-config';
 
 // All zones, read only. onZoneClick(id) when a zone is tapped.
 export default function ZonesOverviewMap({ zonesGeoJSON, onZoneClick }) {

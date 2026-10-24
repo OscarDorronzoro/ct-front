@@ -1,4 +1,4 @@
-import { closeRing } from './geo';
+import { closeRing } from '@/shared/lib/geo';
 
 // Colors by zone type name (zone_types). Bright enough over satellite imagery.
 const TYPE_STYLES = {

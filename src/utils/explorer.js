@@ -1,7 +1,6 @@
 // Pure helpers of the analytics explorer: dates, shaping results for the charts, formats.
 // The numbers come computed from the backend; this only arranges and formats them.
-
-import { toDateValue } from './dateRange';
+import { toDateValue } from '@/shared/lib/date';
 
 const DAY_MS = 24 * 3600 * 1000;
 

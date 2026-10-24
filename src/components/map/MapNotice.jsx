@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-
 import styles from './MapNotice.module.css';
 
 const DURATION_MS = 4000;

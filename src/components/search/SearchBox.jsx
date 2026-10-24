@@ -1,6 +1,5 @@
 import { useState, useRef } from 'react';
 import { Search, X } from 'lucide-react';
-
 import SearchResults from './SearchResults';
 import styles from './Search.module.css';
 
