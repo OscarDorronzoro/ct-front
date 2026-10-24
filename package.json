@@ -9,10 +9,12 @@
     "build": "vite build",
     "lint": "eslint . --color --fix",
     "lint:watch": "npm-run-all --serial lint chokidar:lint",
-    "chokidar:lint": "chokidar \"src/**/*.{js,jsx}\" -c \"npm run lint\"",
+    "chokidar:lint": "chokidar \"src/**/*.{js,jsx,ts,tsx}\" -c \"npm run lint\"",
+    "lint:fsd": "steiger ./src",
+    "typecheck": "tsc",
     "test": "vitest run",
     "test:watch": "vitest --watch",
-    "preversion": "eslint . && npm test",
+    "preversion": "eslint . && npm run typecheck && npm test",
     "release": "npm version -m \"chore(release): %s\"",
     "preview": "vite preview",
     "deploy": "./scripts/deploy.sh"
@@ -25,10 +27,12 @@
     "react-dom": "^19.2.0",
     "react-router": "^7.13.1",
     "terra-draw": "^1.37.0",
-    "terra-draw-maplibre-gl-adapter": "^1.5.0"
+    "terra-draw-maplibre-gl-adapter": "^1.5.0",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@feature-sliced/steiger-plugin": "^0.8.0",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",
@@ -43,6 +47,9 @@
     "globals": "^16.5.0",
     "jsdom": "^29.1.1",
     "npm-run-all": "^4.1.5",
+    "steiger": "^0.8.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.72.0",
     "vite": "^7.2.4",
     "vite-plugin-pwa": "^1.2.0",
     "vite-plugin-static-copy": "^4.1.1",

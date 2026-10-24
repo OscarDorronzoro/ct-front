@@ -2,6 +2,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import fs from 'fs'
+import { fileURLToPath } from 'url'
 import serveImagesPlugin from './vite/plugins/serve-images.js';
 
 // https://vite.dev/config/
@@ -45,6 +46,11 @@ export default defineConfig(({ mode, command }) => {
       },
       // maplibre alone is ~1 MB (minified); it is a single dependency, not app code
       chunkSizeWarningLimit: 1100,
+    },
+
+    // Imports from the root of src: '@/shared/ui/Button'
+    resolve: {
+      alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
     },
 
     plugins: [
