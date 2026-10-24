@@ -2,7 +2,7 @@ import {
   describe, it, expect, beforeEach, vi, type Mock,
 } from 'vitest';
 import { z } from 'zod';
-import { apiClient, setSessionExpiredHandler } from './apiClient';
+import { apiClient, errorMessage, setSessionExpiredHandler } from './apiClient';
 
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status });
 
@@ -147,7 +147,7 @@ describe('apiClient', () => {
       const fetchMock = mockFetch({ '/auth/login': [json({ error: 'Invalid username or password' }, 401)] });
 
       await expect(apiClient('/auth/login', { method: 'POST' })).rejects.toMatchObject({
-        message: 'Invalid username or password', status: 401,
+        status: 401, data: { error: 'Invalid username or password' },
       });
       expect(calledPaths(fetchMock)).toEqual(['/auth/login']);
     });
@@ -172,11 +172,29 @@ describe('apiClient', () => {
       });
     });
 
-    it('uses the error code as message and keeps the data', async () => {
+    it('translates the error code and keeps the code and the data', async () => {
       mockFetch({ '/cows/1': [json({ error: 'COW_NOT_FOUND' }, 404)] });
 
       await expect(apiClient('/cows/1')).rejects.toMatchObject({
-        name: 'ApiError', message: 'COW_NOT_FOUND', status: 404, data: { error: 'COW_NOT_FOUND' },
+        name: 'ApiError',
+        message: 'La vaca no existe o fue eliminada.',
+        code: 'COW_NOT_FOUND',
+        status: 404,
+        data: { error: 'COW_NOT_FOUND' },
+      });
+    });
+
+    it('never shows an untranslated code or message: falls back to the status', async () => {
+      mockFetch({
+        '/a': [json({ error: 'SOMETHING_NEW' }, 409)],
+        '/b': [json({ error: 'Collar not found' }, 404)],
+      });
+
+      await expect(apiClient('/a')).rejects.toMatchObject({
+        code: 'SOMETHING_NEW', message: 'Error al comunicarse con el servidor',
+      });
+      await expect(apiClient('/b')).rejects.toMatchObject({
+        code: undefined, message: 'No se encontró lo que buscabas: puede haber sido eliminado.',
       });
     });
 
@@ -189,14 +207,28 @@ describe('apiClient', () => {
       });
     });
 
-    it('falls back to a text body, or a generic message', async () => {
+    it('explains a server error without showing its body', async () => {
+      mockFetch({ '/a': [new Response('Bad gateway', { status: 502 })] });
+
+      await expect(apiClient('/a')).rejects.toMatchObject({
+        status: 502, data: 'Bad gateway', message: 'El servidor tuvo un problema. Intentá de nuevo en unos segundos.',
+      });
+    });
+  });
+
+  describe('errorMessage', () => {
+    it('uses the message of a known API error, and the fallback of the action otherwise', async () => {
       mockFetch({
-        '/a': [new Response('Bad gateway', { status: 502 })],
-        '/b': [new Response('', { status: 500 })],
+        '/a': [json({ error: 'LAST_ADMIN' }, 409)],
+        '/b': [json({ error: 'SOMETHING_NEW' }, 409)],
       });
 
-      await expect(apiClient('/a')).rejects.toMatchObject({ message: 'Bad gateway' });
-      await expect(apiClient('/b')).rejects.toMatchObject({ message: 'Error al comunicarse con el servidor' });
+      const known = await apiClient('/a').catch((err: unknown) => err);
+      const unknown = await apiClient('/b').catch((err: unknown) => err);
+
+      expect(errorMessage(known, 'No se pudo guardar.')).toBe('Tiene que quedar al menos un administrador.');
+      expect(errorMessage(unknown, 'No se pudo guardar.')).toBe('No se pudo guardar.');
+      expect(errorMessage(new TypeError('x is undefined'), 'No se pudo guardar.')).toBe('No se pudo guardar.');
     });
   });
 });

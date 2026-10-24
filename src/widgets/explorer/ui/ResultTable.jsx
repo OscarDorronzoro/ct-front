@@ -1,6 +1,7 @@
 import { Download } from 'lucide-react';
 import { Button } from '@/shared/ui/button';
-import { formatNumber, toCsv } from '../model/explorer';
+import { formatNumber } from '@/shared/lib/format';
+import { toCsv } from '../model/explorer';
 import styles from './Explorer.module.css';
 
 // Byte order mark: lets spreadsheets open the accents of the file right

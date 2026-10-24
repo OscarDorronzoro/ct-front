@@ -1,0 +1,23 @@
+/* RootLayout: navigation and the page side by side (the bottom navigation floats on phones) */
+.root {
+  display: flex;
+  width: 100%;
+  height: 100dvh;
+}
+
+.main {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+}
+
+/* MapLayout: the map fills the page. Dark green while the satellite tiles load (instead of a
+   white flash) */
+.map {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--green-900);
+}

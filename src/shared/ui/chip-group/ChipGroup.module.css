@@ -5,6 +5,11 @@
   padding-bottom: 2px;
 }
 
+.wrap {
+  flex-wrap: wrap;
+  overflow-x: visible;
+}
+
 .chip {
   flex-shrink: 0;
   padding: 6px var(--space-3);

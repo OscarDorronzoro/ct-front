@@ -14,6 +14,7 @@ import {
 } from '@/entities/health-event';
 import { toDateValue, toTimeValue, fromInputs } from '@/shared/lib/date';
 import { logger } from '@/shared/lib/logger';
+import { useEntityForm } from '@/shared/lib/form';
 
 const emptyFields = {
   productId: '',
@@ -45,20 +46,56 @@ const NUMBER_FIELDS = ['productId', 'durationDays', 'temperature', 'bodyConditio
 // "39,5" or "39.5" -> 39.5
 const toNumber = (value) => Number(String(value).replace(',', '.'));
 
+const messages = { save: 'No se pudo registrar el evento.' };
+
+// A new event, now
+function emptyForm() {
+  const now = new Date();
+  return {
+    type: 'vaccination', date: toDateValue(now), time: toTimeValue(now), ...emptyFields,
+  };
+}
+
+function validate(form) {
+  if (!fromInputs(form.date, form.time)) {
+    return 'Indique la fecha y la hora.';
+  }
+  return PRODUCT_TYPES_BY_EVENT[form.type] && form.productId === '' ? 'Elija el producto.' : null;
+}
+
+// Only the fields of the type, the numbers as numbers
+function toBody(form) {
+  const body = { type: form.type, occurredAt: fromInputs(form.date, form.time).toISOString() };
+
+  [...FIELDS_BY_TYPE[form.type], 'notes'].forEach((name) => {
+    const value = String(form[name]).trim();
+    if (value !== '') {
+      body[name] = NUMBER_FIELDS.includes(name) ? toNumber(value) : value;
+    }
+  });
+
+  return body;
+}
+
 export default function HealthEventFormPage() {
   const { cowId } = useParams();
   const navigate = useNavigate();
   const backTo = `/settings/cows/${cowId}`;
 
-  const now = new Date();
-  const [type, setType] = useState('vaccination');
-  const [when, setWhen] = useState({ date: toDateValue(now), time: toTimeValue(now) });
-  const [fields, setFields] = useState(emptyFields);
   const [cow, setCow] = useState(null);
   const [products, setProducts] = useState([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState(null);
+
+  const {
+    form: fields, setForm: setFields, handleChange, handleSubmit, saving, error,
+  } = useEntityForm({
+    empty: emptyForm,
+    validate,
+    save: (values) => recordEvent(cowId, toBody(values)),
+    onSaved: () => navigate(backTo),
+    messages,
+  });
+  const { type } = fields;
 
   useEffect(() => {
     getCow(cowId).then(setCow).catch((err) => logger.error('Error loading cow', err));
@@ -69,55 +106,9 @@ export default function HealthEventFormPage() {
       .finally(() => setLoadingProducts(false));
   }, [cowId]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFields((current) => ({ ...current, [name]: value }));
-  };
-
   // Another type: the product of the previous one doesn't apply
   const changeType = (value) => {
-    setType(value);
-    setFields((current) => ({ ...current, productId: '' }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (saving) {
-      return;
-    }
-
-    setError(null);
-
-    const occurredAt = fromInputs(when.date, when.time);
-    if (!occurredAt) {
-      setError('Indique la fecha y la hora.');
-      return;
-    }
-
-    if (PRODUCT_TYPES_BY_EVENT[type] && fields.productId === '') {
-      setError('Elija el producto.');
-      return;
-    }
-
-    const body = { type, occurredAt: occurredAt.toISOString() };
-    [...FIELDS_BY_TYPE[type], 'notes'].forEach((name) => {
-      const value = String(fields[name]).trim();
-      if (value !== '') {
-        body[name] = NUMBER_FIELDS.includes(name) ? toNumber(value) : value;
-      }
-    });
-
-    try {
-      setSaving(true);
-      await recordEvent(cowId, body);
-      navigate(backTo);
-    } catch (err) {
-      logger.error('Error recording event', err);
-      setError(err?.name === 'ApiError' ? err.message : 'No se pudo registrar el evento.');
-    } finally {
-      setSaving(false);
-    }
+    setFields((current) => ({ ...current, type: value, productId: '' }));
   };
 
   const productOptions = products
@@ -148,16 +139,16 @@ export default function HealthEventFormPage() {
             label="Fecha"
             name="date"
             type="date"
-            value={when.date}
-            onChange={(e) => setWhen((w) => ({ ...w, date: e.target.value }))}
+            value={fields.date}
+            onChange={handleChange}
             required
           />
           <FormField
             label="Hora"
             name="time"
             type="time"
-            value={when.time}
-            onChange={(e) => setWhen((w) => ({ ...w, time: e.target.value }))}
+            value={fields.time}
+            onChange={handleChange}
             required
           />
         </div>

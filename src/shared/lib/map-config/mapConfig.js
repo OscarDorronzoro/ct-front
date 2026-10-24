@@ -12,3 +12,12 @@ export function getSavedMapConfig() {
     return DEFAULT_MAP_CONFIG;
   }
 }
+
+// Saved by the live map as it follows the cows: the other maps start there
+export function saveMapConfig({ center, zoom }) {
+  try {
+    localStorage.setItem('mapConfig', JSON.stringify({ center, zoom }));
+  } catch {
+    // Storage unavailable (private mode): the maps start at the default place
+  }
+}

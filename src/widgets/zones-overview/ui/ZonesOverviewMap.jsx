@@ -1,45 +1,28 @@
-import { useEffect, useRef, useState } from 'react';
-import { BaseMap } from '@/shared/ui/map';
+import { useEffect, useRef } from 'react';
+import { BaseMap, useBaseMap } from '@/shared/ui/map';
 import {
-  addZoneLayers, setZoneData, createZoneLabels, ZONE_FILL_LAYER,
+  addZoneLayers, setZoneData, createZoneLabels, fitToZones, onZoneClick,
 } from '@/entities/zone';
-import { openRing, ringsBounds } from '@/shared/lib/geo';
-import { getSavedMapConfig } from '@/shared/lib/map-config';
 
 // All zones, read only. onZoneClick(id) when a zone is tapped.
-export default function ZonesOverviewMap({ zonesGeoJSON, onZoneClick }) {
-  const mapRef = useRef(null);
+export default function ZonesOverviewMap({ zonesGeoJSON, onZoneClick: handleZoneClick }) {
   const labelsRef = useRef(null);
   const fittedRef = useRef(false);
-  const onZoneClickRef = useRef(onZoneClick);
-  const [mapReady, setMapReady] = useState(false);
-  const [mapConfig] = useState(getSavedMapConfig);
+  const onZoneClickRef = useRef(handleZoneClick);
 
   useEffect(() => {
-    onZoneClickRef.current = onZoneClick;
+    onZoneClickRef.current = handleZoneClick;
   });
 
-  const handleLoad = (map) => {
-    mapRef.current = map;
+  const { mapRef, ready, handleLoad } = useBaseMap((map) => {
     addZoneLayers(map);
     labelsRef.current = createZoneLabels(map);
-
-    map.on('click', ZONE_FILL_LAYER, (e) => {
-      onZoneClickRef.current?.(e.features[0].properties.id);
-    });
-    map.on('mouseenter', ZONE_FILL_LAYER, () => {
-      map.getCanvas().style.cursor = 'pointer';
-    });
-    map.on('mouseleave', ZONE_FILL_LAYER, () => {
-      map.getCanvas().style.cursor = '';
-    });
-
-    setMapReady(true);
-  };
+    onZoneClick(map, (id) => onZoneClickRef.current?.(id));
+  });
 
   useEffect(() => {
     const map = mapRef.current;
-    if (!mapReady || !zonesGeoJSON) {
+    if (!ready || !zonesGeoJSON) {
       return;
     }
 
@@ -49,12 +32,11 @@ export default function ZonesOverviewMap({ zonesGeoJSON, onZoneClick }) {
     // Fit once, when the zones arrive
     if (!fittedRef.current && zonesGeoJSON.features.length > 0) {
       fittedRef.current = true;
-      const bounds = ringsBounds(zonesGeoJSON.features.map((f) => openRing(f.geometry.coordinates)));
-      map.fitBounds(bounds, { padding: 40, duration: 0, maxZoom: 16 });
+      fitToZones(map, zonesGeoJSON);
     }
-  }, [mapReady, zonesGeoJSON]);
+  }, [ready, zonesGeoJSON, mapRef]);
 
   useEffect(() => () => labelsRef.current?.remove(), []);
 
-  return <BaseMap configs={mapConfig} onLoad={handleLoad} />;
+  return <BaseMap onLoad={handleLoad} />;
 }

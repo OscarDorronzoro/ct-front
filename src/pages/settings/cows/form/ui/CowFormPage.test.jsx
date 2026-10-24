@@ -88,7 +88,7 @@ describe('CowFormPage', () => {
 
     await user.click(screen.getByRole('button', { name: 'Guardar' }));
 
-    expect(updateCow).toHaveBeenCalledWith(8, expect.any(FormData));
+    expect(updateCow).toHaveBeenCalledWith('8', expect.any(FormData));
     expect(await submitted(updateCow)).toEqual([
       ['alias', 'Ángela'],
       ['earTag', 'A-100'],

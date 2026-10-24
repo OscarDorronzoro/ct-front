@@ -34,12 +34,7 @@ export default function HistoryPage() {
   const { data = EMPTY, stale, error } = usePolling(load, { intervalMs: range.live ? POLL_MS : null });
 
   return (
-    <div style={{
-      backgroundColor: '#b07d62',
-      height: '100%',
-      width: '100%',
-      position: 'relative',
-    }}>
+    <>
       <RangePicker range={range} onChange={setRange} />
 
       {/* Point colors by age relative to the end of the range (now when live) */}
@@ -51,6 +46,6 @@ export default function HistoryPage() {
         ref={mapRef}
       />
       <UpdatingBadge stale={stale} error={error} />
-    </div>
+    </>
   );
 }

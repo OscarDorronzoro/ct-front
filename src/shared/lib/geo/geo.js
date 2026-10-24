@@ -1,4 +1,5 @@
 // Geometry helpers over GeoJSON coordinates ([lon, lat])
+import { formatNumber } from '@/shared/lib/format';
 
 const EARTH_RADIUS_M = 6371008.8;
 
@@ -39,23 +40,23 @@ export function formatArea(m2) {
   const hectares = m2 / 10000;
 
   if (hectares >= 10) {
-    return `${Math.round(hectares).toLocaleString('es-AR')} ha`;
+    return `${formatNumber(hectares, { digits: 0 })} ha`;
   }
 
   if (hectares >= 0.1) {
-    return `${hectares.toLocaleString('es-AR', { maximumFractionDigits: 2 })} ha`;
+    return `${formatNumber(hectares)} ha`;
   }
 
-  return `${Math.round(m2).toLocaleString('es-AR')} m²`;
+  return `${formatNumber(m2, { digits: 0 })} m²`;
 }
 
 // "850 m", "3,2 km"
 export function formatDistance(meters) {
   if (meters < 1000) {
-    return `${Math.round(meters).toLocaleString('es-AR')} m`;
+    return `${formatNumber(meters, { digits: 0 })} m`;
   }
 
-  return `${(meters / 1000).toLocaleString('es-AR', { maximumFractionDigits: 1 })} km`;
+  return `${formatNumber(meters / 1000, { digits: 1 })} km`;
 }
 
 const COMPASS = ['N', 'NE', 'E', 'SE', 'S', 'SO', 'O', 'NO'];

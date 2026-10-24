@@ -2,14 +2,9 @@ import {
   ShieldAlert, ShieldCheck, Scale, CalendarClock,
 } from 'lucide-react';
 import { formatDay } from '@/shared/lib/date';
+import { formatNumber } from '@/shared/lib/format';
+import { StatusChip } from '@/shared/ui/status-chip';
 import styles from './Health.module.css';
-
-const Chip = ({ tone, icon: Icon, children }) => (
-  <span className={`${styles.chip} ${styles[tone]}`}>
-    <Icon size={15} aria-hidden="true" />
-    {children}
-  </span>
-);
 
 // What the history means today (computed by the backend): withdrawal, last weight, boosters
 export default function HealthSummary({ summary }) {
@@ -19,31 +14,34 @@ export default function HealthSummary({ summary }) {
   return (
     <div className={styles.chips}>
       {withdrawal.meatUntil && (
-        <Chip tone="danger" icon={ShieldAlert}>
+        <StatusChip tone="danger" icon={ShieldAlert}>
           Carne en retiro hasta el {formatDay(withdrawal.meatUntil)}
-        </Chip>
+        </StatusChip>
       )}
       {withdrawal.milkUntil && (
-        <Chip tone="danger" icon={ShieldAlert}>
+        <StatusChip tone="danger" icon={ShieldAlert}>
           Leche en retiro hasta el {formatDay(withdrawal.milkUntil)}
-        </Chip>
+        </StatusChip>
       )}
       {!inWithdrawal && (
-        <Chip tone="ok" icon={ShieldCheck}>Sin retiro vigente</Chip>
+        <StatusChip tone="success" icon={ShieldCheck}>Sin retiro vigente</StatusChip>
       )}
 
       {lastWeight && (
-        <Chip tone="neutral" icon={Scale}>
-          {lastWeight.kg.toLocaleString('es-AR')} kg
-          <span className={styles.chipNote}>· {formatDay(lastWeight.at)}</span>
-        </Chip>
+        <StatusChip tone="neutral" icon={Scale} note={`· ${formatDay(lastWeight.at)}`}>
+          {formatNumber(lastWeight.kg)} kg
+        </StatusChip>
       )}
 
       {nextDoses.map((dose) => (
-        <Chip key={dose.product.id} tone={dose.overdue ? 'warning' : 'neutral'} icon={CalendarClock}>
+        <StatusChip
+          key={dose.product.id}
+          tone={dose.overdue ? 'warning' : 'neutral'}
+          icon={CalendarClock}
+          note={`· ${formatDay(dose.dueOn)}`}
+        >
           {dose.overdue ? 'Refuerzo vencido' : 'Refuerzo'} {dose.product.name}
-          <span className={styles.chipNote}>· {formatDay(dose.dueOn)}</span>
-        </Chip>
+        </StatusChip>
       ))}
     </div>
   );

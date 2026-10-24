@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import useWidth from './useWidth';
 import { Legend, Tooltip } from './ChartParts';
-import { niceScale, formatNumber, formatX } from '../model/explorer';
+import { formatNumber } from '@/shared/lib/format';
+import { niceScale, formatX } from '../model/explorer';
 import styles from './Explorer.module.css';
 
 const HEIGHT = 240;

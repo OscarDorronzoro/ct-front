@@ -18,7 +18,7 @@ describe('MultiSelectField', () => {
   it('adds a selection', async () => {
     const { onChange, user } = setup([2]);
 
-    await user.click(screen.getByRole('button', { name: 'Agregar grupo' }));
+    await user.click(screen.getByRole('button', { name: 'Agregar otro' }));
     await user.click(screen.getByRole('button', { name: 'Seleccione una opción' }));
     await user.click(screen.getByRole('option', { name: 'Rodeo 2' }));
 
@@ -39,6 +39,17 @@ describe('MultiSelectField', () => {
     await user.click(screen.getByRole('button', { name: 'Quitar' }));
 
     expect(lastValue(onChange)).toEqual([]);
+  });
+
+  it('starts from an empty list: adding shows a second selector', async () => {
+    const onChange = vi.fn();
+    const user = userEvent.setup();
+    render(<MultiSelectField name="groupIds" values={[]} onChange={onChange} options={options} addLabel="Agregar grupo" />);
+
+    await user.click(screen.getByRole('button', { name: 'Agregar grupo' }));
+
+    expect(screen.getAllByRole('button', { name: 'Seleccione una opción' })).toHaveLength(2);
+    expect(onChange).not.toHaveBeenCalled();
   });
 
   it('offers no remove button for a single empty selector', () => {

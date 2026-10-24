@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import {
   FormField, FormActions, formStyles, CheckboxGroupField,
@@ -6,14 +5,12 @@ import {
 import { Page } from '@/shared/ui/page';
 import { Card } from '@/shared/ui/card';
 import { Alert } from '@/shared/ui/alert';
+import { useEntityForm } from '@/shared/lib/form';
 import { UserSessions } from '@/features/manage-user-sessions';
-
 import {
   getUser, updateUser, createUser, USER_ROLES,
 } from '@/entities/user';
 import { useAuth } from '@/entities/viewer';
-
-import { logger } from '@/shared/lib/logger';
 
 const emptyForm = {
   username: '',
@@ -21,11 +18,16 @@ const emptyForm = {
   roles: [],
 };
 
-export default function UserFormPage() {
-  const [form, setForm] = useState(emptyForm);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState(null);
+const messages = { load: 'No se pudo cargar el usuario.', save: 'No se pudo guardar el usuario.' };
 
+// The password is never loaded: empty keeps the current one
+const toForm = (user) => ({
+  username: user.username ?? '',
+  password: '',
+  roles: user.roles ?? [],
+});
+
+export default function UserFormPage() {
   const { userId } = useParams();
   const navigate = useNavigate();
   const { user: currentUser } = useAuth();
@@ -37,94 +39,27 @@ export default function UserFormPage() {
     disabled: isSelf && role.value === 'admin',
   }));
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-
-    setForm(form => ({
-      ...form,
-      [name]: value,
-    }));
-  };
-
-  const handleCancel = () => {
-    navigate(-1);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (saving) {
-      return;
-    }
-
-    setError(null);
-
-    if (form.roles.length === 0) {
-      setError('Elija al menos un rol.');
-      return;
-    }
-
-    try {
-      setSaving(true);
-
-      const data = {
-        username: form.username,
-        roles: form.roles,
-      };
-
-      if (form.password) {
-        data.password = form.password;
+  const {
+    form, handleChange, handleSubmit, saving, error,
+  } = useEntityForm({
+    id: userId,
+    empty: emptyForm,
+    load: getUser,
+    toForm,
+    validate: (values) => (values.roles.length === 0 ? 'Elija al menos un rol.' : null),
+    save: (values) => {
+      const data = { username: values.username, roles: values.roles };
+      if (values.password) {
+        data.password = values.password;
       }
 
-      if (userId) {
-        await updateUser(userId, data);
-      } else {
-        await createUser(data);
-      }
+      return userId ? updateUser(userId, data) : createUser(data);
+    },
+    onSaved: () => navigate('/settings/users'),
+    messages,
+  });
 
-      navigate('/settings/users');
-
-    } catch (err) {
-      logger.error('Error saving user', err);
-
-      setError(
-        err?.name === 'ApiError'
-          ? err.message
-          : 'No se pudo guardar el usuario.'
-      );
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  useEffect(() => {
-    if (!userId) {
-      return;
-    }
-
-    let cancelled = false;
-
-    getUser(userId)
-      .then((user) => {
-        if (!cancelled) {
-          setForm({
-            username: user.username ?? '',
-            password: '',
-            roles: user.roles ?? [],
-          });
-        }
-      })
-      .catch((err) => {
-        if (!cancelled) {
-          logger.error('Error loading user', err);
-          setError('No se pudo cargar el usuario.');
-        }
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [userId]);
+  const handleCancel = () => navigate(-1);
 
   return (
     <Page

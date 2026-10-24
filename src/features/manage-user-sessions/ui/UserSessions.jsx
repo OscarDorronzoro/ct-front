@@ -8,13 +8,9 @@ import { ConfirmDialog } from '@/shared/ui/dialog';
 import { SkeletonRows, EmptyState, ErrorState } from '@/shared/ui/list';
 import { getUserSessions, revokeUserSession, revokeAllUserSessions } from '@/entities/user';
 import { describeUserAgent } from '@/shared/lib/user-agent';
-import { toTimeElapsed } from '@/shared/lib/date';
+import { toTimeElapsed, formatDateTime } from '@/shared/lib/date';
 import { logger } from '@/shared/lib/logger';
 import styles from './UserSessions.module.css';
-
-const dateFormat = new Intl.DateTimeFormat('es-AR', {
-  day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
-});
 
 // Devices where the user is logged in. The admin can close them: the device is logged out
 // at its next token refresh (within 15 minutes).
@@ -136,7 +132,7 @@ export default function UserSessions({ userId }) {
                     .filter(Boolean).join(' · ')}
                 </div>
                 <div className={styles.meta}>
-                  Inició {dateFormat.format(new Date(session.createdAt))}
+                  Inició {formatDateTime(session.createdAt)}
                   {session.createdIp && session.createdIp !== ip && ` desde ${session.createdIp}`}
                 </div>
               </div>

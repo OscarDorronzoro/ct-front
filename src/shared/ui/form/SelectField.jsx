@@ -1,6 +1,6 @@
-// components/form/SelectField.jsx
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { ChevronDown, Check, Plus } from 'lucide-react';
+import { useClickOutside } from '@/shared/lib/click-outside';
 import styles from './Form.module.css';
 
 export default function SelectField({
@@ -24,17 +24,10 @@ export default function SelectField({
   const dropdownRef = useRef(null);
 
   // Cerrar dropdown al hacer clic fuera
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsOpen(false);
-        setSearchTerm('');
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  useClickOutside(dropdownRef, () => {
+    setIsOpen(false);
+    setSearchTerm('');
+  }, isOpen);
 
   // Filtrar opciones según búsqueda
   const filteredOptions = options.filter(option =>

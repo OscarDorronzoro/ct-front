@@ -1,12 +1,13 @@
 import styles from './ChipGroup.module.css';
 
-// Toggle buttons to pick one of the options (scrolls sideways when they don't fit).
-// options: [{ value, label }]; label: what is chosen, for screen readers.
+// Toggle buttons to pick one of the options. They scroll sideways when they don't fit, or go
+// on to the next line with `wrap`. options: [{ value, label }]; label: what is chosen, for
+// screen readers.
 export default function ChipGroup({
-  options, value, onChange, label,
+  options, value, onChange, label, wrap = false,
 }) {
   return (
-    <div className={styles.group} role="group" aria-label={label}>
+    <div className={`${styles.group} ${wrap ? styles.wrap : ''}`} role="group" aria-label={label}>
       {options.map((option) => (
         <button
           key={option.label}

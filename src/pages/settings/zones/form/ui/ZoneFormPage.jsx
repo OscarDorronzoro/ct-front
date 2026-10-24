@@ -8,17 +8,37 @@ import {
 } from '@/shared/ui/form';
 import { ZoneDrawMap } from '@/features/draw-zone';
 import {
-  getZone, getAllZones, getZoneTypes, createZone, updateZone, zoneTypeStyle, zonesToGeoJSON, COLLAR_ZONE_MAX_VERTICES, COLLAR_ZONE_MAX_RADIUS_M,
+  getZone, getAllZones, getZoneTypes, createZone, updateZone,
+  zoneTypeStyle, zonesToGeoJSON, COLLAR_ZONE_MAX_VERTICES, COLLAR_ZONE_MAX_RADIUS_M,
 } from '@/entities/zone';
 import { distanceMeters, formatArea, ringAreaM2 } from '@/shared/lib/geo';
 import { logger } from '@/shared/lib/logger';
+import { useEntityForm } from '@/shared/lib/form';
 import styles from './ZoneFormPage.module.css';
 
+// ring: [[lon, lat], ...] drawn on the map (null until it's closed)
 const emptyForm = {
   name: '',
   zoneTypeId: null,
   description: '',
+  ring: null,
 };
+
+const messages = { load: 'No se pudo cargar la zona.', save: 'No se pudo guardar la zona.' };
+
+const toForm = (zone) => ({
+  name: zone.name,
+  zoneTypeId: zone.zoneTypeId,
+  description: zone.description ?? '',
+  ring: zone.ring,
+});
+
+function validate(form) {
+  if (!form.ring) {
+    return 'Dibujá la zona en el mapa y cerrala tocando el primer vértice.';
+  }
+  return form.zoneTypeId ? null : 'Elegí el tipo de zona.';
+}
 
 // Reasons why the zone can't be loaded into a collar (still valid as a zone)
 function collarLimits(ring) {
@@ -43,57 +63,48 @@ export default function ZoneFormPage() {
   const { zoneId } = useParams();
   const navigate = useNavigate();
 
-  const [form, setForm] = useState(emptyForm);
-  const [ring, setRing] = useState(null);
-  const [initialRing, setInitialRing] = useState(null);
   const [zoneTypes, setZoneTypes] = useState([]);
   const [otherZones, setOtherZones] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState(null);
+  const [loadingOptions, setLoadingOptions] = useState(true);
 
+  const {
+    form, setForm, handleChange, handleSubmit, entity, loading: loadingZone, saving, error, clearError,
+  } = useEntityForm({
+    id: zoneId,
+    empty: emptyForm,
+    load: getZone,
+    toForm,
+    validate,
+    save: (values) => (zoneId ? updateZone(zoneId, values) : createZone(values)),
+    onSaved: () => navigate('/settings/zones'),
+    messages,
+  });
+
+  // The types, and the other zones to draw next to them
   useEffect(() => {
     let cancelled = false;
 
-    Promise.all([
-      getZoneTypes(),
-      getAllZones(),
-      zoneId ? getZone(zoneId) : null,
-    ])
-      .then(([types, zones, zone]) => {
-        if (cancelled) {
-          return;
-        }
-
-        setZoneTypes(types);
-        setOtherZones(zones.filter((z) => String(z.id) !== String(zoneId)));
-
-        if (zone) {
-          setForm({
-            name: zone.name,
-            zoneTypeId: zone.zoneTypeId,
-            description: zone.description ?? '',
-          });
-          setInitialRing(zone.ring);
-          setRing(zone.ring);
-        }
-      })
-      .catch((err) => {
+    Promise.all([getZoneTypes(), getAllZones()])
+      .then(([types, zones]) => {
         if (!cancelled) {
-          logger.error('Error loading zone', err);
-          setError('No se pudo cargar la zona.');
+          setZoneTypes(types);
+          setOtherZones(zones.filter((z) => String(z.id) !== String(zoneId)));
         }
       })
+      .catch((err) => logger.error('Error loading zone types', err))
       .finally(() => {
         if (!cancelled) {
-          setLoading(false);
+          setLoadingOptions(false);
         }
       });
 
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [zoneId]);
+
+  // The map starts with the zone and fits the view to it: it waits for everything
+  const loading = loadingZone || loadingOptions;
+  const { ring } = form;
+  const setRing = (drawn) => setForm((current) => ({ ...current, ring: drawn }));
 
   const typeName = zoneTypes.find((t) => t.id === form.zoneTypeId)?.name;
   const { color } = zoneTypeStyle(typeName);
@@ -110,55 +121,6 @@ export default function ZoneFormPage() {
 
   const limits = collarLimits(ring);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((current) => ({ ...current, [name]: value }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (saving) {
-      return;
-    }
-
-    if (!ring) {
-      setError('Dibujá la zona en el mapa y cerrala tocando el primer vértice.');
-      return;
-    }
-
-    if (!form.zoneTypeId) {
-      setError('Elegí el tipo de zona.');
-      return;
-    }
-
-    setError(null);
-
-    try {
-      setSaving(true);
-
-      const data = { ...form, ring };
-
-      if (zoneId) {
-        await updateZone(zoneId, data);
-      } else {
-        await createZone(data);
-      }
-
-      navigate('/settings/zones');
-    } catch (err) {
-      logger.error('Error saving zone', err);
-
-      setError(
-        err?.name === 'ApiError'
-          ? err.data?.message ?? err.message
-          : 'No se pudo guardar la zona.'
-      );
-    } finally {
-      setSaving(false);
-    }
-  };
-
   return (
     <Page
       title={zoneId ? 'Editar zona' : 'Nueva zona'}
@@ -172,7 +134,7 @@ export default function ZoneFormPage() {
             <div className={styles.loading}><Spinner size={32} /></div>
           ) : (
             <ZoneDrawMap
-              initialRing={initialRing}
+              initialRing={entity?.ring ?? null}
               color={color}
               contextZones={contextZones}
               onChange={setRing}
@@ -181,7 +143,7 @@ export default function ZoneFormPage() {
         </div>
 
         <form className={`${styles.panel} ${formStyles.form}`} onSubmit={handleSubmit}>
-          {error && <Alert tone="danger" onClose={() => setError(null)}>{error}</Alert>}
+          {error && <Alert tone="danger" onClose={clearError}>{error}</Alert>}
 
           <div className={styles.stats}>
             <div className={styles.stat}>

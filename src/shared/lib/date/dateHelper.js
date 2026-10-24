@@ -1,13 +1,3 @@
-export function formatDate(date) {
-  const d = new Date(date);
-
-  const pad = (n, z = 2) => String(n).padStart(z, '0');
-
-  return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ` +
-         `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}.` +
-         `${pad(d.getMilliseconds(), 3)}`;
-}
-
 // "Ahora", "Hace 5 min", "Hace 3 h", "Hace 9 días", "Hace 2 meses", "Hace 1 año"
 export function toTimeElapsed(date) {
   const minutes = (Date.now() - new Date(date).getTime()) / (1000 * 60);
@@ -42,4 +32,22 @@ export function formatDay(value) {
     : new Date(value);
 
   return date.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+}
+
+// 14:05
+export function formatTime(value) {
+  return new Date(value).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
+}
+
+// 22/10/2026 14:05 (with seconds: 14:05:09)
+export function formatDateTime(value, { seconds = false } = {}) {
+  return new Date(value).toLocaleString('es-AR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    ...(seconds && { second: '2-digit' }),
+    hourCycle: 'h23',
+  });
 }

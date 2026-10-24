@@ -6,6 +6,7 @@ import { Button, IconButton } from '@/shared/ui/button';
 import {
   PRESETS, presetRange, resolveRange, shiftRange, rangeLabel, rangeSummary, customRange, toDateValue, toTimeValue, fromInputs,
 } from '@/shared/lib/date';
+import { useClickOutside } from '@/shared/lib/click-outside';
 import styles from './RangePicker.module.css';
 
 // Time range of the history map: previous/next period, presets and a custom range
@@ -26,20 +27,7 @@ export default function RangePicker({ range, onChange }) {
     return () => clearInterval(id);
   }, [range.live]);
 
-  useEffect(() => {
-    if (!open) {
-      return undefined;
-    }
-
-    const handleClickOutside = (event) => {
-      if (!pickerRef.current?.contains(event.target)) {
-        setOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [open]);
+  useClickOutside(pickerRef, () => setOpen(false), open);
 
   const apply = (newRange) => {
     setError(null);

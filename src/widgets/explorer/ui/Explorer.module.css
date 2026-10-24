@@ -32,30 +32,6 @@
   color: var(--color-text-muted);
 }
 
-.presets {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-  align-items: center;
-}
-
-.preset {
-  padding: 6px var(--space-3);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-full);
-  background: var(--color-surface);
-  font-size: var(--text-sm);
-  color: var(--color-text);
-  cursor: pointer;
-}
-
-.preset[aria-pressed='true'] {
-  border-color: var(--color-primary);
-  background: var(--color-primary-soft);
-  color: var(--color-primary);
-  font-weight: 600;
-}
-
 .dates {
   display: flex;
   gap: var(--space-2);

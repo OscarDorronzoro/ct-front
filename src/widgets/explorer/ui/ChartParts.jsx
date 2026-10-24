@@ -1,5 +1,5 @@
 import styles from './Explorer.module.css';
-import { formatNumber } from '../model/explorer';
+import { formatNumber } from '@/shared/lib/format';
 
 // Legend for 2 or more series: the key mirrors the mark (a line or a bar), the text keeps the
 // text color (identity comes from the key, never from colored text)

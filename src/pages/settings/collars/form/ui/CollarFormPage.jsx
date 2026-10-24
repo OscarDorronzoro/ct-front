@@ -1,12 +1,10 @@
-import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { FormField, FormActions, formStyles } from '@/shared/ui/form';
 import { Page } from '@/shared/ui/page';
 import { Card } from '@/shared/ui/card';
 import { Alert } from '@/shared/ui/alert';
+import { useEntityForm } from '@/shared/lib/form';
 import { getCollar, updateCollar, createCollar } from '@/entities/collar';
-
-import { logger } from '@/shared/lib/logger';
 
 const emptyForm = {
   code: '',
@@ -15,102 +13,32 @@ const emptyForm = {
   firmwareVersion: '',
 };
 
-const ERROR_MESSAGES = {
-  COLLAR_CODE_IN_USE: 'Ya existe un collar con ese código.',
-  COLLAR_MAC_IN_USE: 'Ya existe un collar con esa MAC.',
-  NO_FREE_COLLAR_CODE: 'No quedan códigos libres (1 a 255).',
-};
+const messages = { load: 'No se pudo cargar el collar.', save: 'No se pudo guardar el collar.' };
+
+const toForm = (collar) => ({
+  code: collar.code ?? '',
+  mac: collar.mac ?? '',
+  description: collar.description ?? '',
+  firmwareVersion: collar.firmwareVersion ?? '',
+});
 
 export default function CollarFormPage() {
-  const [form, setForm] = useState(emptyForm);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState(null);
-
   const { collarId } = useParams();
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+  const {
+    form, handleChange, handleSubmit, saving, error,
+  } = useEntityForm({
+    id: collarId,
+    empty: emptyForm,
+    load: getCollar,
+    toForm,
+    save: (data) => (collarId ? updateCollar(collarId, data) : createCollar(data)),
+    onSaved: () => navigate('/settings/collars'),
+    messages,
+  });
 
-    setForm(form => ({
-      ...form,
-      [name]: value,
-    }));
-  };
-
-  const handleCancel = () => {
-    navigate(-1);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (saving) {
-      return;
-    }
-
-    setError(null);
-
-    try {
-      setSaving(true);
-
-      const data = {
-        code: form.code,
-        mac: form.mac,
-        description: form.description,
-        firmwareVersion: form.firmwareVersion,
-      };
-
-      if (collarId) {
-        await updateCollar(collarId, data);
-      } else {
-        await createCollar(data);
-      }
-
-      navigate('/settings/collars');
-
-    } catch (err) {
-      logger.error('Error saving collar', err);
-
-      setError(
-        err?.name === 'ApiError'
-          ? ERROR_MESSAGES[err.message] ?? err.message
-          : 'No se pudo guardar el collar.'
-      );
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  useEffect(() => {
-    if (!collarId) {
-      return;
-    }
-
-    let cancelled = false;
-
-    getCollar(collarId)
-      .then((collar) => {
-        if (!cancelled) {
-          setForm({
-            code: collar.code ?? '',
-            mac: collar.mac ?? '',
-            description: collar.description ?? '',
-            firmwareVersion: collar.firmwareVersion ?? '',
-          });
-        }
-      })
-      .catch((err) => {
-        if (!cancelled) {
-          logger.error('Error loading collar', err);
-          setError('No se pudo cargar el collar.');
-        }
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [collarId]);
+  const handleCancel = () => navigate(-1);
 
   return (
     <Page

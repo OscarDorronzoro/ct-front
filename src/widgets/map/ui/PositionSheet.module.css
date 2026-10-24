@@ -5,55 +5,6 @@
   margin-bottom: var(--space-3);
 }
 
-/* Bigger than Badge: they are the main data of the sheet */
-.chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-
-  padding: 6px var(--space-3);
-
-  border-radius: var(--radius-full);
-
-  font-size: var(--text-sm);
-  font-weight: 500;
-}
-
-.chipNote {
-  font-weight: 400;
-  opacity: 0.8;
-}
-
-.ok {
-  background: var(--color-success-soft);
-  color: var(--color-success-text);
-}
-
-.low {
-  background: var(--color-warning-soft);
-  color: var(--color-warning-text);
-}
-
-.critical {
-  background: var(--color-danger-soft);
-  color: var(--color-danger-text);
-}
-
-.sleeping {
-  background: #eef2ff;
-  color: #3730a3;
-}
-
-.awake {
-  background: var(--color-primary-soft);
-  color: var(--green-700);
-}
-
-.neutral {
-  background: var(--color-surface-muted);
-  color: var(--color-text-muted);
-}
-
 .details {
   display: grid;
   grid-template-columns: auto 1fr;

@@ -1,6 +1,7 @@
 import { z, type ZodType } from 'zod';
 import { logger } from '@/shared/lib/logger';
-import { ApiError } from './ApiError';
+import { ApiError, errorCode } from './ApiError';
+import { ERROR_MESSAGES, GENERIC_MESSAGE, statusMessage } from './errorMessages';
 
 const API_BASE: string = import.meta.env.VITE_API_BASE || '';
 const API_URL = `${API_BASE}/api`;
@@ -80,12 +81,11 @@ function validate<T>(path: string, data: unknown, schema: ZodType<T>): T {
   );
 }
 
-function backendErrorMessage(data: unknown) {
-  if (data && typeof data === 'object' && 'error' in data && typeof data.error === 'string' && data.error) {
-    // Invalid input: the details (data.issues) are for developers, not for the user
-    return data.error === 'VALIDATION_ERROR' ? 'Hay datos inválidos. Revisá el formulario.' : data.error;
-  }
-  return (typeof data === 'string' && data) || 'Error al comunicarse con el servidor';
+// Text for the user: the one of its code, or of the status. The details (data.message,
+// data.issues of a VALIDATION_ERROR) are for developers.
+function backendErrorMessage(data: unknown, status: number) {
+  const code = errorCode(data);
+  return (code && ERROR_MESSAGES[code]) || statusMessage(status);
 }
 
 export interface ApiOptions<T> extends RequestInit {
@@ -145,7 +145,7 @@ async function send<T>(path: string, options: ApiOptions<T>, retry: boolean): Pr
   const data = await parseResponse(response);
   logger.error(data);
 
-  throw new ApiError(backendErrorMessage(data), response.status, data);
+  throw new ApiError(backendErrorMessage(data, response.status), response.status, data);
 }
 
 // Request to the backend. With a schema the response is validated and typed; without one it
@@ -163,4 +163,10 @@ export function jsonBody(method: 'POST' | 'PUT' | 'PATCH', body: unknown): Reque
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   };
+}
+
+// Message of an error for the user: the one of the API error, or the fallback of the action
+// ('No se pudo guardar la vaca.') for an unknown failure (a bug, an unexpected response...)
+export function errorMessage<T extends string | null>(error: unknown, fallback: T): string | T {
+  return error instanceof ApiError && error.message !== GENERIC_MESSAGE ? error.message : fallback;
 }

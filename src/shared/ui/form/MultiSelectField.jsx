@@ -1,10 +1,12 @@
-// components/form/MultiSelectField.jsx
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Plus, X } from 'lucide-react';
 import { IconButton } from '@/shared/ui/button';
 import styles from './Form.module.css';
 import SelectField from './SelectField';
 
+// One selector per value; each offers the options not chosen in the others.
+// onChange({ target: { name, value: [...] } }) like an input. The selectors added and not yet
+// chosen live only here; with no values there is always one, empty.
 export default function MultiSelectField({
   label,
   name,
@@ -12,59 +14,39 @@ export default function MultiSelectField({
   onChange,
   options = [],
   placeholder = 'Seleccione una opción',
+  addLabel = 'Agregar otro',
   maxSelections = 10,
   disabled = false,
 }) {
-  const [selections, setSelections] = useState(
-    values.length > 0 ? values : [null] // Iniciar con un selector vacío
-  );
+  const [emptySlots, setEmptySlots] = useState(0);
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setSelections(
-      values.length > 0 ? values : [null]
-    );
-  }, [values]);
+  const slots = [...values, ...Array(emptySlots).fill(null)];
+  const rows = slots.length > 0 ? slots : [null];
+
+  const change = (value) => onChange({ target: { name, value } });
 
   const handleSelectionChange = (index, value) => {
-    const newSelections = [...selections];
-    newSelections[index] = value;
-    setSelections(newSelections);
+    if (index < values.length) {
+      change(values.map((v, i) => (i === index ? value : v)));
+      return;
+    }
 
-    // Filtrar valores null y actualizar el formulario
-    const validSelections = newSelections.filter(v => v !== null && v !== '');
-    onChange({
-      target: {
-        name,
-        value: validSelections
-      }
-    });
+    // An empty selector got its value
+    setEmptySlots((n) => Math.max(0, n - 1));
+    change([...values, value]);
   };
 
-  const handleAddSelection = () => {
-    if (selections.length < maxSelections) {
-      setSelections([...selections, null]);
+  const handleRemoveSelection = (index) => {
+    if (index < values.length) {
+      change(values.filter((_, i) => i !== index));
+    } else {
+      setEmptySlots((n) => Math.max(0, n - 1));
     }
   };
 
-  // Removing the only selection leaves an empty selector (no selections at all)
-  const handleRemoveSelection = (index) => {
-    const remaining = selections.filter((_, i) => i !== index);
-    const newSelections = remaining.length > 0 ? remaining : [null];
-    setSelections(newSelections);
-
-    const validSelections = newSelections.filter(v => v !== null && v !== '');
-    onChange({
-      target: {
-        name,
-        value: validSelections
-      }
-    });
-  };
-
-  // Filtrar opciones que ya están seleccionadas
+  // Options not chosen in the other selectors
   const getAvailableOptions = (currentIndex) => {
-    const selectedValues = selections.filter((_, i) => i !== currentIndex);
+    const selectedValues = values.filter((_, i) => i !== currentIndex);
     return options.filter(option => !selectedValues.includes(option.value));
   };
 
@@ -76,12 +58,9 @@ export default function MultiSelectField({
         </label>
       )}
 
-      {selections.map((selection, index) => (
-        <div
-          key={index}
-          style={{ display: 'flex', gap: 'var(--space-2)', alignItems: 'center' }}
-        >
-          <div style={{ flex: 1, minWidth: 0 }}>
+      {rows.map((selection, index) => (
+        <div key={index} className={styles.multiRow}>
+          <div className={styles.multiSelect}>
             <SelectField
               name={`${name}_${index}`}
               value={selection}
@@ -92,7 +71,7 @@ export default function MultiSelectField({
             />
           </div>
 
-          {(selections.length > 1 || selection !== null) && (
+          {(rows.length > 1 || selection !== null) && (
             <IconButton
               icon={X}
               label="Quitar"
@@ -103,15 +82,15 @@ export default function MultiSelectField({
         </div>
       ))}
 
-      {selections.length < maxSelections && (
+      {rows.length < maxSelections && (
         <button
           type="button"
-          onClick={handleAddSelection}
+          onClick={() => setEmptySlots((n) => n + (slots.length === 0 ? 2 : 1))}
           disabled={disabled}
           className={styles.addMore}
         >
           <Plus size={14} />
-          Agregar grupo
+          {addLabel}
         </button>
       )}
     </div>

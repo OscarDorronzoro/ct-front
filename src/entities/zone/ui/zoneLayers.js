@@ -1,5 +1,5 @@
 import maplibregl from 'maplibre-gl';
-import { ringCenter, openRing } from '@/shared/lib/geo';
+import { ringCenter, openRing, ringsBounds } from '@/shared/lib/geo';
 import styles from './ZoneLabel.module.css';
 
 const SOURCE = 'zones';
@@ -90,4 +90,23 @@ export function createZoneLabels(map) {
       markers = [];
     },
   };
+}
+
+// Fit the view to the zones of a FeatureCollection (nothing without zones)
+export function fitToZones(map, geojson, { padding = 40, maxZoom = 16 } = {}) {
+  const bounds = ringsBounds(geojson?.features.map((f) => openRing(f.geometry.coordinates)) ?? []);
+  if (bounds) {
+    map.fitBounds(bounds, { padding, maxZoom, duration: 0 });
+  }
+}
+
+// handler(zoneId) when a zone is tapped; pointer cursor over the zones
+export function onZoneClick(map, handler) {
+  map.on('click', ZONE_FILL_LAYER, (e) => handler(e.features[0].properties.id));
+  map.on('mouseenter', ZONE_FILL_LAYER, () => {
+    map.getCanvas().style.cursor = 'pointer';
+  });
+  map.on('mouseleave', ZONE_FILL_LAYER, () => {
+    map.getCanvas().style.cursor = '';
+  });
 }

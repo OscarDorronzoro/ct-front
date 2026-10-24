@@ -1,12 +1,15 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
+import { getSavedMapConfig } from '@/shared/lib/map-config';
 const BASE_ESRI_URL = import.meta.env.VITE_MAP_TILES_URL || 'https://services.arcgisonline.com';
 
-// Satellite base map. `configs` (center, zoom) is only read on creation.
+// Satellite base map. `configs` (center, zoom; by default where the live map was last) is only
+// read on creation.
 // onLoad(map) runs once the style is loaded; the map is removed on unmount.
 export default function BaseMap({ configs, onLoad }) {
   const mapContainer = useRef(null);
   const onLoadRef = useRef(onLoad);
+  const [initialConfigs] = useState(() => configs ?? getSavedMapConfig());
 
   useEffect(() => {
     onLoadRef.current = onLoad;
@@ -38,8 +41,8 @@ export default function BaseMap({ configs, onLoad }) {
           },
         ],
       },
-      center: configs.center,
-      zoom: configs.zoom,
+      center: initialConfigs.center,
+      zoom: initialConfigs.zoom,
       maxZoom: 23, // Zoom mapa
       attributionControl: false,
     });
@@ -51,8 +54,7 @@ export default function BaseMap({ configs, onLoad }) {
     return () => {
       map.remove();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [initialConfigs]);
 
   return (
     <div

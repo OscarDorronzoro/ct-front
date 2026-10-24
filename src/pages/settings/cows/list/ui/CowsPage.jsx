@@ -1,20 +1,11 @@
 import { useNavigate } from 'react-router';
-import { Plus } from 'lucide-react';
+import { EntityListPage } from '@/shared/ui/entity-list-page';
 import { CowIcon } from '@/shared/ui/icons';
-import { Page } from '@/shared/ui/page';
-import { Button, Fab } from '@/shared/ui/button';
-import { EntityList } from '@/shared/ui/list';
-import { Toolbar } from '@/shared/ui/toolbar';
-import { SearchBox } from '@/shared/ui/search-box';
-import { ActionError } from '@/shared/ui/alert';
-import { ConfirmDialog } from '@/shared/ui/dialog';
+import { useEntityList } from '@/shared/lib/list';
 import {
   CowRow, cowLabel, getAllCows, deleteCow,
 } from '@/entities/cow';
 import { useCan } from '@/entities/viewer';
-import { useEntityList, useListSearch } from '@/shared/lib/list';
-
-const NEW_PATH = '/settings/cows/new';
 
 const removeCow = (cow) => deleteCow(cow.id);
 const searchFields = (cow) => [cow.id, cow.earTag, cow.alias];
@@ -33,69 +24,36 @@ export default function CowsPage() {
   const canEdit = can('cows:write', 'cows:assignCollar');
 
   const list = useEntityList({ load: getAllCows, remove: removeCow });
-  const { search, setSearch, results } = useListSearch(list.items, {
-    fields: searchFields,
-    toResult: toSearchResult,
-  });
-
-  const item = list.itemToDelete;
 
   return (
-    <Page
+    <EntityListPage
       title="Vacas"
-      hideHeaderOnMobile
-      actions={canWrite && (
-        <Button icon={Plus} to={NEW_PATH}>
-          Agregar vaca
-        </Button>
-      )}
-    >
-      <ActionError
-        error={list.actionError}
-        onClose={list.clearActionError}
-      />
-
-      <Toolbar>
-        <SearchBox
-          value={search}
-          onChange={setSearch}
-          placeholder="Buscar vaca..."
-          results={results}
-          onSelect={(result) => navigate(`/settings/cows/${result.id}`)}
+      addLabel="Agregar vaca"
+      newPath={canWrite ? '/settings/cows/new' : null}
+      list={list}
+      search={{
+        placeholder: 'Buscar vaca...',
+        fields: searchFields,
+        toResult: toSearchResult,
+        onSelect: (result) => navigate(`/settings/cows/${result.id}`),
+      }}
+      labels={{
+        error: 'No se pudieron cargar las vacas.',
+        empty: 'No hay vacas registradas',
+      }}
+      emptyIcon={CowIcon}
+      renderItem={(cow) => (
+        <CowRow
+          key={cow.id}
+          cow={cow}
+          editable={canEdit}
+          onDelete={canWrite ? list.requestDelete : undefined}
         />
-      </Toolbar>
-
-      <EntityList
-        items={list.items}
-        loading={list.loading}
-        error={list.loadError}
-        onRetry={list.reload}
-        labels={{
-          error: 'No se pudieron cargar las vacas.',
-          empty: 'No hay vacas registradas',
-        }}
-        emptyIcon={CowIcon}
-        renderItem={(cow) => (
-          <CowRow
-            key={cow.id}
-            cow={cow}
-            editable={canEdit}
-            onDelete={canWrite ? list.requestDelete : undefined}
-          />
-        )}
-      />
-
-      {canWrite && <Fab icon={Plus} label="Agregar vaca" to={NEW_PATH} />}
-
-      <ConfirmDialog
-        open={!!item}
-        title="Eliminar vaca"
-        message={item ? `¿Está seguro de eliminar la vaca "${cowLabel(item)}"?` : ''}
-        confirmLabel="Eliminar"
-        danger
-        onConfirm={list.confirmDelete}
-        onCancel={list.cancelDelete}
-      />
-    </Page>
+      )}
+      deleteDialog={{
+        title: 'Eliminar vaca',
+        message: (cow) => `¿Está seguro de eliminar la vaca "${cowLabel(cow)}"?`,
+      }}
+    />
   );
 }

@@ -1,0 +1,33 @@
+/* Floating over the map, above its other overlays (the history range picker): the search
+   results drop over them */
+.bar {
+  position: absolute;
+  top: var(--space-3);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: calc(var(--z-map-controls) + 10);
+
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  width: calc(100% - var(--space-6));
+  padding: var(--space-1);
+
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-md);
+}
+
+.search {
+  flex: 1;
+  min-width: 0;
+}
+
+@media (min-width: 768px) {
+  .bar {
+    left: var(--space-4);
+    transform: none;
+    width: 400px;
+  }
+}

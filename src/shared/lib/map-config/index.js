@@ -1,1 +1,1 @@
-export { getSavedMapConfig } from './mapConfig';
+export { getSavedMapConfig, saveMapConfig } from './mapConfig';

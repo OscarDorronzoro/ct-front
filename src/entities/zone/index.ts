@@ -1,7 +1,6 @@
 export {
   getAllZones, getZone, getZoneTypes, createZone, updateZone, deleteZone,
 } from './api/zoneApi';
-export { ZoneSchema, ZoneTypeSchema } from './model/zone';
 export type {
   Zone, ZoneType, ZoneInput, LonLat,
 } from './model/zone';
@@ -10,5 +9,5 @@ export {
 } from './model/zoneStyles';
 export { default as ZoneRow } from './ui/ZoneRow';
 export {
-  addZoneLayers, setZoneData, setZonesVisible, createZoneLabels, ZONE_FILL_LAYER,
+  addZoneLayers, setZoneData, setZonesVisible, createZoneLabels, fitToZones, onZoneClick, ZONE_FILL_LAYER,
 } from './ui/zoneLayers';

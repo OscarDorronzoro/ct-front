@@ -1,23 +1,15 @@
 import { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { Plus, LandPlot } from 'lucide-react';
-import { Page } from '@/shared/ui/page';
-import { Button, Fab } from '@/shared/ui/button';
-import { EntityList } from '@/shared/ui/list';
-import { Toolbar } from '@/shared/ui/toolbar';
-import { SearchBox } from '@/shared/ui/search-box';
-import { ActionError } from '@/shared/ui/alert';
-import { ConfirmDialog } from '@/shared/ui/dialog';
+import { EntityListPage } from '@/shared/ui/entity-list-page';
+import { Button } from '@/shared/ui/button';
+import { useEntityList } from '@/shared/lib/list';
+import { logger } from '@/shared/lib/logger';
 import {
   ZoneRow, getAllZones, getZoneTypes, deleteZone, zonesToGeoJSON,
 } from '@/entities/zone';
 import { useCan } from '@/entities/viewer';
 import { ZonesOverviewMap } from '@/widgets/zones-overview';
-
-import { useEntityList, useListSearch } from '@/shared/lib/list';
-
-import { logger } from '@/shared/lib/logger';
-import styles from './ZonesPage.module.css';
 
 const NEW_PATH = '/settings/zones/new';
 
@@ -30,16 +22,13 @@ const toSearchResult = (zone) => ({
   description: zone.description || null,
 });
 
+// The list with a map of all the zones
 export default function ZonesPage() {
   const navigate = useNavigate();
   const canWrite = useCan()('zones:write');
   const [zoneTypes, setZoneTypes] = useState([]);
 
   const list = useEntityList({ load: getAllZones, remove: removeZone });
-  const { search, setSearch, results } = useListSearch(list.items, {
-    fields: searchFields,
-    toResult: toSearchResult,
-  });
 
   useEffect(() => {
     getZoneTypes()
@@ -58,76 +47,40 @@ export default function ZonesPage() {
   );
 
   const openZone = canWrite ? (id) => navigate(`/settings/zones/${id}`) : undefined;
-  const item = list.itemToDelete;
 
   return (
-    <Page
+    <EntityListPage
       title="Zonas"
-      hideHeaderOnMobile
-      width="full"
-      actions={canWrite && (
-        <Button icon={Plus} to={NEW_PATH}>
-          Agregar zona
-        </Button>
+      addLabel="Agregar zona"
+      newPath={canWrite ? NEW_PATH : null}
+      list={list}
+      aside={<ZonesOverviewMap zonesGeoJSON={zonesGeoJSON} onZoneClick={openZone} />}
+      search={{
+        placeholder: 'Buscar zona...',
+        fields: searchFields,
+        toResult: toSearchResult,
+        onSelect: openZone && ((result) => openZone(result.id)),
+      }}
+      labels={{
+        error: 'No se pudieron cargar las zonas.',
+        empty: 'Todavía no hay zonas',
+        emptyMessage: 'Dibujá los potreros, corrales y aguadas del campo para seguir dónde está cada vaca.',
+      }}
+      emptyIcon={LandPlot}
+      emptyAction={canWrite && <Button icon={Plus} size="sm" to={NEW_PATH}>Dibujar zona</Button>}
+      renderItem={(zone) => (
+        <ZoneRow
+          key={zone.id}
+          zone={zone}
+          typeName={typeNames.get(zone.zoneTypeId)}
+          editable={canWrite}
+          onDelete={canWrite ? list.requestDelete : undefined}
+        />
       )}
-    >
-      <div className={styles.layout}>
-        <div className={styles.map}>
-          <ZonesOverviewMap zonesGeoJSON={zonesGeoJSON} onZoneClick={openZone} />
-        </div>
-
-        <div className={styles.list}>
-          <ActionError
-            error={list.actionError}
-            onClose={list.clearActionError}
-          />
-
-          <Toolbar>
-            <SearchBox
-              value={search}
-              onChange={setSearch}
-              placeholder="Buscar zona..."
-              results={results}
-              onSelect={openZone && ((result) => openZone(result.id))}
-            />
-          </Toolbar>
-
-          <EntityList
-            items={list.items}
-            loading={list.loading}
-            error={list.loadError}
-            onRetry={list.reload}
-            labels={{
-              error: 'No se pudieron cargar las zonas.',
-              empty: 'Todavía no hay zonas',
-              emptyMessage: 'Dibujá los potreros, corrales y aguadas del campo para seguir dónde está cada vaca.',
-            }}
-            emptyIcon={LandPlot}
-            emptyAction={canWrite && <Button icon={Plus} size="sm" to={NEW_PATH}>Dibujar zona</Button>}
-            renderItem={(zone) => (
-              <ZoneRow
-                key={zone.id}
-                zone={zone}
-                typeName={typeNames.get(zone.zoneTypeId)}
-                editable={canWrite}
-                onDelete={canWrite ? list.requestDelete : undefined}
-              />
-            )}
-          />
-        </div>
-      </div>
-
-      {canWrite && <Fab icon={Plus} label="Agregar zona" to={NEW_PATH} />}
-
-      <ConfirmDialog
-        open={!!item}
-        title="Eliminar zona"
-        message={item ? `¿Está seguro de eliminar la zona "${item.name}"?` : ''}
-        confirmLabel="Eliminar"
-        danger
-        onConfirm={list.confirmDelete}
-        onCancel={list.cancelDelete}
-      />
-    </Page>
+      deleteDialog={{
+        title: 'Eliminar zona',
+        message: (zone) => `¿Está seguro de eliminar la zona "${zone.name}"?`,
+      }}
+    />
   );
 }

@@ -8,8 +8,10 @@ import { Spinner } from '@/shared/ui/spinner';
 import { CowIcon } from '@/shared/ui/icons';
 import { getPositionDetails, getDistances } from '@/entities/position';
 import { formatDistance, compassPoint } from '@/shared/lib/geo';
-import { toTimeElapsed } from '@/shared/lib/date';
+import { toTimeElapsed, formatTime, formatDateTime } from '@/shared/lib/date';
+import { formatNumber } from '@/shared/lib/format';
 import { logger } from '@/shared/lib/logger';
+import { StatusChip } from '@/shared/ui/status-chip';
 import styles from './PositionSheet.module.css';
 
 const BATTERY_ICONS = {
@@ -24,61 +26,50 @@ const BATTERY_LABELS = {
   critical: 'Batería crítica',
 };
 
-const number = (value, digits = 0) => value.toLocaleString('es-AR', {
-  minimumFractionDigits: digits,
-  maximumFractionDigits: digits,
-});
+// Measures with their exact decimals (3,40 V; 12,0 km/h)
+const number = (value, digits = 0) => formatNumber(value, { digits, fixed: true });
 
-const time = (date) => new Date(date).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
-
-const dateTime = (date) => new Date(date).toLocaleString('es-AR', {
-  day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23',
-});
+// Battery level -> tone of the chip
+const BATTERY_TONES = {
+  ok: 'success',
+  low: 'warning',
+  critical: 'danger',
+};
 
 function BatteryChip({ battery, recordedAt }) {
   if (!battery) {
-    return (
-      <span className={`${styles.chip} ${styles.neutral}`}>
-        <BatteryMedium size={16} aria-hidden="true" />
-        Batería sin datos
-      </span>
-    );
+    return <StatusChip icon={BatteryMedium}>Batería sin datos</StatusChip>;
   }
 
-  const Icon = BATTERY_ICONS[battery.level];
   // Read from an earlier message (the position's one had no voltage)
   const earlier = new Date(battery.recordedAt) < new Date(recordedAt);
 
   return (
-    <span className={`${styles.chip} ${styles[battery.level]}`} title={BATTERY_LABELS[battery.level]}>
-      <Icon size={16} aria-hidden="true" />
+    <StatusChip
+      tone={BATTERY_TONES[battery.level]}
+      icon={BATTERY_ICONS[battery.level]}
+      title={BATTERY_LABELS[battery.level]}
+      note={`${number(battery.voltage, 2)} V${earlier ? ` · ${formatTime(battery.recordedAt)}` : ''}`}
+    >
       {battery.percent}%
-      <span className={styles.chipNote}>
-        {number(battery.voltage, 2)} V{earlier && ` · ${time(battery.recordedAt)}`}
-      </span>
-    </span>
+    </StatusChip>
   );
 }
 
 function StateChip({ state }) {
   if (state.status === 'sleeping') {
     return (
-      <span className={`${styles.chip} ${styles.sleeping}`}>
-        <Moon size={16} aria-hidden="true" />
+      <StatusChip
+        tone="info"
+        icon={Moon}
+        note={state.wakeExpectedAt ? `despierta ~${formatTime(state.wakeExpectedAt)}` : `desde ${formatTime(state.since)}`}
+      >
         Durmiendo
-        <span className={styles.chipNote}>
-          {state.wakeExpectedAt ? `despierta ~${time(state.wakeExpectedAt)}` : `desde ${time(state.since)}`}
-        </span>
-      </span>
+      </StatusChip>
     );
   }
 
-  return (
-    <span className={`${styles.chip} ${styles.awake}`}>
-      <Activity size={16} aria-hidden="true" />
-      Activo
-    </span>
-  );
+  return <StatusChip tone="primary" icon={Activity}>Activo</StatusChip>;
 }
 
 // 0 means it barely moved (under 10 m); very low averages come from long intervals
@@ -172,7 +163,7 @@ export default function PositionSheet({ point, onClose }) {
 
           <dl className={styles.details}>
             <dt>Fecha</dt>
-            <dd>{dateTime(position.recordedAt)}</dd>
+            <dd>{formatDateTime(position.recordedAt, { seconds: true })}</dd>
 
             <dt>Señal</dt>
             <dd>

@@ -1,6 +1,7 @@
 import { Outlet, useLocation } from 'react-router';
 import { useIsMobile } from '@/shared/lib/media';
 import { AppSidebar, BottomNav } from '@/widgets/navigation';
+import styles from './Layouts.module.css';
 
 // Frame of every page: the navigation (sidebar on desktop, bottom bar on phones) and the page
 export default function RootLayout() {
@@ -11,23 +12,13 @@ export default function RootLayout() {
   const showNav = pathname !== '/login';
 
   return (
-    <div style={{
-      height: '100dvh',
-      width: '100%',
-      display: 'flex',
-    }}>
+    <div className={styles.root}>
 
       {/* Navigation Bar Desktop */}
       {showNav && !isMobile && <AppSidebar />}
 
       {/* Main Content */}
-      <div style={{
-        flex: 1,
-        minWidth: 0,
-        height: '100%',
-        width: '100%',
-        position: 'relative',
-      }}>
+      <div className={styles.main}>
         <Outlet />
       </div>
 

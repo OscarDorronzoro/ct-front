@@ -1,4 +1,5 @@
 import { AlertCircle, RotateCw } from 'lucide-react';
+import { errorMessage } from '@/shared/api';
 import { Button } from '@/shared/ui/button';
 import styles from './ListState.module.css';
 
@@ -36,15 +37,15 @@ export function EmptyState({ icon: Icon, title, message, action }) {
 
 // Error while loading data, with retry
 export function ErrorState({ title, error, onRetry }) {
+  const reason = errorMessage(error, null);
+
   return (
     <div className={styles.state} role="alert">
       <div className={`${styles.icon} ${styles.iconDanger}`}>
         <AlertCircle size={24} aria-hidden="true" />
       </div>
       <div className={styles.title}>{title}</div>
-      {error?.name === 'ApiError' && error.message && (
-        <div className={styles.message}>Motivo: {error.message}</div>
-      )}
+      {reason && <div className={styles.message}>Motivo: {reason}</div>}
       {onRetry && (
         <div className={styles.action}>
           <Button variant="secondary" size="sm" icon={RotateCw} onClick={onRetry}>

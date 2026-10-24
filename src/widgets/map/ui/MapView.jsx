@@ -2,7 +2,7 @@ import {
   useEffect, useState, useMemo, useRef, useCallback, useImperativeHandle,
 } from 'react';
 import maplibregl from 'maplibre-gl';
-import { BaseMap } from '@/shared/ui/map';
+import { BaseMap, useBaseMap } from '@/shared/ui/map';
 import PositionSheet from './PositionSheet';
 import MapControls from './MapControls';
 import MapNotice from './MapNotice';
@@ -16,11 +16,12 @@ import {
   POINTS_SOURCE, TRACKS_SOURCE, HITBOX_LAYER, HALO_LAYER,
 } from '../lib/positionLayers';
 import tooltipStyles from './MapTooltip.module.css';
+import styles from './MapView.module.css';
 import { useIsMobile } from '@/shared/lib/media';
 import useZoneLayer from '../model/useZoneLayer';
 import useMapLabels from '../model/useMapLabels';
-import { getSavedMapConfig } from '@/shared/lib/map-config';
-import { toTimeElapsed } from '@/shared/lib/date';
+import { saveMapConfig } from '@/shared/lib/map-config';
+import { toTimeElapsed, formatTime } from '@/shared/lib/date';
 import { formatDistance } from '@/shared/lib/geo';
 import {
   groupByCollar, collarColors, tracksGeoJSON, heatWeights,
@@ -31,10 +32,6 @@ const FOCUS_ZOOM = 17;
 
 // History: the oldest position of the range is drawn at this opacity, the newest fully opaque
 const MIN_POINT_OPACITY = 0.25;
-
-const timeFormat = new Intl.DateTimeFormat('es-AR', {
-  hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
-});
 
 const time = (p) => new Date(p.recordedAt).getTime();
 
@@ -57,11 +54,9 @@ export default function MapView({
   points, mode, referenceTime = null, distances = null, ref,
 }) {
   const isHistory = mode === 'history';
-  const [mapReady, setMapReady] = useState(false);
   const [selectedPoint, setSelectedPoint] = useState(null);
   const [follow, setFollow] = useState(true);
   const isMobile = useIsMobile();
-  const [mapConfig] = useState(getSavedMapConfig);
   const [selectedZoneId, setSelectedZoneId] = useState(null);
   const [notice, setNotice] = useState(null);
   // History: 'points' (tracks) or 'heat', and collars hidden from the legend
@@ -72,7 +67,6 @@ export default function MapView({
   const zonesVisibleRef = useRef(zoneLayer.visible);
   const getLabel = useMapLabels();
 
-  const mapRef = useRef(null);
   const lastFollowedTimestamp = useRef(null);
 
   // Read by the map's hover handler, registered once on load
@@ -80,10 +74,70 @@ export default function MapView({
   useEffect(() => {
     tooltipTextRef.current = ({ cowId, collarId, timestamp }) => {
       const when = isHistory
-        ? timeFormat.format(new Date(timestamp))
+        ? formatTime(timestamp)
         : toTimeElapsed(timestamp).text.toLowerCase();
       return `${getLabel({ cowId, collarId })}\u00A0· ${when}`;
     };
+  });
+
+  // Layers and handlers, once the map is loaded
+  const { mapRef, ready: mapReady, handleLoad } = useBaseMap((map) => {
+    // Zones below the positions
+    addZoneLayers(map);
+    zoneLabelsRef.current = createZoneLabels(map);
+
+    addPositionLayers(map, { mode, isMobile });
+
+    map.on('click', HITBOX_LAYER, (e) => {
+      const feature = e.features[0];
+
+      const coordinates = feature.geometry.coordinates.slice();
+      const properties = feature.properties;
+      setSelectedZoneId(null);
+      setSelectedPoint({coordinates, properties});
+    });
+
+    map.on('click', (e) => {
+      const features = map.queryRenderedFeatures(
+        e.point,
+        { layers: [HITBOX_LAYER] }
+      );
+
+      if (features.length > 0) {
+        return;
+      }
+      setSelectedPoint(null);
+
+      const zones = zonesVisibleRef.current
+        ? map.queryRenderedFeatures(e.point, { layers: [ZONE_FILL_LAYER] })
+        : [];
+      setSelectedZoneId(zones[0]?.properties.id ?? null);
+    });
+
+    // Name and time on hover (mouse only: on touch screens the tap opens the details)
+    const tooltip = window.matchMedia('(hover: hover)').matches
+      ? new maplibregl.Popup({
+        closeButton: false,
+        closeOnClick: false,
+        offset: 12,
+        className: tooltipStyles.tooltip,
+      })
+      : null;
+
+    map.on('mousemove', HITBOX_LAYER, (e) => {
+      map.getCanvas().style.cursor = 'pointer';
+
+      const feature = e.features[0];
+      tooltip
+        ?.setLngLat(feature.geometry.coordinates)
+        .setText(tooltipTextRef.current(feature.properties))
+        .addTo(map);
+    });
+
+    map.on('mouseleave', HITBOX_LAYER, () => {
+      map.getCanvas().style.cursor = '';
+      tooltip?.remove();
+    });
   });
 
   const latestPoints = useMemo(() => {
@@ -172,14 +226,14 @@ export default function MapView({
     if (isHistory) {
       map.getSource(TRACKS_SOURCE).setData(tracksGeoJSON(visibleGroups, colors));
     }
-  }, [mapReady, visibleGroups, colors, selectedId, referenceTime, isHistory]);
+  }, [mapReady, visibleGroups, colors, selectedId, referenceTime, isHistory, mapRef]);
 
   // History: tracks or heatmap
   useEffect(() => {
     if (!mapReady || !mapRef.current || !isHistory) {return;}
 
     setHeatView(mapRef.current, view === 'heat');
-  }, [mapReady, isHistory, view]);
+  }, [mapReady, isHistory, view, mapRef]);
 
   // Pulsing halo on collars that transmitted recently (live). ~20 fps is enough for a smooth pulse.
   useEffect(() => {
@@ -203,7 +257,7 @@ export default function MapView({
     frame = requestAnimationFrame(animate);
 
     return () => cancelAnimationFrame(frame);
-  }, [mapReady, isHistory]);
+  }, [mapReady, isHistory, mapRef]);
 
   // Zones: data, labels and visibility
   useEffect(() => {
@@ -224,7 +278,7 @@ export default function MapView({
     setZoneData(map, geojson);
     setZonesVisible(map, zoneLayer.visible);
     zoneLabelsRef.current?.update(geojson, zoneLayer.visible);
-  }, [mapReady, zoneLayer.geojson, zoneLayer.visible, selectedZoneId]);
+  }, [mapReady, zoneLayer.geojson, zoneLayer.visible, selectedZoneId, mapRef]);
 
   useEffect(() => () => zoneLabelsRef.current?.remove(), []);
 
@@ -249,7 +303,7 @@ export default function MapView({
       map.off('zoomstart', disableFollow);
       map.off('rotatestart', disableFollow);
     };
-  }, [mapReady]);
+  }, [mapReady, mapRef]);
 
   useEffect(() => {
     if (!latestPoint) {return;}
@@ -273,15 +327,9 @@ export default function MapView({
       duration: 500,
     });
 
-    localStorage.setItem(
-      'mapConfig',
-      JSON.stringify({
-        center,
-        zoom: mapRef.current.getZoom(),
-      })
-    );
+    saveMapConfig({ center, zoom: mapRef.current.getZoom() });
 
-  }, [latestPoint, follow, mapReady]);
+  }, [latestPoint, follow, mapReady, mapRef]);
 
   const showCollar = (collarId) => {
     setHidden((current) => {
@@ -342,7 +390,7 @@ export default function MapView({
         duration: 600,
       });
     },
-  }), [dataPoints, isHistory, isMobile]);
+  }), [dataPoints, isHistory, isMobile, mapRef]);
 
   const closeNotice = useCallback(() => setNotice(null), []);
 
@@ -359,7 +407,7 @@ export default function MapView({
     if (y > height * 0.4) {
       map.panBy([0, y - height * 0.3], { duration: 300 });
     }
-  }, [selectedPoint, isMobile]);
+  }, [selectedPoint, isMobile, mapRef]);
 
   const centerOnCows = () => {
     const map = mapRef.current;
@@ -388,7 +436,7 @@ export default function MapView({
     : null;
 
   return (
-    <div style={{ height: '100%' }}>
+    <div className={styles.view}>
       {isHistory && legendItems.length > 0 &&
         <HistoryLegend
           view={view}
@@ -423,71 +471,7 @@ export default function MapView({
           onClose={() => setSelectedZoneId(null)}
         />
       }
-      <BaseMap
-        configs={mapConfig}
-        onLoad={ (map) => {
-          mapRef.current = map;
-
-          // Zones below the positions
-          addZoneLayers(map);
-          zoneLabelsRef.current = createZoneLabels(map);
-
-          addPositionLayers(map, { mode, isMobile });
-
-          map.on('click', HITBOX_LAYER, (e) => {
-            const feature = e.features[0];
-
-            const coordinates = feature.geometry.coordinates.slice();
-            const properties = feature.properties;
-            setSelectedZoneId(null);
-            setSelectedPoint({coordinates, properties});
-          });
-
-          map.on('click', (e) => {
-            const features = map.queryRenderedFeatures(
-              e.point,
-              { layers: [HITBOX_LAYER] }
-            );
-
-            if (features.length > 0) {
-              return;
-            }
-            setSelectedPoint(null);
-
-            const zones = zonesVisibleRef.current
-              ? map.queryRenderedFeatures(e.point, { layers: [ZONE_FILL_LAYER] })
-              : [];
-            setSelectedZoneId(zones[0]?.properties.id ?? null);
-          });
-
-          // Name and time on hover (mouse only: on touch screens the tap opens the details)
-          const tooltip = window.matchMedia('(hover: hover)').matches
-            ? new maplibregl.Popup({
-              closeButton: false,
-              closeOnClick: false,
-              offset: 12,
-              className: tooltipStyles.tooltip,
-            })
-            : null;
-
-          map.on('mousemove', HITBOX_LAYER, (e) => {
-            map.getCanvas().style.cursor = 'pointer';
-
-            const feature = e.features[0];
-            tooltip
-              ?.setLngLat(feature.geometry.coordinates)
-              .setText(tooltipTextRef.current(feature.properties))
-              .addTo(map);
-          });
-
-          map.on('mouseleave', HITBOX_LAYER, () => {
-            map.getCanvas().style.cursor = '';
-            tooltip?.remove();
-          });
-
-          setMapReady(true);
-        }}
-      />
+      <BaseMap onLoad={handleLoad} />
     </div>
   );
 }

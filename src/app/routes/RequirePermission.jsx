@@ -1,5 +1,5 @@
 import { Navigate, Outlet } from 'react-router';
-import useCan from '../model/useCan';
+import { useCan } from '@/entities/viewer';
 
 // Child routes need any of `anyOf`; without it, back to the map (everyone can see it)
 export default function RequirePermission({ anyOf }) {

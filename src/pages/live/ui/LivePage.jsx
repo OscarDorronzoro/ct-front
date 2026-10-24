@@ -12,13 +12,9 @@ export default function LivePage() {
   const { data: points = NO_POINTS, stale, error } = usePolling(getLatestPositions, { intervalMs: POLL_MS });
 
   return (
-    <div style={{
-      backgroundColor: '#b07d62',
-      height: '100%',
-      width: '100%',
-    }}>
+    <>
       <MapView points={points} mode="live" ref={mapRef} />
       <UpdatingBadge stale={stale} error={error} />
-    </div>
+    </>
   );
 }

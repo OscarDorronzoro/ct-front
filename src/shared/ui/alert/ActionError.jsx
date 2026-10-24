@@ -1,3 +1,4 @@
+import { errorMessage } from '@/shared/api';
 import Alert from './Alert';
 
 export default function ActionError({
@@ -8,10 +9,7 @@ export default function ActionError({
     return null;
   }
 
-  const message =
-    error?.name === 'ApiError'
-      ? error.message
-      : 'No se pudo completar la operación.';
+  const message = errorMessage(error, 'No se pudo completar la operación.');
 
   return (
     <Alert tone="danger" onClose={onClose}>

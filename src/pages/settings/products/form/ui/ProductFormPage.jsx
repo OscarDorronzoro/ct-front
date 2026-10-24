@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import {
   FormField, SelectField, FormActions, formStyles,
@@ -6,10 +5,10 @@ import {
 import { Page } from '@/shared/ui/page';
 import { Card } from '@/shared/ui/card';
 import { Alert } from '@/shared/ui/alert';
+import { useEntityForm } from '@/shared/lib/form';
 import {
   getProduct, createProduct, updateProduct, PRODUCT_TYPES,
 } from '@/entities/product';
-import { logger } from '@/shared/lib/logger';
 
 const emptyForm = {
   name: '',
@@ -24,83 +23,41 @@ const statusOptions = [
   { value: false, label: 'Inactivo (no se ofrece en eventos nuevos)' },
 ];
 
-export default function ProductFormPage() {
-  const [form, setForm] = useState(emptyForm);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState(null);
+const messages = { load: 'No se pudo cargar el producto.', save: 'No se pudo guardar el producto.' };
 
+const toForm = (product) => ({
+  ...product,
+  meatWithdrawalDays: String(product.meatWithdrawalDays),
+  milkWithdrawalDays: String(product.milkWithdrawalDays),
+});
+
+export default function ProductFormPage() {
   const { productId } = useParams();
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((current) => ({ ...current, [name]: value }));
-  };
+  const {
+    form, handleChange, handleSubmit, saving, error,
+  } = useEntityForm({
+    id: productId,
+    empty: emptyForm,
+    load: getProduct,
+    toForm,
+    // The type of a product doesn't change (its events depend on it)
+    validate: (values) => (!productId && !values.type ? 'Elija el tipo de producto.' : null),
+    save: (values) => {
+      const data = {
+        name: values.name,
+        meatWithdrawalDays: Number(values.meatWithdrawalDays || 0),
+        milkWithdrawalDays: Number(values.milkWithdrawalDays || 0),
+      };
 
-  useEffect(() => {
-    if (!productId) {
-      return undefined;
-    }
-
-    let cancelled = false;
-
-    getProduct(productId)
-      .then((product) => {
-        if (!cancelled) {
-          setForm({
-            ...product,
-            meatWithdrawalDays: String(product.meatWithdrawalDays),
-            milkWithdrawalDays: String(product.milkWithdrawalDays),
-          });
-        }
-      })
-      .catch((err) => {
-        logger.error('Error loading product', err);
-        if (!cancelled) {
-          setError('No se pudo cargar el producto.');
-        }
-      });
-
-    return () => { cancelled = true; };
-  }, [productId]);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (saving) {
-      return;
-    }
-
-    setError(null);
-
-    if (!productId && !form.type) {
-      setError('Elija el tipo de producto.');
-      return;
-    }
-
-    const data = {
-      name: form.name,
-      meatWithdrawalDays: Number(form.meatWithdrawalDays || 0),
-      milkWithdrawalDays: Number(form.milkWithdrawalDays || 0),
-    };
-
-    try {
-      setSaving(true);
-
-      if (productId) {
-        await updateProduct(productId, { ...data, active: form.active });
-      } else {
-        await createProduct({ ...data, type: form.type });
-      }
-
-      navigate('/settings/products');
-    } catch (err) {
-      logger.error('Error saving product', err);
-      setError(err?.name === 'ApiError' ? err.message : 'No se pudo guardar el producto.');
-    } finally {
-      setSaving(false);
-    }
-  };
+      return productId
+        ? updateProduct(productId, { ...data, active: values.active })
+        : createProduct({ ...data, type: values.type });
+    },
+    onSaved: () => navigate('/settings/products'),
+    messages,
+  });
 
   return (
     <Page

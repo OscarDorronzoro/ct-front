@@ -4,6 +4,7 @@ import { Card } from '@/shared/ui/card';
 import { Button } from '@/shared/ui/button';
 import { EmptyState, ErrorState } from '@/shared/ui/list';
 import { Spinner } from '@/shared/ui/spinner';
+import { ChipGroup } from '@/shared/ui/chip-group';
 import { SelectField, CheckboxGroupField } from '@/shared/ui/form';
 import { logger } from '@/shared/lib/logger';
 import { getCatalog, runQuery } from '../api/analyticsApi';
@@ -15,6 +16,8 @@ import LineChart from './LineChart';
 import BarChart from './BarChart';
 import ResultTable from './ResultTable';
 import styles from './Explorer.module.css';
+
+const PERIOD_OPTIONS = RANGE_PRESETS.map((p) => ({ value: p.id, label: p.label }));
 
 const MAX_MEASURES = 4;
 const MAX_FILTERS = 5;
@@ -157,19 +160,13 @@ export default function Explorer() {
             options={catalog.map((d) => ({ value: d.id, label: d.label }))}
           />
           <div>
-            <div className={styles.presets} role="group" aria-label="Período">
-              {RANGE_PRESETS.map((p) => (
-                <button
-                  key={p.id}
-                  type="button"
-                  className={styles.preset}
-                  aria-pressed={range.preset === p.id}
-                  onClick={() => setRange({ preset: p.id, ...presetDates(p.id) })}
-                >
-                  {p.label}
-                </button>
-              ))}
-            </div>
+            <ChipGroup
+              label="Período"
+              options={PERIOD_OPTIONS}
+              value={range.preset}
+              onChange={(id) => setRange({ preset: id, ...presetDates(id) })}
+              wrap
+            />
             <div className={styles.dates}>
               <input
                 type="date"

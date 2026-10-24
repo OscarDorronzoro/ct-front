@@ -1,19 +1,11 @@
 import { useNavigate } from 'react-router';
-import { Plus, Users } from 'lucide-react';
-import { Page } from '@/shared/ui/page';
-import { Button, Fab } from '@/shared/ui/button';
-import { EntityList } from '@/shared/ui/list';
-import { Toolbar } from '@/shared/ui/toolbar';
-import { SearchBox } from '@/shared/ui/search-box';
-import { ActionError } from '@/shared/ui/alert';
-import { ConfirmDialog } from '@/shared/ui/dialog';
+import { Users } from 'lucide-react';
+import { EntityListPage } from '@/shared/ui/entity-list-page';
+import { useEntityList } from '@/shared/lib/list';
 import {
   GroupRow, groupLabel, getAllGroups, deleteGroup,
 } from '@/entities/group';
 import { useCan } from '@/entities/viewer';
-import { useEntityList, useListSearch } from '@/shared/lib/list';
-
-const NEW_PATH = '/settings/groups/new';
 
 const removeGroup = (group) => deleteGroup(group.id);
 const searchFields = (group) => [group.id, group.name];
@@ -26,74 +18,39 @@ const toSearchResult = (group) => ({
 
 export default function GroupsPage() {
   const navigate = useNavigate();
-  const can = useCan();
-  const canWrite = can('cows:write');
-  const canEdit = canWrite;
+  const canWrite = useCan()('cows:write');
 
   const list = useEntityList({ load: getAllGroups, remove: removeGroup });
-  const { search, setSearch, results } = useListSearch(list.items, {
-    fields: searchFields,
-    toResult: toSearchResult,
-  });
-
-  const item = list.itemToDelete;
 
   return (
-    <Page
+    <EntityListPage
       title="Grupos"
-      hideHeaderOnMobile
-      actions={canWrite && (
-        <Button icon={Plus} to={NEW_PATH}>
-          Agregar grupo
-        </Button>
-      )}
-    >
-      <ActionError
-        error={list.actionError}
-        onClose={list.clearActionError}
-      />
-
-      <Toolbar>
-        <SearchBox
-          value={search}
-          onChange={setSearch}
-          placeholder="Buscar grupo..."
-          results={results}
-          onSelect={canEdit ? (result) => navigate(`/settings/groups/${result.id}`) : undefined}
+      addLabel="Agregar grupo"
+      newPath={canWrite ? '/settings/groups/new' : null}
+      list={list}
+      search={{
+        placeholder: 'Buscar grupo...',
+        fields: searchFields,
+        toResult: toSearchResult,
+        onSelect: canWrite ? (result) => navigate(`/settings/groups/${result.id}`) : undefined,
+      }}
+      labels={{
+        error: 'No se pudieron cargar los grupos.',
+        empty: 'No hay grupos registrados',
+      }}
+      emptyIcon={Users}
+      renderItem={(group) => (
+        <GroupRow
+          key={group.id}
+          group={group}
+          editable={canWrite}
+          onDelete={canWrite ? list.requestDelete : undefined}
         />
-      </Toolbar>
-
-      <EntityList
-        items={list.items}
-        loading={list.loading}
-        error={list.loadError}
-        onRetry={list.reload}
-        labels={{
-          error: 'No se pudieron cargar los grupos.',
-          empty: 'No hay grupos registrados',
-        }}
-        emptyIcon={Users}
-        renderItem={(group) => (
-          <GroupRow
-            key={group.id}
-            group={group}
-            editable={canEdit}
-            onDelete={canWrite ? list.requestDelete : undefined}
-          />
-        )}
-      />
-
-      {canWrite && <Fab icon={Plus} label="Agregar grupo" to={NEW_PATH} />}
-
-      <ConfirmDialog
-        open={!!item}
-        title="Eliminar grupo"
-        message={item ? `¿Está seguro de eliminar el grupo "${groupLabel(item)}"?` : ''}
-        confirmLabel="Eliminar"
-        danger
-        onConfirm={list.confirmDelete}
-        onCancel={list.cancelDelete}
-      />
-    </Page>
+      )}
+      deleteDialog={{
+        title: 'Eliminar grupo',
+        message: (group) => `¿Está seguro de eliminar el grupo "${groupLabel(group)}"?`,
+      }}
+    />
   );
 }

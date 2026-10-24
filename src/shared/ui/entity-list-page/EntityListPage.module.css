@@ -4,7 +4,7 @@
   gap: var(--space-4);
 }
 
-.map {
+.aside {
   height: 38vh;
   min-height: 220px;
   overflow: hidden;
@@ -28,12 +28,12 @@
     height: 100%;
   }
 
-  /* List first, map on the right filling the height */
+  /* List first, the aside (a map) on the right filling the height */
   .list {
     order: -1;
   }
 
-  .map {
+  .aside {
     position: sticky;
     top: 0;
     height: calc(100dvh - var(--header-height) - 2 * var(--space-6));

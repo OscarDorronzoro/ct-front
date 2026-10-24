@@ -1,6 +1,7 @@
 // Pure helpers of the analytics explorer: dates, shaping results for the charts, formats.
 // The numbers come computed from the backend; this only arranges and formats them.
 import { toDateValue } from '@/shared/lib/date';
+import { formatNumber } from '@/shared/lib/format';
 
 const DAY_MS = 24 * 3600 * 1000;
 
@@ -130,18 +131,6 @@ export function niceScale(values, tickCount = 5) {
   }
 
   return { min: niceMin, max: niceMax, ticks };
-}
-
-// 1.234,5 · compact on axes from 1.000 (1,2 mil)
-export function formatNumber(value, { compact = false, digits = 2 } = {}) {
-  if (value === null || value === undefined) {
-    return '—';
-  }
-
-  return value.toLocaleString('es-AR', {
-    maximumFractionDigits: digits,
-    ...(compact && Math.abs(value) >= 1000 && { notation: 'compact' }),
-  });
 }
 
 export const withUnit = (value, unit) => (unit ? `${formatNumber(value)} ${unit}` : formatNumber(value));

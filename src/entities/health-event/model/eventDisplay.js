@@ -2,6 +2,7 @@ import {
   Syringe, Pill, Stethoscope, Scale, Scissors,
 } from 'lucide-react';
 import { formatDay } from '@/shared/lib/date';
+import { formatNumber } from '@/shared/lib/format';
 
 // How the clinical history is shown. The backend computes the data (withdrawal, boosters...).
 
@@ -41,8 +42,6 @@ const labelOf = (list, value) => list.find((item) => item.value === value)?.labe
 export const eventTypeInfo = (type) => EVENT_TYPES.find((t) => t.value === type)
   ?? { value: type, label: type, icon: Stethoscope };
 
-const decimal = (value) => value.toLocaleString('es-AR', { maximumFractionDigits: 2 });
-
 // Title of an event in the history: "Vacunación · Aftosa"
 export function eventTitle(event) {
   const { label } = eventTypeInfo(event.type);
@@ -70,11 +69,11 @@ export function eventDetails(event) {
     examination: () => [
       d.finding,
       dot(
-        d.temperature !== null && `${decimal(d.temperature)} °C`,
-        d.bodyCondition !== null && `Condición corporal ${decimal(d.bodyCondition)}`,
+        d.temperature !== null && `${formatNumber(d.temperature)} °C`,
+        d.bodyCondition !== null && `Condición corporal ${formatNumber(d.bodyCondition)}`,
       ),
     ],
-    weighing: () => [`${decimal(d.weightKg)} kg`],
+    weighing: () => [`${formatNumber(d.weightKg)} kg`],
     castration: () => [d.method && `Método: ${labelOf(CASTRATION_METHODS, d.method)}`],
   };
 

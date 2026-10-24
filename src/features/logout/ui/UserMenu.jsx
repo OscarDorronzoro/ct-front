@@ -1,7 +1,8 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { LogOut, User } from 'lucide-react';
 import { useAuth } from '@/entities/viewer';
 import { roleInfo } from '@/entities/user';
+import { useClickOutside } from '@/shared/lib/click-outside';
 import styles from './UserMenu.module.css';
 
 // placement: down (map top bar) | right (bottom of the sidebar)
@@ -15,20 +16,7 @@ export default function UserMenu({ placement = 'down' }) {
     ? user.username.charAt(0).toUpperCase()
     : null;
 
-  // Close the menu when clicking outside
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setOpen(false);
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside);
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
+  useClickOutside(menuRef, () => setOpen(false), open);
 
   async function handleLogout() {
     setOpen(false);

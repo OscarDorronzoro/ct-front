@@ -17,6 +17,7 @@ import { useCan } from '@/entities/viewer';
 
 import { logger } from '@/shared/lib/logger';
 import { toDateInput } from '@/shared/lib/date';
+import { useEntityForm } from '@/shared/lib/form';
 
 const sexOptions = Object.entries(SEX_LABELS).map(([value, label]) => ({ value, label }));
 
@@ -32,17 +33,29 @@ const emptyForm = {
   birthDate: '',
 };
 
+const messages = { load: 'No se pudo cargar la vaca.', save: 'No se pudo guardar la vaca.' };
+
+// Inputs can't hold null: empty strings
+const toForm = (cow) => ({
+  ...cow,
+  alias: cow.alias ?? '',
+  earTag: cow.earTag ?? '',
+  breedId: cow.breedId ?? '',
+  imageUrl: cow.imageUrl ?? '',
+  currentCollarId: cow.currentCollarId ?? '',
+  sex: cow.sex ?? '',
+  categoryId: cow.categoryId ?? '',
+  birthDate: toDateInput(cow.birthDate),
+  groupIds: cow.groups ? cow.groups.map(g => g.id) : [],
+});
+
 export default function CowFormPage() {
-  const [form, setForm] = useState(emptyForm);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState(null);
   // undefined: unchanged, File: new image, null: remove the current one
   const [imageChange, setImageChange] = useState(undefined);
 
   const [collars, setCollars] = useState([]);
   // collarId -> cow that has it now (to warn before taking it away)
   const [collarOwners, setCollarOwners] = useState(new Map());
-  const [initialCollarId, setInitialCollarId] = useState('');
   const [breeds, setBreeds] = useState([]);
   // [{ id, name, sex }]: the form offers those of the cow's sex
   const [categories, setCategories] = useState([]);
@@ -63,14 +76,60 @@ export default function CowFormPage() {
   const canWrite = can('cows:write');
   const canAssignCollar = can('cows:assignCollar');
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+  // Only what the user can change is sent, as FormData (the image goes with it)
+  const save = (values) => {
+    const formData = new FormData();
+    const isEdit = Boolean(cowId);
 
-    setForm(form => ({
-      ...form,
-      [name]: value,
-    }));
+    if (canWrite) {
+      ['alias', 'earTag', 'breedId', 'sex', 'birthDate'].forEach((key) => {
+        if (values[key] !== null && values[key] !== undefined && values[key] !== '') {
+          formData.append(key, values[key]);
+        }
+      });
+
+      values.groupIds.forEach((groupId) => {
+        formData.append('groupIds[]', groupId);
+      });
+
+      // A form can't send an empty list: an empty value means "no groups"
+      if (values.groupIds.length === 0) {
+        formData.append('groupIds', '');
+      }
+
+      // Editing: always sent, empty removes the category. New cow: only when chosen.
+      if (isEdit || values.categoryId !== '') {
+        formData.append('categoryId', values.categoryId);
+      }
+
+      if (imageChange) {
+        formData.append('image', imageChange);
+      } else if (imageChange === null && values.imageUrl) {
+        formData.append('removeImage', 'true');
+      }
+    }
+
+    // Editing: always sent, empty unassigns the collar. New cow: only when chosen.
+    if (canAssignCollar && (isEdit || values.currentCollarId !== '')) {
+      formData.append('currentCollarId', values.currentCollarId);
+    }
+
+    return isEdit ? updateCow(cowId, formData) : createCow(formData);
   };
+
+  const {
+    form, setForm, handleChange, handleSubmit, entity, saving, error,
+  } = useEntityForm({
+    id: cowId,
+    empty: emptyForm,
+    load: getCow,
+    toForm,
+    save,
+    onSaved: () => navigate(cowId ? `/settings/cows/${cowId}` : '/settings/cows'),
+    messages,
+  });
+
+  const initialCollarId = entity?.currentCollarId ?? '';
 
   // A category is for one sex: changing the sex drops a category of the other one
   const handleSexChange = (e) => {
@@ -90,105 +149,6 @@ export default function CowFormPage() {
   const handleCancel = () => {
     navigate(-1);
   };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (saving) {
-      return;
-    }
-    setError(null);
-
-    try {
-      setSaving(true);
-
-      const formData = new FormData();
-      const isEdit = Boolean(form.id);
-
-      if (canWrite) {
-        ['alias', 'earTag', 'breedId', 'sex', 'birthDate'].forEach((key) => {
-          if (form[key] !== null && form[key] !== undefined && form[key] !== '') {
-            formData.append(key, form[key]);
-          }
-        });
-
-        form.groupIds.forEach((groupId) => {
-          formData.append('groupIds[]', groupId);
-        });
-
-        // A form can't send an empty list: an empty value means "no groups"
-        if (form.groupIds.length === 0) {
-          formData.append('groupIds', '');
-        }
-
-        // Editing: always sent, empty removes the category. New cow: only when chosen.
-        if (isEdit || form.categoryId !== '') {
-          formData.append('categoryId', form.categoryId);
-        }
-
-        if (imageChange) {
-          formData.append('image', imageChange);
-        } else if (imageChange === null && form.imageUrl) {
-          formData.append('removeImage', 'true');
-        }
-      }
-
-      // Editing: always sent, empty unassigns the collar. New cow: only when chosen.
-      if (canAssignCollar && (isEdit || form.currentCollarId !== '')) {
-        formData.append('currentCollarId', form.currentCollarId);
-      }
-
-      if (form.id) {
-        await updateCow(form.id, formData);
-      } else {
-          await createCow(formData);
-      }
-
-      navigate(form.id ? `/settings/cows/${form.id}` : '/settings/cows');
-
-    } catch (err) {
-      logger.error(err);
-      setError(
-        (err.name === 'ApiError' ? err?.message : null) || 'No se pudo guardar la vaca.'
-      );
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  useEffect(() => {
-    if (!cowId) {
-      return;
-    }
-
-    let cancelled = false;
-
-    getCow(cowId)
-      .then((cow) => {
-        if (!cancelled) {
-          setInitialCollarId(cow.currentCollarId ?? '');
-          setForm({
-            ...cow,
-            alias: cow.alias ?? '',
-            earTag: cow.earTag ?? '',
-            breedId: cow.breedId ?? '',
-            imageUrl: cow.imageUrl ?? '',
-            currentCollarId: cow.currentCollarId ?? '',
-            sex: cow.sex ?? '',
-            categoryId: cow.categoryId ?? '',
-            birthDate: toDateInput(cow.birthDate),
-            groupIds: cow.groups ? cow.groups.map(g => g.id) : [],
-          });
-        }
-      })
-      .catch((err) => {
-        logger.error('Error loading cow', err);
-        setError('No se pudo cargar la vaca.');
-      });
-
-    return () => { cancelled = true; }
-
-  }, [cowId]);
 
   useEffect(() => {
     const loadOptions = async () => {
@@ -371,6 +331,7 @@ export default function CowFormPage() {
           onChange={handleChange}
           options={groups}
           placeholder="Seleccione un grupo"
+          addLabel="Agregar grupo"
           disabled={!canWrite}
         />
 
