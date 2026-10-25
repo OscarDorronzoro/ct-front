@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
-import { LogOut, User } from 'lucide-react';
+import { Link } from 'react-router';
+import { LogOut, User, UserCog } from 'lucide-react';
 import { useAuth } from '@/entities/viewer';
 import { roleInfo } from '@/entities/user';
 import { useClickOutside } from '@/shared/lib/click-outside';
@@ -41,6 +42,11 @@ export default function UserMenu({ placement = 'down' }) {
             <div className={styles.username}>{user.username}</div>
             <div className={styles.role}>{user.roles?.map((role) => roleInfo(role).label).join(', ')}</div>
           </div>
+
+          <Link to="/profile" onClick={() => setOpen(false)} className={styles.option}>
+            <UserCog size={16} aria-hidden="true" />
+            Perfil
+          </Link>
 
           <button type="button" onClick={handleLogout} className={styles.option}>
             <LogOut size={16} aria-hidden="true" />

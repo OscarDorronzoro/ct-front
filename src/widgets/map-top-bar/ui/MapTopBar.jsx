@@ -1,5 +1,5 @@
 import { EntitySearch } from '@/features/search-entities';
-import { UserMenu } from '@/features/logout';
+import { UserMenu } from '@/features/user-menu';
 import { useIsMobile } from '@/shared/lib/media';
 import styles from './MapTopBar.module.css';
 

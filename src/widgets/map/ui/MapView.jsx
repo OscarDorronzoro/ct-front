@@ -50,8 +50,9 @@ function pointProperties(p) {
 // with a heatmap view).
 // referenceTime: point ages are computed against it (end of the history range); null = now.
 // ref: { focusOn(result) } centers a search result ({ type: 'cow' | 'collar', id, label }).
+// focus: the same, once on load (a notification that opens the map on a cow).
 export default function MapView({
-  points, mode, referenceTime = null, distances = null, ref,
+  points, mode, referenceTime = null, distances = null, focus = null, ref,
 }) {
   const isHistory = mode === 'history';
   const [selectedPoint, setSelectedPoint] = useState(null);
@@ -331,14 +332,14 @@ export default function MapView({
 
   }, [latestPoint, follow, mapReady, mapRef]);
 
-  const showCollar = (collarId) => {
+  const showCollar = useCallback((collarId) => {
     setHidden((current) => {
       if (!current.has(collarId)) {return current;}
       const next = new Set(current);
       next.delete(collarId);
       return next;
     });
-  };
+  }, []);
 
   const toggleCollar = (collarId) => {
     if (hidden.has(collarId)) {
@@ -353,44 +354,59 @@ export default function MapView({
     }
   };
 
-  // Search result: center its latest visible position and open the details
-  useImperativeHandle(ref, () => ({
-    focusOn(focus) {
-      const map = mapRef.current;
-      if (!map) {return;}
+  // Center a cow or collar on its latest visible position and open its details
+  const focusOnTarget = useCallback((focus) => {
+    const map = mapRef.current;
+    if (!map) {return;}
 
-      const key = focus.type === 'cow' ? 'cowId' : 'collarId';
-      const latest = dataPoints
-        .filter((p) => p[key] === focus.id)
-        .reduce((a, b) => (!a || time(b) > time(a) ? b : a), null);
+    const key = focus.type === 'cow' ? 'cowId' : 'collarId';
+    const latest = dataPoints
+      .filter((p) => p[key] === focus.id)
+      .reduce((a, b) => (!a || time(b) > time(a) ? b : a), null);
 
-      if (!latest) {
-        setSelectedPoint(null);
-        setNotice({
-          id: Date.now(),
-          text: `${focus.label}: sin posiciones ${isHistory ? 'en este rango' : 'recientes'}`,
-        });
-        return;
-      }
-
-      const coordinates = [latest.location.longitude, latest.location.latitude];
-      const height = map.getContainer().clientHeight;
-
-      showCollar(latest.collarId);
-      setNotice(null);
-      setFollow(false);
-      setSelectedZoneId(null);
-      setSelectedPoint({ coordinates, properties: pointProperties(latest) });
-
-      map.easeTo({
-        center: coordinates,
-        zoom: Math.max(map.getZoom(), FOCUS_ZOOM),
-        // Mobile: leave the point above the bottom sheet (at 30% of the height)
-        offset: isMobile ? [0, -height * 0.2] : [0, 0],
-        duration: 600,
+    if (!latest) {
+      setSelectedPoint(null);
+      setNotice({
+        id: Date.now(),
+        text: `${focus.label}: sin posiciones ${isHistory ? 'en este rango' : 'recientes'}`,
       });
-    },
-  }), [dataPoints, isHistory, isMobile, mapRef]);
+      return;
+    }
+
+    const coordinates = [latest.location.longitude, latest.location.latitude];
+    const height = map.getContainer().clientHeight;
+
+    showCollar(latest.collarId);
+    setNotice(null);
+    setFollow(false);
+    setSelectedZoneId(null);
+    setSelectedPoint({ coordinates, properties: pointProperties(latest) });
+
+    map.easeTo({
+      center: coordinates,
+      zoom: Math.max(map.getZoom(), FOCUS_ZOOM),
+      // Mobile: leave the point above the bottom sheet (at 30% of the height)
+      offset: isMobile ? [0, -height * 0.2] : [0, 0],
+      duration: 600,
+    });
+  }, [dataPoints, isHistory, isMobile, mapRef, showCollar]);
+
+  // Search result: from the top bar
+  useImperativeHandle(ref, () => ({ focusOn: focusOnTarget }), [focusOnTarget]);
+
+  // `focus` prop (a notification opened the map on a cow): once the map and the positions are ready
+  const focusedRef = useRef(null);
+  useEffect(() => {
+    const key = focus && `${focus.type}-${focus.id}`;
+    if (!key || focusedRef.current === key || !mapReady || dataPoints.length === 0) {return undefined;}
+
+    // Next frame: the map has drawn the points
+    const frame = requestAnimationFrame(() => {
+      focusedRef.current = key;
+      focusOnTarget(focus);
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [focus, mapReady, dataPoints, focusOnTarget]);
 
   const closeNotice = useCallback(() => setNotice(null), []);
 

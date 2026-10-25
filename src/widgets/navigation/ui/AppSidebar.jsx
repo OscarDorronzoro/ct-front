@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router';
-import { UserMenu } from '@/features/logout';
+import { UserMenu } from '@/features/user-menu';
 import { useAuth } from '@/entities/viewer';
 import { MAP_ITEMS, SETTINGS_ITEMS, visibleItems } from '../model/navItems';
 import styles from './AppSidebar.module.css';

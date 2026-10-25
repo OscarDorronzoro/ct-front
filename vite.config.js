@@ -71,6 +71,8 @@ export default defineConfig(({ mode, command }) => {
         registerType: 'autoUpdate',
         workbox: {
           navigateFallbackDenylist: [/^\/api\//],
+          // Push notifications: shown by public/push-sw.js
+          importScripts: ['push-sw.js'],
           // Default patterns plus the Inter subsets used by Spanish, so text keeps its font offline.
           // The dev service worker (dev-dist) has no fonts: Vite serves them from node_modules.
           globPatterns: [

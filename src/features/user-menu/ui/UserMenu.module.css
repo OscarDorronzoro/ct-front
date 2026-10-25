@@ -85,6 +85,10 @@
   color: var(--color-text);
 }
 
+.option {
+  text-decoration: none;
+}
+
 .option:hover {
   background: var(--color-surface-muted);
 }

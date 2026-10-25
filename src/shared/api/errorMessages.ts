@@ -69,7 +69,7 @@ export function statusMessage(status: number) {
     return FORBIDDEN;
   }
   if (status === 404) {
-    return 'No se encontró lo que buscabas: puede haber sido eliminado.';
+    return 'No se encontró lo que buscaba: puede haber sido eliminado.';
   }
   if (status === 413) {
     return 'El archivo es demasiado grande.';

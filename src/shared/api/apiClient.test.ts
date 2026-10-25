@@ -194,7 +194,7 @@ describe('apiClient', () => {
         code: 'SOMETHING_NEW', message: 'Error al comunicarse con el servidor',
       });
       await expect(apiClient('/b')).rejects.toMatchObject({
-        code: undefined, message: 'No se encontró lo que buscabas: puede haber sido eliminado.',
+        code: undefined, message: 'No se encontró lo que buscaba: puede haber sido eliminado.',
       });
     });
 

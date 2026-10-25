@@ -5,6 +5,7 @@ import { mapRoute } from './map.route';
 import { settingsRoute } from './settings.route';
 import { loginRoute } from './login.route';
 import { analyticsRoute } from './analytics.route';
+import { profileRoute } from './profile.route';
 import { ErrorPage } from '@/pages/error';
 import LoadingScreen from './LoadingScreen';
 
@@ -26,6 +27,7 @@ export const router = createBrowserRouter([
           mapRoute,
           settingsRoute,
           analyticsRoute,
+          profileRoute,
         ],
       },
 
