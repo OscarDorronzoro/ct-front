@@ -1,4 +1,3 @@
-// @vitest-environment jsdom
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -16,7 +15,7 @@ function setup(props = {}) {
 
 describe('ImageField', () => {
   beforeEach(() => {
-    // jsdom has no object URLs
+    // happy-dom has no object URLs
     URL.createObjectURL = vi.fn(() => 'blob:preview');
     URL.revokeObjectURL = vi.fn();
   });

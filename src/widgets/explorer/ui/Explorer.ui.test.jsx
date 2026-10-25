@@ -1,4 +1,3 @@
-// @vitest-environment jsdom
 import {
   describe, it, expect, beforeAll, beforeEach, vi,
 } from 'vitest';
@@ -52,7 +51,7 @@ function renderPage() {
 
 describe('Explorer', () => {
   beforeAll(() => {
-    // jsdom doesn't lay out: the charts get a fixed width
+    // happy-dom doesn't lay out: the charts get a fixed width
     globalThis.ResizeObserver = class {
       constructor(callback) { this.callback = callback; }
 
