@@ -16,9 +16,9 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "types": ["vite/client"],
-    "baseUrl": ".",
+    // Relative to this file (without baseUrl, deprecated in TypeScript 6)
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./src/*"]
     }
   },
   "include": ["src"]
