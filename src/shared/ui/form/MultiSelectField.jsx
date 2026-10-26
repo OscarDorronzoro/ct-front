@@ -62,6 +62,7 @@ export default function MultiSelectField({
         <div key={index} className={styles.multiRow}>
           <div className={styles.multiSelect}>
             <SelectField
+              ariaLabel={label ? `${label} ${index + 1}` : placeholder}
               name={`${name}_${index}`}
               value={selection}
               onChange={(e) => handleSelectionChange(index, e.target.value)}

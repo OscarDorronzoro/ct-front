@@ -79,7 +79,16 @@ describe('CowFormPage', () => {
     createCow.mockResolvedValue({});
   });
 
-  const loaded = () => screen.findByRole('button', { name: 'Collar 12' });
+  // The selects, by their label
+  const select = (name) => screen.getByRole('combobox', { name });
+
+  // A select showing `value`: the cow and its options have loaded
+  const showing = async (name, value) => {
+    await waitFor(() => expect(select(name)).toHaveTextContent(value));
+    return select(name);
+  };
+
+  const loaded = () => showing('Collar asignado', 'Collar 12');
 
   it('sends the cow as it is when nothing changes', async () => {
     const user = renderForm('/settings/cows/8/edit');
@@ -127,16 +136,16 @@ describe('CowFormPage', () => {
 
   it('offers only the categories of the sex, and drops the category when the sex changes', async () => {
     const user = renderForm('/settings/cows/8/edit');
-    await user.click(await screen.findByRole('button', { name: 'Vaca' }));
+    await user.click(await showing('Categoría', 'Vaca'));
 
     expect(screen.getByRole('option', { name: 'Vaquillona' })).toBeInTheDocument();
     expect(screen.queryByRole('option', { name: 'Novillo' })).not.toBeInTheDocument();
 
     await user.click(screen.getByRole('option', { name: 'Vaca' }));
-    await user.click(screen.getByRole('button', { name: 'Hembra' }));
+    await user.click(select('Sexo'));
     await user.click(screen.getByRole('option', { name: 'Macho' }));
 
-    await user.click(screen.getByRole('button', { name: 'Sin categoría' }));
+    await user.click(select('Categoría'));
     expect(screen.getByRole('option', { name: 'Novillo' })).toBeInTheDocument();
     await user.click(screen.getByRole('option', { name: 'Novillo' }));
 
@@ -151,7 +160,7 @@ describe('CowFormPage', () => {
     renderForm('/settings/cows/new');
 
     expect(await screen.findByText('Elija primero el sexo.')).toBeInTheDocument();
-    expect(await screen.findByRole('button', { name: 'Sin categoría' })).toBeDisabled();
+    expect(await showing('Categoría', 'Sin categoría')).toBeDisabled();
   });
 
   it('unassigns the collar with an empty currentCollarId', async () => {
@@ -187,7 +196,7 @@ describe('CowFormPage', () => {
   it('sends an empty groupIds when every group is removed', async () => {
     const user = renderForm('/settings/cows/8/edit');
     // The group shows once the group options have loaded
-    await screen.findByRole('button', { name: 'Rodeo 1' });
+    await showing('Grupos 1', 'Rodeo 1');
 
     await user.click(screen.getByRole('button', { name: 'Quitar' }));
     await user.click(screen.getByRole('button', { name: 'Guardar' }));
@@ -199,7 +208,7 @@ describe('CowFormPage', () => {
 
   it('creates a cow without sending a collar when none is chosen', async () => {
     const user = renderForm('/settings/cows/new');
-    await screen.findByRole('button', { name: 'Sin collar' });
+    await showing('Collar asignado', 'Sin collar');
 
     await user.type(screen.getByLabelText(/Alias/), 'Nueva');
     await user.click(screen.getByRole('button', { name: 'Guardar' }));

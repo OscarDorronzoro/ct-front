@@ -118,7 +118,7 @@ export default function CowFormPage() {
   };
 
   const {
-    form, setForm, handleChange, handleSubmit, entity, saving, error,
+    form, setForm, handleChange, handleSubmit, entity, loading, saving, error,
   } = useEntityForm({
     id: cowId,
     empty: emptyForm,
@@ -251,98 +251,101 @@ export default function CowFormPage() {
       >
         {error && <Alert tone="danger">{error}</Alert>}
 
-        <FormField
-          label="Alias"
-          name="alias"
-          value={form.alias}
-          onChange={handleChange}
-          placeholder="Nombre de la vaca"
-          required
-          disabled={!canWrite}
-        />
-
-        <FormField
-          label="Caravana"
-          name="earTag"
-          value={form.earTag}
-          onChange={handleChange}
-          placeholder="Número de caravana"
-          disabled={!canWrite}
-        />
-
-        <SelectField
-          label="Collar asignado"
-          name="currentCollarId"
-          value={form.currentCollarId}
-          onChange={handleChange}
-          options={collarOptions}
-          placeholder="Seleccione un collar"
-          loading={loadingOptions.collars}
-          disabled={!canAssignCollar}
-          hint={collarHint}
-        />
-
-        {canWrite && (
-          <ImageField
-            key={form.imageUrl || 'no-image'}
-            label="Imagen"
-            initialImage={form.imageUrl}
-            onChange={setImageChange}
+        {/* Disabled while the data to edit loads: what is typed before would be lost */}
+        <fieldset disabled={loading} className={formStyles.fieldset}>
+          <FormField
+            label="Alias"
+            name="alias"
+            value={form.alias}
+            onChange={handleChange}
+            placeholder="Nombre de la vaca"
+            required
+            disabled={!canWrite}
           />
-        )}
 
-        <SelectField
-          label="Raza"
-          name="breedId"
-          value={form.breedId}
-          onChange={handleChange}
-          options={breeds}
-          placeholder="Seleccione una raza"
-          loading={loadingOptions.breeds}
-          disabled={!canWrite}
-        />
+          <FormField
+            label="Caravana"
+            name="earTag"
+            value={form.earTag}
+            onChange={handleChange}
+            placeholder="Número de caravana"
+            disabled={!canWrite}
+          />
 
-        <SelectField
-          label="Sexo"
-          name="sex"
-          value={form.sex}
-          onChange={handleSexChange}
-          options={sexOptions}
-          placeholder="Seleccione el sexo"
-          disabled={!canWrite}
-        />
+          <SelectField
+            label="Collar asignado"
+            name="currentCollarId"
+            value={form.currentCollarId}
+            onChange={handleChange}
+            options={collarOptions}
+            placeholder="Seleccione un collar"
+            loading={loadingOptions.collars}
+            disabled={!canAssignCollar}
+            hint={collarHint}
+          />
 
-        <SelectField
-          label="Categoría"
-          name="categoryId"
-          value={form.categoryId}
-          onChange={handleChange}
-          options={categoryOptions}
-          placeholder="Seleccione una categoría"
-          loading={loadingOptions.categories}
-          disabled={!canWrite || !form.sex}
-          hint={form.sex ? null : 'Elija primero el sexo.'}
-        />
+          {canWrite && (
+            <ImageField
+              key={form.imageUrl || 'no-image'}
+              label="Imagen"
+              initialImage={form.imageUrl}
+              onChange={setImageChange}
+            />
+          )}
 
-        <MultiSelectField
-          label="Grupos"
-          name="groupIds"
-          values={form.groupIds}
-          onChange={handleChange}
-          options={groups}
-          placeholder="Seleccione un grupo"
-          addLabel="Agregar grupo"
-          disabled={!canWrite}
-        />
+          <SelectField
+            label="Raza"
+            name="breedId"
+            value={form.breedId}
+            onChange={handleChange}
+            options={breeds}
+            placeholder="Seleccione una raza"
+            loading={loadingOptions.breeds}
+            disabled={!canWrite}
+          />
 
-        <FormField
-          label="Fecha de nacimiento"
-          name="birthDate"
-          type="date"
-          value={form.birthDate}
-          onChange={handleChange}
-          disabled={!canWrite}
-        />
+          <SelectField
+            label="Sexo"
+            name="sex"
+            value={form.sex}
+            onChange={handleSexChange}
+            options={sexOptions}
+            placeholder="Seleccione el sexo"
+            disabled={!canWrite}
+          />
+
+          <SelectField
+            label="Categoría"
+            name="categoryId"
+            value={form.categoryId}
+            onChange={handleChange}
+            options={categoryOptions}
+            placeholder="Seleccione una categoría"
+            loading={loadingOptions.categories}
+            disabled={!canWrite || !form.sex}
+            hint={form.sex ? null : 'Elija primero el sexo.'}
+          />
+
+          <MultiSelectField
+            label="Grupos"
+            name="groupIds"
+            values={form.groupIds}
+            onChange={handleChange}
+            options={groups}
+            placeholder="Seleccione un grupo"
+            addLabel="Agregar grupo"
+            disabled={!canWrite}
+          />
+
+          <FormField
+            label="Fecha de nacimiento"
+            name="birthDate"
+            type="date"
+            value={form.birthDate}
+            onChange={handleChange}
+            disabled={!canWrite}
+          />
+        </fieldset>
 
         {/* Actions */}
         <FormActions

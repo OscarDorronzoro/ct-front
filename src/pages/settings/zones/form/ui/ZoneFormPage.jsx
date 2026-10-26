@@ -145,50 +145,53 @@ export default function ZoneFormPage() {
         <form className={`${styles.panel} ${formStyles.form}`} onSubmit={handleSubmit}>
           {error && <Alert tone="danger" onClose={clearError}>{error}</Alert>}
 
-          <div className={styles.stats}>
-            <div className={styles.stat}>
-              <div className={styles.statLabel}>Superficie</div>
-              <div className={styles.statValue}>{ring ? formatArea(ringAreaM2(ring)) : '—'}</div>
+          {/* Disabled while the data to edit loads: what is typed before would be lost */}
+          <fieldset disabled={loading} className={formStyles.fieldset}>
+            <div className={styles.stats}>
+              <div className={styles.stat}>
+                <div className={styles.statLabel}>Superficie</div>
+                <div className={styles.statValue}>{ring ? formatArea(ringAreaM2(ring)) : '—'}</div>
+              </div>
+              <div className={styles.stat}>
+                <div className={styles.statLabel}>Vértices</div>
+                <div className={styles.statValue}>{ring ? ring.length : '—'}</div>
+              </div>
             </div>
-            <div className={styles.stat}>
-              <div className={styles.statLabel}>Vértices</div>
-              <div className={styles.statValue}>{ring ? ring.length : '—'}</div>
-            </div>
-          </div>
 
-          {limits.length > 0 && (
-            <Alert tone="warning">
-              Se puede guardar, pero no se podrá cargar en un collar: {limits.join(' y ')}.
-            </Alert>
-          )}
+            {limits.length > 0 && (
+              <Alert tone="warning">
+                Se puede guardar, pero no se podrá cargar en un collar: {limits.join(' y ')}.
+              </Alert>
+            )}
 
-          <FormField
-            label="Nombre"
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-            placeholder="Ej. Potrero norte"
-            required
-          />
+            <FormField
+              label="Nombre"
+              name="name"
+              value={form.name}
+              onChange={handleChange}
+              placeholder="Ej. Potrero norte"
+              required
+            />
 
-          <SelectField
-            label="Tipo"
-            name="zoneTypeId"
-            value={form.zoneTypeId}
-            onChange={handleChange}
-            options={typeOptions}
-            placeholder="Seleccione un tipo"
-            loading={loading}
-            required
-          />
+            <SelectField
+              label="Tipo"
+              name="zoneTypeId"
+              value={form.zoneTypeId}
+              onChange={handleChange}
+              options={typeOptions}
+              placeholder="Seleccione un tipo"
+              loading={loading}
+              required
+            />
 
-          <FormField
-            label="Descripción"
-            name="description"
-            value={form.description}
-            onChange={handleChange}
-            placeholder="Opcional"
-          />
+            <FormField
+              label="Descripción"
+              name="description"
+              value={form.description}
+              onChange={handleChange}
+              placeholder="Opcional"
+            />
+          </fieldset>
 
           <FormActions
             onCancel={() => navigate('/settings/zones')}

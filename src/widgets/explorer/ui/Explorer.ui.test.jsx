@@ -81,7 +81,7 @@ describe('Explorer', () => {
     const user = renderPage();
     await screen.findByText('2 filas');
 
-    await user.click(screen.getByRole('button', { name: 'Actividad diaria' }));
+    await user.click(screen.getByRole('combobox', { name: 'Datos' }));
     await user.click(screen.getByRole('option', { name: 'Clima' }));
 
     await waitFor(() => expect(runQuery).toHaveBeenLastCalledWith(expect.objectContaining({
@@ -98,7 +98,7 @@ describe('Explorer', () => {
     const user = renderPage();
     await screen.findByText('2 filas');
 
-    await user.click(screen.getByRole('button', { name: 'Semana' }));
+    await user.click(screen.getByRole('combobox', { name: 'Agrupar por' }));
     await user.click(screen.getByRole('option', { name: 'Sin agrupar' }));
 
     expect(await screen.findByText('1 fila')).toBeInTheDocument();

@@ -34,6 +34,7 @@ export default function FilterRow({
   return (
     <div className={styles.filterRow}>
       <SelectField
+        ariaLabel="Filtrar por"
         name="dimension"
         value={filter.dimension}
         onChange={(e) => onChange({ dimension: e.target.value, values: [] })}

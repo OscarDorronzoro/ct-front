@@ -23,7 +23,7 @@ export default function GroupFormPage() {
   const navigate = useNavigate();
 
   const {
-    form, handleChange, handleSubmit, saving, error,
+    form, handleChange, handleSubmit, loading, saving, error,
   } = useEntityForm({
     id: groupId,
     empty: emptyForm,
@@ -53,22 +53,25 @@ export default function GroupFormPage() {
       >
         {error && <Alert tone="danger">{error}</Alert>}
 
-        <FormField
-          label="Nombre"
-          name="name"
-          value={form.name}
-          onChange={handleChange}
-          placeholder="Nombre del grupo"
-          required
-        />
+        {/* Disabled while the data to edit loads: what is typed before would be lost */}
+        <fieldset disabled={loading} className={formStyles.fieldset}>
+          <FormField
+            label="Nombre"
+            name="name"
+            value={form.name}
+            onChange={handleChange}
+            placeholder="Nombre del grupo"
+            required
+          />
 
-        <FormField
-          label="Descripción"
-          name="description"
-          value={form.description}
-          onChange={handleChange}
-          placeholder="Descripción del grupo"
-        />
+          <FormField
+            label="Descripción"
+            name="description"
+            value={form.description}
+            onChange={handleChange}
+            placeholder="Descripción del grupo"
+          />
+        </fieldset>
 
         {/* Actions */}
         <FormActions

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Routes, Route } from 'react-router';
 import HealthEventFormPage from './HealthEventFormPage';
@@ -33,10 +33,18 @@ describe('HealthEventFormPage', () => {
     recordEvent.mockResolvedValue({});
   });
 
+  const select = (name) => screen.getByRole('combobox', { name });
+
+  // The product select once the products have loaded
+  const productsLoaded = async () => {
+    await waitFor(() => expect(select('Producto')).toHaveTextContent('Seleccione un producto'));
+    return select('Producto');
+  };
+
   it('offers only the products of the type of event', async () => {
     const user = renderForm();
 
-    await user.click(await screen.findByRole('button', { name: 'Seleccione un producto' }));
+    await user.click(await productsLoaded());
     expect(screen.getByRole('option', { name: 'Aftosa' })).toBeInTheDocument();
     expect(screen.queryByRole('option', { name: 'Ivermectina 1%' })).not.toBeInTheDocument();
 
@@ -44,7 +52,7 @@ describe('HealthEventFormPage', () => {
     await user.click(screen.getByRole('button', { name: 'Tratamiento' }));
 
     // The product of the vaccination doesn't apply to the treatment
-    await user.click(screen.getByRole('button', { name: 'Seleccione un producto' }));
+    await user.click(select('Producto'));
     expect(screen.getByRole('option', { name: 'Ivermectina 1%' })).toBeInTheDocument();
   });
 
@@ -70,7 +78,7 @@ describe('HealthEventFormPage', () => {
     const user = renderForm();
 
     await user.click(await screen.findByRole('button', { name: 'Castración' }));
-    await user.click(screen.getByRole('button', { name: 'Sin indicar' }));
+    await user.click(select('Método'));
     await user.click(screen.getByRole('option', { name: 'Quirúrgica' }));
     await user.click(screen.getByRole('button', { name: 'Guardar' }));
 
@@ -82,13 +90,13 @@ describe('HealthEventFormPage', () => {
     getCow.mockResolvedValue({ id: 8, alias: 'Ángela', sex: 'female' });
     renderForm();
 
-    await screen.findByRole('button', { name: 'Seleccione un producto' });
+    await productsLoaded();
     expect(screen.queryByRole('button', { name: 'Castración' })).not.toBeInTheDocument();
   });
 
   it('asks for the product before sending a vaccination', async () => {
     const user = renderForm();
-    await screen.findByRole('button', { name: 'Seleccione un producto' });
+    await productsLoaded();
 
     await user.click(screen.getByRole('button', { name: 'Guardar' }));
 

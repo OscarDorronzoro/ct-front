@@ -345,3 +345,12 @@ fieldset.field > legend {
   flex: 1;
   min-width: 0;
 }
+
+/* Groups the fields of a form to disable them together (while the data loads); no box of its own */
+.fieldset {
+  display: contents;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}

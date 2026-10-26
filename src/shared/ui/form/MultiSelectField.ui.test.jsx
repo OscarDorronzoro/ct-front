@@ -18,7 +18,7 @@ describe('MultiSelectField', () => {
     const { onChange, user } = setup([2]);
 
     await user.click(screen.getByRole('button', { name: 'Agregar otro' }));
-    await user.click(screen.getByRole('button', { name: 'Seleccione una opción' }));
+    await user.click(screen.getByRole('combobox', { name: 'Grupos 2' }));
     await user.click(screen.getByRole('option', { name: 'Rodeo 2' }));
 
     expect(lastValue(onChange)).toEqual([2, 3]);
@@ -47,7 +47,7 @@ describe('MultiSelectField', () => {
 
     await user.click(screen.getByRole('button', { name: 'Agregar grupo' }));
 
-    expect(screen.getAllByRole('button', { name: 'Seleccione una opción' })).toHaveLength(2);
+    expect(screen.getAllByRole('combobox', { name: 'Seleccione una opción' })).toHaveLength(2);
     expect(onChange).not.toHaveBeenCalled();
   });
 

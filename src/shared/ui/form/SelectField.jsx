@@ -1,10 +1,13 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useId } from 'react';
 import { ChevronDown, Check, Plus } from 'lucide-react';
 import { useClickOutside } from '@/shared/lib/click-outside';
 import styles from './Form.module.css';
 
+// A select of the app (a list with search). It's a select-only combobox (WAI-ARIA): its name is the
+// label, its content the chosen option. ariaLabel: its name when it has no visible label.
 export default function SelectField({
   label,
+  ariaLabel,
   name,
   value,
   onChange,
@@ -22,6 +25,8 @@ export default function SelectField({
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const dropdownRef = useRef(null);
+  const id = useId();
+  const listId = `${id}-options`;
 
   // Cerrar dropdown al hacer clic fuera
   useClickOutside(dropdownRef, () => {
@@ -58,20 +63,25 @@ export default function SelectField({
   return (
     <div className={styles.field}>
       {label && (
-        <label className={styles.label}>
+        <label htmlFor={id} className={styles.label}>
           {label}
-          {required && <span className={styles.required}>*</span>}
+          {required && <span className={styles.required} aria-hidden="true">*</span>}
         </label>
       )}
 
       <div ref={dropdownRef} className={styles.select}>
         {/* Trigger */}
         <button
+          id={id}
           type="button"
+          role="combobox"
           onClick={() => !disabled && setIsOpen(!isOpen)}
           disabled={disabled}
+          aria-label={label ? undefined : ariaLabel}
+          aria-required={required || undefined}
           aria-haspopup="listbox"
           aria-expanded={isOpen}
+          aria-controls={isOpen ? listId : undefined}
           className={[
             styles.input,
             styles.selectTrigger,
@@ -103,7 +113,7 @@ export default function SelectField({
               />
             </div>
 
-            <div className={styles.options} role="listbox">
+            <div id={listId} className={styles.options} role="listbox">
               {filteredOptions.length === 0 ? (
                 <div className={styles.noOptions}>
                   No hay opciones disponibles

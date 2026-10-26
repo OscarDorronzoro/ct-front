@@ -36,7 +36,7 @@ export default function ProductFormPage() {
   const navigate = useNavigate();
 
   const {
-    form, handleChange, handleSubmit, saving, error,
+    form, handleChange, handleSubmit, loading, saving, error,
   } = useEntityForm({
     id: productId,
     empty: emptyForm,
@@ -68,61 +68,64 @@ export default function ProductFormPage() {
       <Card padded as="form" onSubmit={handleSubmit} className={formStyles.form}>
         {error && <Alert tone="danger">{error}</Alert>}
 
-        <FormField
-          label="Nombre"
-          name="name"
-          value={form.name}
-          onChange={handleChange}
-          placeholder="Ej.: Ivermectina 1%"
-          required
-        />
-
-        <SelectField
-          label="Tipo"
-          name="type"
-          value={form.type}
-          onChange={handleChange}
-          options={PRODUCT_TYPES}
-          placeholder="Seleccione el tipo"
-          required
-          disabled={Boolean(productId)}
-          hint={productId ? 'El tipo no se cambia: los eventos ya registrados dependen de él.' : null}
-        />
-
-        <div className={formStyles.row}>
+        {/* Disabled while the data to edit loads: what is typed before would be lost */}
+        <fieldset disabled={loading} className={formStyles.fieldset}>
           <FormField
-            label="Retiro de carne (días)"
-            name="meatWithdrawalDays"
-            type="number"
-            min="0"
-            value={form.meatWithdrawalDays}
+            label="Nombre"
+            name="name"
+            value={form.name}
             onChange={handleChange}
+            placeholder="Ej.: Ivermectina 1%"
+            required
           />
-          <FormField
-            label="Retiro de leche (días)"
-            name="milkWithdrawalDays"
-            type="number"
-            min="0"
-            value={form.milkWithdrawalDays}
-            onChange={handleChange}
-          />
-        </div>
 
-        {productId && (
           <SelectField
-            label="Estado"
-            name="active"
-            value={form.active}
+            label="Tipo"
+            name="type"
+            value={form.type}
             onChange={handleChange}
-            options={statusOptions}
+            options={PRODUCT_TYPES}
+            placeholder="Seleccione el tipo"
+            required
+            disabled={Boolean(productId)}
+            hint={productId ? 'El tipo no se cambia: los eventos ya registrados dependen de él.' : null}
           />
-        )}
 
-        {productId && (
-          <p className={formStyles.hint}>
-            Cambiar los días de retiro no modifica los eventos ya registrados.
-          </p>
-        )}
+          <div className={formStyles.row}>
+            <FormField
+              label="Retiro de carne (días)"
+              name="meatWithdrawalDays"
+              type="number"
+              min="0"
+              value={form.meatWithdrawalDays}
+              onChange={handleChange}
+            />
+            <FormField
+              label="Retiro de leche (días)"
+              name="milkWithdrawalDays"
+              type="number"
+              min="0"
+              value={form.milkWithdrawalDays}
+              onChange={handleChange}
+            />
+          </div>
+
+          {productId && (
+            <SelectField
+              label="Estado"
+              name="active"
+              value={form.active}
+              onChange={handleChange}
+              options={statusOptions}
+            />
+          )}
+
+          {productId && (
+            <p className={formStyles.hint}>
+              Cambiar los días de retiro no modifica los eventos ya registrados.
+            </p>
+          )}
+        </fieldset>
 
         <FormActions onCancel={() => navigate('/settings/products')} saving={saving} />
       </Card>

@@ -40,7 +40,7 @@ export default function UserFormPage() {
   }));
 
   const {
-    form, handleChange, handleSubmit, saving, error,
+    form, handleChange, handleSubmit, loading, saving, error,
   } = useEntityForm({
     id: userId,
     empty: emptyForm,
@@ -75,40 +75,43 @@ export default function UserFormPage() {
       >
         {error && <Alert tone="danger">{error}</Alert>}
 
-        <FormField
-          label="Usuario"
-          name="username"
-          value={form.username}
-          onChange={handleChange}
-          placeholder="Nombre de usuario"
-          required
-        />
+        {/* Disabled while the data to edit loads: what is typed before would be lost */}
+        <fieldset disabled={loading} className={formStyles.fieldset}>
+          <FormField
+            label="Usuario"
+            name="username"
+            value={form.username}
+            onChange={handleChange}
+            placeholder="Nombre de usuario"
+            required
+          />
 
-        <FormField
-          label={userId ? 'Nueva contraseña' : 'Contraseña'}
-          name="password"
-          type="password"
-          value={form.password}
-          onChange={handleChange}
-          placeholder={
-            userId
-              ? 'Dejar vacío para mantener la actual'
-              : 'Contraseña'
-          }
-          required={!userId}
-        />
+          <FormField
+            label={userId ? 'Nueva contraseña' : 'Contraseña'}
+            name="password"
+            type="password"
+            value={form.password}
+            onChange={handleChange}
+            placeholder={
+              userId
+                ? 'Dejar vacío para mantener la actual'
+                : 'Contraseña'
+            }
+            required={!userId}
+          />
 
-        <CheckboxGroupField
-          label="Roles"
-          name="roles"
-          values={form.roles}
-          onChange={handleChange}
-          options={roleOptions}
-          required
-          hint={isSelf
-            ? 'No puede quitarse su propio rol de administrador.'
-            : 'Puede elegir varios: el usuario podrá hacer lo de todos ellos.'}
-        />
+          <CheckboxGroupField
+            label="Roles"
+            name="roles"
+            values={form.roles}
+            onChange={handleChange}
+            options={roleOptions}
+            required
+            hint={isSelf
+              ? 'No puede quitarse su propio rol de administrador.'
+              : 'Puede elegir varios: el usuario podrá hacer lo de todos ellos.'}
+          />
+        </fieldset>
 
         {/* Actions */}
         <FormActions

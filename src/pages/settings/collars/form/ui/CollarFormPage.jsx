@@ -27,7 +27,7 @@ export default function CollarFormPage() {
   const navigate = useNavigate();
 
   const {
-    form, handleChange, handleSubmit, saving, error,
+    form, handleChange, handleSubmit, loading, saving, error,
   } = useEntityForm({
     id: collarId,
     empty: emptyForm,
@@ -54,44 +54,47 @@ export default function CollarFormPage() {
       >
         {error && <Alert tone="danger">{error}</Alert>}
 
-        <FormField
-          label="Código LoRa"
-          name="code"
-          type="number"
-          inputMode="numeric"
-          min={1}
-          max={255}
-          value={form.code}
-          onChange={handleChange}
-          placeholder={collarId ? '' : 'Automático'}
-          hint="Identificador del collar en la red LoRa (1 a 255). Si se deja vacío, se asigna uno libre."
-        />
+        {/* Disabled while the data to edit loads: what is typed before would be lost */}
+        <fieldset disabled={loading} className={formStyles.fieldset}>
+          <FormField
+            label="Código LoRa"
+            name="code"
+            type="number"
+            inputMode="numeric"
+            min={1}
+            max={255}
+            value={form.code}
+            onChange={handleChange}
+            placeholder={collarId ? '' : 'Automático'}
+            hint="Identificador del collar en la red LoRa (1 a 255). Si se deja vacío, se asigna uno libre."
+          />
 
-        <FormField
-          label="MAC"
-          name="mac"
-          value={form.mac}
-          onChange={handleChange}
-          placeholder="Ej. 34:85:18:a1:b2:c3"
-          autoComplete="off"
-        />
+          <FormField
+            label="MAC"
+            name="mac"
+            value={form.mac}
+            onChange={handleChange}
+            placeholder="Ej. 34:85:18:a1:b2:c3"
+            autoComplete="off"
+          />
 
-        <FormField
-          label="Descripción"
-          name="description"
-          value={form.description}
-          onChange={handleChange}
-          placeholder="Descripción del collar"
-        />
+          <FormField
+            label="Descripción"
+            name="description"
+            value={form.description}
+            onChange={handleChange}
+            placeholder="Descripción del collar"
+          />
 
-        <FormField
-          label="Versión de firmware"
-          name="firmwareVersion"
-          value={form.firmwareVersion}
-          onChange={handleChange}
-          placeholder="Ej. 1.0.0"
-          hint="Se actualiza sola cuando el collar informa su firmware."
-        />
+          <FormField
+            label="Versión de firmware"
+            name="firmwareVersion"
+            value={form.firmwareVersion}
+            onChange={handleChange}
+            placeholder="Ej. 1.0.0"
+            hint="Se actualiza sola cuando el collar informa su firmware."
+          />
+        </fieldset>
 
         {/* Actions */}
         <FormActions
