@@ -4,7 +4,7 @@ import { logger } from '@/shared/lib/logger';
 import {
   getPushKey, isSubscriptionActive, saveSubscription, deleteSubscription, sendTestNotification,
 } from '../api/pushApi';
-import { serverKeyBytes } from '../lib/serverKey';
+import { serverKeyBytes, madeWithKey } from '../lib/serverKey';
 
 const supported = () => 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
 
@@ -80,17 +80,17 @@ export default function usePushNotifications() {
       return;
     }
 
-    const options = { userVisibleOnly: true, applicationServerKey: serverKeyBytes(await getPushKey()) };
+    const key = serverKeyBytes(await getPushKey());
     const { registration, subscription: existing } = await subscriptionOfDevice();
 
-    // A subscription made with another key (the server changed its keys) can't be reused
+    // A subscription made with another key (the server changed its keys) can't be reused: the push
+    // service would refuse what the server sends to it
     let subscription = existing;
-    try {
-      subscription ??= await registration.pushManager.subscribe(options);
-    } catch {
-      await existing?.unsubscribe();
-      subscription = await registration.pushManager.subscribe(options);
+    if (subscription && !madeWithKey(subscription, key)) {
+      await subscription.unsubscribe();
+      subscription = null;
     }
+    subscription ??= await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: key });
 
     await saveSubscription(subscription.toJSON());
     setStatus('on');
