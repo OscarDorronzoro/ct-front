@@ -6,6 +6,9 @@ tlscert/
 
 *.zip
 
+# Unit tests (logic + ui)
+coverage/
+
 # Playwright
 e2e-results/
 e2e-report/
