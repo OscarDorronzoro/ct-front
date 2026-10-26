@@ -72,4 +72,17 @@ export default defineConfig([
       globals: globals.node,
     },
   },
+  {
+    // E2E tests: Node and Playwright, not React. Its fixtures call use() and take ({}, use) when
+    // they need no other fixture.
+    files: ['e2e/**/*.ts', 'playwright.config.ts'],
+    languageOptions: {
+      globals: globals.node,
+    },
+    rules: {
+      'react-hooks/rules-of-hooks': 'off',
+      'react-refresh/only-export-components': 'off',
+      'no-empty-pattern': 'off',
+    },
+  },
 ])

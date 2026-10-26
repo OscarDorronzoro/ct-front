@@ -1,0 +1,13 @@
+{
+  // The e2e tests run in Node (Playwright), apart from the app: `npm run typecheck`
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "types": ["node"]
+  },
+  "include": [".", "../playwright.config.ts"]
+}

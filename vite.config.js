@@ -18,7 +18,8 @@ export default defineConfig(({ mode, command }) => {
       host: true, // same as "--host" flag
       proxy: {
         '/api': {
-          target: 'http://localhost:3000',
+          // The e2e tests point it to their own backend
+          target: process.env.API_PROXY_TARGET || 'http://localhost:3000',
           changeOrigin: true,
           secure: false,
         },
