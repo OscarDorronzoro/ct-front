@@ -1,4 +1,8 @@
-// "Ahora", "Hace 5 min", "Hace 3 h", "Hace 9 días", "Hace 2 meses", "Hace 1 año"
+import { formatNumber } from '@/shared/lib/format';
+
+// "Ahora", "Hace 5 min", "Hace 1,9 h", "Hace 9 días", "Hace 2 meses", "Hace 1 año".
+// Hours with a decimal: "1 h" for 1 h 59 min would say a lot less than what passed. Always rounded
+// down, like the other units: it never shows more time than what passed.
 export function toTimeElapsed(date) {
   const minutes = (Date.now() - new Date(date).getTime()) / (1000 * 60);
 
@@ -15,6 +19,13 @@ export function toTimeElapsed(date) {
   }
 
   const [, size, singular, plural] = steps.find(([limit]) => minutes < limit);
+
+  if (size === 60) {
+    // Tenths of an hour: 6 minutes each
+    const hours = Math.floor(minutes / 6) / 10;
+    return { unit: 'h', value: hours, text: `Hace ${formatNumber(hours, { digits: 1, fixed: true })} h` };
+  }
+
   const value = Math.floor(minutes / size);
   const unit = value === 1 ? singular : plural;
 
