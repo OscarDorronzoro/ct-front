@@ -1,4 +1,6 @@
-import { useEffect, useState } from 'react';
+import {
+  useCallback, useEffect, useRef, useState,
+} from 'react';
 import { logger } from '@/shared/lib/logger';
 
 // Loads data now and, with intervalMs, again every intervalMs while the page is visible.
@@ -7,11 +9,13 @@ import { logger } from '@/shared/lib/logger';
 //   `stale` is true until that load arrives, so the page can show the data is old.
 // load(): Promise<data>. It must keep its identity between renders (a module function, or
 // useCallback with what it depends on): a new load starts over and drops the results of the
-// previous one. The last data stays while a new load runs.
+// previous one. The last data stays while a new load runs. reload(): loads at once (after a change
+// made on the page).
 export default function usePolling(load, { intervalMs = null } = {}) {
   const [data, setData] = useState(undefined);
   const [error, setError] = useState(null);
   const [stale, setStale] = useState(false);
+  const runRef = useRef(null);
 
   useEffect(() => {
     let current = true;
@@ -68,6 +72,7 @@ export default function usePolling(load, { intervalMs = null } = {}) {
       }
     };
 
+    runRef.current = run;
     run();
     if (!document.hidden) {
       start();
@@ -84,5 +89,9 @@ export default function usePolling(load, { intervalMs = null } = {}) {
     };
   }, [load, intervalMs]);
 
-  return { data, error, stale };
+  const reload = useCallback(() => runRef.current?.(), []);
+
+  return {
+    data, error, stale, reload,
+  };
 }

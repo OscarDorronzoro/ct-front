@@ -15,7 +15,7 @@ export const ERROR_MESSAGES: Record<string, string> = {
   SEX_REQUIRED_FOR_CATEGORY: 'Indique el sexo para poder asignar una categoría.',
   GROUP_NOT_FOUND: 'El grupo no existe o fue eliminado.',
   INVALID_IMAGE: 'La imagen no es válida. Pruebe con una foto JPG, PNG o WebP.',
-  LIMIT_FILE_SIZE: 'La imagen es demasiado grande.',
+  LIMIT_FILE_SIZE: 'El archivo es demasiado grande.',
 
   // Health
   EVENT_NOT_FOUND: 'El evento no existe.',

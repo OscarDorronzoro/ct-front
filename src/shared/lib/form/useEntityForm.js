@@ -7,7 +7,7 @@ import { logger } from '@/shared/lib/logger';
 //   form values; `entity` keeps what was loaded (to compare with the original values).
 // - empty: the values of a new form, or a function that returns them (computed when it opens).
 // - validate(form): message of what's missing, or null. save(form): creates or updates.
-// - onSaved(): after saving (navigate back).
+// - onSaved(result): after saving (navigate back), with what save returned.
 // - messages: { load, save } shown when loading or saving fails for an unknown reason (a known
 //   API error shows its own message).
 // load and toForm must keep their identity (module functions): a new one loads again.
@@ -73,8 +73,7 @@ export default function useEntityForm({
     setSaving(true);
 
     try {
-      await save(form);
-      onSaved();
+      onSaved(await save(form));
     } catch (err) {
       logger.error('Error saving the form', err);
       setError(errorMessage(err, messages.save));

@@ -44,14 +44,14 @@ describe('useEntityForm', () => {
     await waitFor(() => expect(result.current.error).toBe('No se pudo cargar el grupo.'));
   });
 
-  it('saves the changed values and then calls onSaved', async () => {
-    const { result, save, onSaved } = setup();
+  it('saves the changed values and then calls onSaved with what was saved', async () => {
+    const { result, save, onSaved } = setup({ save: vi.fn(async () => ({ id: 31 })) });
 
     act(() => result.current.handleChange({ target: { name: 'name', value: 'Rodeo 1' } }));
     await act(() => result.current.handleSubmit(submitEvent));
 
     expect(save).toHaveBeenCalledWith({ name: 'Rodeo 1' });
-    expect(onSaved).toHaveBeenCalled();
+    expect(onSaved).toHaveBeenCalledWith({ id: 31 });
   });
 
   it('does not save an invalid form', async () => {

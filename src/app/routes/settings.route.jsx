@@ -12,6 +12,11 @@ import { CowDetailPage } from '@/pages/settings/cows/detail';
 import { HealthEventFormPage } from '@/pages/settings/cows/new-event';
 import { ProductsPage } from '@/pages/settings/products/list';
 import { ProductFormPage } from '@/pages/settings/products/form';
+import { CommandsPage } from '@/pages/settings/commands/list';
+import { CommandFormPage } from '@/pages/settings/commands/form';
+import { CommandDetailPage } from '@/pages/settings/commands/detail';
+import { FirmwaresPage } from '@/pages/settings/firmwares/list';
+import { FirmwareFormPage } from '@/pages/settings/firmwares/form';
 import RequirePermission from './RequirePermission';
 
 const loadZoneFormPage = async () => ({
@@ -78,6 +83,21 @@ export const settingsRoute = {
       children: [
         { path: 'collars/new', element: <CollarFormPage /> },
         { path: 'collars/:collarId', element: <CollarFormPage /> },
+      ],
+    },
+    {
+      element: <RequirePermission anyOf={['commands:send']} />,
+      children: [
+        { path: 'commands', element: <CommandsPage /> },
+        { path: 'commands/new', element: <CommandFormPage /> },
+        { path: 'commands/:commandId', element: <CommandDetailPage /> },
+      ],
+    },
+    {
+      element: <RequirePermission anyOf={['firmware:manage']} />,
+      children: [
+        { path: 'firmwares', element: <FirmwaresPage /> },
+        { path: 'firmwares/new', element: <FirmwareFormPage /> },
       ],
     },
     {

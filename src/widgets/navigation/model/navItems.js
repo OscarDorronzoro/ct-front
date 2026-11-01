@@ -1,5 +1,5 @@
 import {
-  Radio, History, SatelliteDish, Users, LandPlot, UserRound, FlaskConical, ChartColumn,
+  Radio, History, SatelliteDish, Users, LandPlot, UserRound, FlaskConical, ChartColumn, Send, Cpu,
 } from 'lucide-react';
 import { CowIcon } from '@/shared/ui/icons';
 import { can } from '@/entities/viewer';
@@ -13,6 +13,8 @@ export const MAP_ITEMS = [
 export const SETTINGS_ITEMS = [
   { to: '/settings/cows', label: 'Vacas', icon: CowIcon },
   { to: '/settings/collars', label: 'Collares', icon: SatelliteDish },
+  { to: '/settings/commands', label: 'Comandos', icon: Send, permission: 'commands:send' },
+  { to: '/settings/firmwares', label: 'Firmware', icon: Cpu, permission: 'firmware:manage' },
   { to: '/settings/groups', label: 'Grupos', icon: Users },
   { to: '/settings/zones', label: 'Zonas', icon: LandPlot },
   { to: '/settings/products', label: 'Productos', icon: FlaskConical, permission: 'health:read' },

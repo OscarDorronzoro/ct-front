@@ -11,6 +11,9 @@ export const square = (lat: number, lon: number, half: number): Points => [
   [lat + half, lon - half],
 ];
 
+// What the backend checks of a firmware: the first byte of an ESP image
+export const FIRMWARE_IMAGE = Buffer.from([0xe9, 1, 2, 3]);
+
 // What a test prepares through the API, logged in as admin (faster and steadier than through the
 // screens it isn't testing)
 export class Api {
@@ -50,9 +53,30 @@ export class Api {
     return (await this.request.get('/api/categories')).json();
   }
 
+  async uploadFirmware(code: number, version: string) {
+    const res = await this.request.post('/api/firmwares', {
+      multipart: {
+        code: String(code),
+        version,
+        file: { name: 'collar.bin', mimeType: 'application/octet-stream', buffer: FIRMWARE_IMAGE },
+      },
+    });
+    expect(res.ok(), await res.text()).toBe(true);
+  }
+
+  // The gateway reports the result of the commands it was handed
+  async reportResults(apiKey: string, results: { id: number; result: string }[]) {
+    const res = await this.request.post('/api/rf/commands/results', {
+      data: { results },
+      headers: { 'X-API-Key': apiKey },
+    });
+    expect(res.ok(), await res.text()).toBe(true);
+  }
+
   // A message of a collar, as the gateway sends it
   async sendMessage(apiKey: string, message: object) {
     const res = await this.request.post('/api/rf', { data: message, headers: { 'X-API-Key': apiKey } });
     expect(res.status()).toBe(202);
+    return res.json();
   }
 }

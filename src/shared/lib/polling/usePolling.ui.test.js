@@ -107,6 +107,15 @@ describe('usePolling', () => {
     expect(result.current.data).toBe('b');
   });
 
+  it('loads at once on reload', async () => {
+    const { result } = renderHook(() => usePolling(load));
+    await flush();
+
+    await act(() => result.current.reload());
+
+    expect(result.current.data).toBe(2);
+  });
+
   it('keeps the last data and reports the error when a load fails', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
     let fail = false;

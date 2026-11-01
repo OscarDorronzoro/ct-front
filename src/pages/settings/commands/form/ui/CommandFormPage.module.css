@@ -1,0 +1,5 @@
+/* A long list of collars scrolls inside the form */
+.collars fieldset > div {
+  max-height: 280px;
+  overflow-y: auto;
+}

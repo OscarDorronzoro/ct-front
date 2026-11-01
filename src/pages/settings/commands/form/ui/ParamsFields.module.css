@@ -1,0 +1,14 @@
+.group {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.title {
+  padding: 0;
+  margin-bottom: var(--space-3);
+  font-size: var(--text-md);
+  font-weight: 600;
+  color: var(--color-text-strong);
+}

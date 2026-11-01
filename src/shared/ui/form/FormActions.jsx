@@ -4,6 +4,8 @@ import styles from './Form.module.css';
 export default function FormActions({
   onCancel,
   saving = false,
+  submitLabel = 'Guardar',
+  savingLabel = 'Guardando...',
 }) {
   return (
     <div className={styles.actions}>
@@ -12,7 +14,7 @@ export default function FormActions({
       </Button>
 
       <Button type="submit" loading={saving}>
-        {saving ? 'Guardando...' : 'Guardar'}
+        {saving ? savingLabel : submitLabel}
       </Button>
     </div>
   );

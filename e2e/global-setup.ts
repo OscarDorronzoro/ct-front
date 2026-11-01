@@ -121,6 +121,8 @@ function stop(child: ChildProcess | undefined) {
 
 export default async function globalSetup() {
   const workDir = fs.mkdtempSync(path.join(os.tmpdir(), 'cattle-e2e-'));
+  // In production setup_directories.sh creates it
+  fs.mkdirSync(path.join(workDir, 'firmware'));
   let dbPort = '';
   let backend: ChildProcess | undefined;
   let preview: ChildProcess | undefined;

@@ -12,4 +12,14 @@ describe('visibleItems', () => {
     expect(labels(viewer)).not.toContain('Usuarios');
     expect(labels(viewer)).toContain('Vacas');
   });
+
+  it('shows Comandos and Firmware only to who can use them', () => {
+    const manager = { permissions: ['commands:send'] };
+    const technician = { permissions: ['commands:send', 'firmware:manage'] };
+
+    expect(labels(viewer)).not.toContain('Comandos');
+    expect(labels(manager)).toContain('Comandos');
+    expect(labels(manager)).not.toContain('Firmware');
+    expect(labels(technician)).toContain('Firmware');
+  });
 });
